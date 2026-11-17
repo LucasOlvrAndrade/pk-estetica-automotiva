@@ -1,5 +1,5 @@
 /**
- * vite.config.js — configuração do Vite
+ * vite.config.js: configuração do Vite
  *
  *  npm run dev      → servidor de desenvolvimento (http://localhost:5173).
  *  npm run build    → dist/: versão do site publicado.

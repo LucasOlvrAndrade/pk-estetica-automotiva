@@ -1,9 +1,9 @@
 /**
- * acompanhamento.js — Acompanhamento
+ * acompanhamento.js: Acompanhamento
  *
  * Duas visões do mesmo serviço, cada uma na sua página:
  *  - ATENDIMENTO (#/atendimento, equipe): lista os agendamentos com botões que
- *    avançam o status — check-in → etapas do serviço (do catálogo) → pronto → entregue.
+ *    avançam o status: check-in → etapas do serviço (do catálogo) → pronto → entregue.
  *  - ACOMPANHAMENTO (#/acompanhamento, cliente): linha do tempo, % de progresso,
  *    fotos das etapas, previsão de entrega e o relatório do check-in.
  *
@@ -27,12 +27,26 @@ export const Acompanhamento = (function () {
   const S = AppStorage.STATUS;
   const NOMES_STATUS = {
     agendado: 'Agendado',
-    recebido: 'Recebido',
-    'em-execucao': 'Em execução',
-    pronto: 'Pronto',
+    recebido: 'Check-in feito',
+    'em-execucao': 'Em lavagem',
+    pronto: 'Pronto para retirada',
     entregue: 'Entregue',
     cancelado: 'Cancelado',
   };
+
+  /** As 3 etapas que o cliente vê. A última muda com o leva e traz. */
+  const ETAPA_CHECKIN = 'Check-in';
+  const ETAPA_LAVAGEM = 'Em lavagem';
+
+  /**
+   * Nome do status para mostrar na tela (com leva e traz, "pronto" vira "A caminho").
+   * @param {Object} agendamento
+   * @returns {string}
+   */
+  function nomeStatus(agendamento) {
+    if (agendamento.status === S.PRONTO && agendamento.levaTraz) return 'A caminho';
+    return NOMES_STATUS[agendamento.status] || agendamento.status;
+  }
 
   /** Último status visto de cada agendamento (para perceber quando mudou). */
   const statusVisto = {};
@@ -42,13 +56,13 @@ export const Acompanhamento = (function () {
    * ===================================================================== */
 
   /**
-   * Todas as etapas do serviço, na ordem: Agendado, Check-in, etapas do catálogo, Pronto, Entregue.
+   * As etapas que o cliente acompanha. São só 3, iguais para todos os serviços:
+   * Check-in → Em lavagem → Pronto para retirada (ou "A caminho", com leva e traz).
    * @param {Object} agendamento
    * @returns {string[]}
    */
   function etapasDe(agendamento) {
-    const servico = Servicos.obter(agendamento.servicoId);
-    return ['Agendado', 'Check-in realizado'].concat(servico ? servico.etapas : [], ['Pronto para retirada', 'Entregue']);
+    return [ETAPA_CHECKIN, ETAPA_LAVAGEM, agendamento.levaTraz ? 'A caminho' : 'Pronto para retirada'];
   }
 
   /**
@@ -60,30 +74,34 @@ export const Acompanhamento = (function () {
     const etapas = etapasDe(agendamento);
     const inicios = {};
     (agendamento.historicoStatus || []).forEach(function (h) {
-      if (h.status === S.AGENDADO) inicios['Agendado'] = h.em;
-      if (h.status === S.RECEBIDO) inicios['Check-in realizado'] = h.em;
-      if (h.status === S.EM_EXECUCAO && h.etapa) inicios[h.etapa] = h.em;
-      if (h.status === S.PRONTO) inicios['Pronto para retirada'] = h.em;
-      if (h.status === S.ENTREGUE) inicios['Entregue'] = h.em;
+      if (h.status === S.RECEBIDO) inicios[etapas[0]] = h.em;
+      if (h.status === S.EM_EXECUCAO && !inicios[etapas[1]]) inicios[etapas[1]] = h.em; // 1ª vez que entrou em lavagem
+      if (h.status === S.PRONTO) inicios[etapas[2]] = h.em;
     });
+    // atual = etapa em andamento (destacada); percentual = quanto do serviço já foi feito
     let atual;
+    let percentual;
     switch (agendamento.status) {
       case S.AGENDADO:
-        atual = 1; // próximo passo: check-in
+        atual = 0; // esperando o check-in
+        percentual = 0;
         break;
       case S.RECEBIDO:
-        atual = 2; // próximo passo: 1ª etapa do serviço
+        atual = 1; // check-in feito, a lavagem é a próxima
+        percentual = 33;
         break;
       case S.EM_EXECUCAO:
-        atual = Math.max(2, etapas.indexOf(agendamento.etapaAtual));
+        atual = 1; // lavando
+        percentual = 66;
         break;
       case S.PRONTO:
-        atual = etapas.length - 1; // falta só a entrega
+        atual = 2; // pronto para retirada (ou a caminho)
+        percentual = 100;
         break;
       default:
         atual = etapas.length; // entregue (ou cancelado): tudo concluído
+        percentual = 100;
     }
-    const percentual = Math.round((Math.min(atual, etapas.length) / etapas.length) * 100);
     return { etapas: etapas, atual: atual, inicios: inicios, percentual: percentual };
   }
 
@@ -93,13 +111,9 @@ export const Acompanhamento = (function () {
    * @returns {{status: string, etapa?: string, rotulo: string}|null}
    */
   function proximoPasso(agendamento) {
-    const servico = Servicos.obter(agendamento.servicoId);
-    const etapas = servico ? servico.etapas : [];
-    if (agendamento.status === S.RECEBIDO) return { status: S.EM_EXECUCAO, etapa: etapas[0], rotulo: 'Iniciar: ' + etapas[0] };
+    if (agendamento.status === S.RECEBIDO) return { status: S.EM_EXECUCAO, etapa: ETAPA_LAVAGEM, rotulo: 'Iniciar lavagem' };
     if (agendamento.status === S.EM_EXECUCAO) {
-      const i = etapas.indexOf(agendamento.etapaAtual);
-      if (i >= 0 && i < etapas.length - 1) return { status: S.EM_EXECUCAO, etapa: etapas[i + 1], rotulo: 'Avançar etapa: ' + etapas[i + 1] };
-      return { status: S.PRONTO, rotulo: 'Avançar etapa: Pronto' };
+      return { status: S.PRONTO, rotulo: agendamento.levaTraz ? 'Saiu para entrega' : 'Pronto para retirada' };
     }
     if (agendamento.status === S.PRONTO) return { status: S.ENTREGUE, rotulo: 'Marcar como entregue' };
     return null;
@@ -132,9 +146,9 @@ export const Acompanhamento = (function () {
       .sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario));
   }
 
-  function badge(status) {
-    const b = UI.criar('span', 'badge', NOMES_STATUS[status] || status);
-    b.dataset.status = status;
+  function badge(agendamento) {
+    const b = UI.criar('span', 'badge', nomeStatus(agendamento));
+    b.dataset.status = agendamento.status;
     return b;
   }
 
@@ -156,8 +170,7 @@ export const Acompanhamento = (function () {
           ' · ' + UI.data(agendamento.data) + (agendamento.levaTraz ? ' · leva e traz' : '')
       )
     );
-    if (agendamento.status === S.EM_EXECUCAO) textos.append(UI.criar('p', 'dica', 'Etapa atual: ' + agendamento.etapaAtual));
-    topo.append(textos, badge(agendamento.status));
+    topo.append(textos, badge(agendamento));
     card.append(topo);
 
     const acoes = UI.criar('div', 'servico-acoes');
@@ -169,7 +182,7 @@ export const Acompanhamento = (function () {
     if (passo) acoes.append(UI.botao(passo.rotulo, 'btn btn-primario', { acao: 'avancar' }));
     if (agendamento.status === S.EM_EXECUCAO) {
       // Foto da etapa: o <label> funciona como botão e abre a câmera no celular
-      const rotulo = UI.criar('label', 'btn btn-secundario', 'Anexar foto da etapa');
+      const rotulo = UI.criar('label', 'btn btn-secundario', 'Anexar foto da lavagem');
       const arquivo = UI.criar('input', 'visualmente-oculto');
       arquivo.type = 'file';
       arquivo.accept = 'image/*';
@@ -238,8 +251,9 @@ export const Acompanhamento = (function () {
     if (!agendamento || !arquivo) return;
     try {
       const reduzida = await UI.comprimirImagem(arquivo);
-      AppStorage.anexarFotoEtapa(id, agendamento.etapaAtual, reduzida.dataUrl);
-      UI.toast('Foto da etapa "' + agendamento.etapaAtual + '" anexada (' + UI.bytes(reduzida.bytes) + ').', { tipo: 'sucesso' });
+      // Cada foto ganha uma chave própria (com a hora): dá para anexar várias durante a lavagem
+      AppStorage.anexarFotoEtapa(id, ETAPA_LAVAGEM + ' ' + new Date().toISOString(), reduzida.dataUrl);
+      UI.toast('Foto da lavagem anexada (' + UI.bytes(reduzida.bytes) + ').', { tipo: 'sucesso' });
       UI.avisarMudanca('agendamentos');
     } catch (erro) {
       UI.toast(
@@ -278,7 +292,7 @@ export const Acompanhamento = (function () {
     select.replaceChildren();
     opcoes.forEach(function (a) {
       const servico = Servicos.obter(a.servicoId);
-      select.append(new Option((servico ? servico.nome : '') + ' · ' + UI.data(a.data) + ' · ' + NOMES_STATUS[a.status], a.id));
+      select.append(new Option((servico ? servico.nome : '') + ' · ' + UI.data(a.data) + ' · ' + nomeStatus(a), a.id));
     });
     if (opcoes.some((a) => a.id === escolhido)) select.value = escolhido;
     const agendamento = opcoes.find((a) => a.id === select.value) || opcoes[0];
@@ -288,9 +302,9 @@ export const Acompanhamento = (function () {
     const progresso = progressoDe(agendamento);
     $('andamento-titulo').textContent = servico ? servico.nome : 'Serviço';
     $('andamento-resumo').textContent =
-      (veiculo ? veiculo.marca + ' ' + veiculo.modelo + ' · ' : '') + 'protocolo ' + (agendamento.protocolo || '—');
+      (veiculo ? veiculo.marca + ' ' + veiculo.modelo + ' · ' : '') + 'protocolo ' + (agendamento.protocolo || 'sem número');
     const b = $('andamento-badge');
-    b.textContent = NOMES_STATUS[agendamento.status];
+    b.textContent = nomeStatus(agendamento);
     b.dataset.status = agendamento.status;
     $('andamento-progresso').value = progresso.percentual;
     $('andamento-progresso').textContent = progresso.percentual + '%';
@@ -311,20 +325,25 @@ export const Acompanhamento = (function () {
         quando.dateTime = progresso.inicios[nome];
         item.append(quando);
       }
-      const foto = agendamento.fotosEtapas && agendamento.fotosEtapas[nome];
-      if (foto) {
+      // Fotos: todas as anexadas durante o serviço aparecem em "Em lavagem"
+      // (inclusive as de agendamentos antigos, que tinham outros nomes de etapa)
+      const fotos = i === 1 ? Object.values(agendamento.fotosEtapas || {}) : [];
+      const galeria = fotos.map(function (dataUrl, n) {
+        return { dataUrl: dataUrl, legenda: 'lavagem, foto ' + (n + 1) };
+      });
+      fotos.forEach(function (dataUrl, n) {
         const ver = UI.criar('button', 'etapa-foto');
         ver.type = 'button';
-        ver.setAttribute('aria-label', 'Ver foto da etapa ' + nome);
+        ver.setAttribute('aria-label', 'Ver foto ' + (n + 1) + ' da lavagem');
         const img = UI.criar('img');
-        img.src = foto;
+        img.src = dataUrl;
         img.alt = '';
         ver.append(img);
         ver.addEventListener('click', function () {
-          Checkin.abrirFoto([{ dataUrl: foto, legenda: 'etapa ' + nome }], 0);
+          Checkin.abrirFoto(galeria, n);
         });
         item.append(ver);
-      }
+      });
       linha.append(item);
     });
 
@@ -350,9 +369,12 @@ export const Acompanhamento = (function () {
       if (antes === undefined || antes === a.status) return;
       if (naPaginaAtendimento()) return; // quem avisa o atendente é o próprio clique dele
       const servico = Servicos.obter(a.servicoId);
-      if (a.status === S.PRONTO) {
+      if (a.status === S.PRONTO && a.levaTraz) {
+        UI.toast('Seu veículo está a caminho!', { tipo: 'sucesso' });
+        UI.notificar('Seu veículo está a caminho!', (servico ? servico.nome : 'Serviço') + ' concluído na PK Estética.');
+      } else if (a.status === S.PRONTO) {
         UI.toast('Seu veículo está pronto! Já pode retirar.', { tipo: 'sucesso' });
-        UI.notificar('Seu veículo está pronto!', (servico ? servico.nome : 'Serviço') + ' concluído na PK Estética.');
+        UI.notificar('Seu veículo está pronto para retirada!', (servico ? servico.nome : 'Serviço') + ' concluído na PK Estética.');
       }
       if (a.status === S.ENTREGUE && !AppStorage.listarAvaliacoes().some((av) => av.agendamentoId === a.id)) {
         Historico.abrirNps(a.id);

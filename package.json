@@ -2,7 +2,7 @@
   "name": "pk-estetica-automotiva",
   "version": "2.0.0",
   "private": true,
-  "description": "PK Estética Automotiva — trabalho final de Desenvolvimento de Interfaces",
+  "description": "PK Estética Automotiva: trabalho final de Desenvolvimento de Interfaces",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -1,5 +1,5 @@
 /**
- * movimento.js — camada de movimento da identidade "Black Chrome"
+ * movimento.js: camada de movimento da identidade "Black Chrome"
  *
  * Tudo aqui é ACABAMENTO: se este arquivo falhar, o site continua funcionando igual.
  *  1. Contadores: os números do hero contam de 0 até o valor quando aparecem.

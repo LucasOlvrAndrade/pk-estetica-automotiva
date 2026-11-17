@@ -20,13 +20,13 @@
 | Vitrine de serviços | Cards com preço pelo porte, filtros por categoria, busca com debounce e comparativo Cera × Selante × Vitrificação × PPF | Transparência de preço |
 | Diagnóstico | 5 perguntas → filtros (preço, tempo, correção antes de proteção) → pontuação → 3 opções; orçamento +20% se faltar opção | Escolher o serviço certo sem conhecer os termos técnicos |
 | Meus Veículos | Marca → Modelo → Ano pela FIPE; se a API falhar, campos de texto; placa ABC-1234 ou ABC1D23 | Cadastro rápido e sem erro |
-| Agendamento | Seg–sex 8h–18h, sáb 8h–13h; slots de 1 h; serviços > 8 h ocupam dias inteiros; resumo com preço, previsão e leva e traz (ViaCEP, R$ 30,00); protocolo e `.ics` | Conveniência e preço fechado antes de confirmar |
+| Agendamento | Seg a sex 8h a 18h, sáb 8h a 13h; slots de 1 h; serviços > 8 h ocupam dias inteiros; resumo com preço, previsão e leva e traz (ViaCEP, R$ 30,00); dia escolhido numa faixa por semana (com horários livres por dia); protocolo | Conveniência e preço fechado antes de confirmar |
 | Check-in | Até 6 fotos comprimidas (1024 px, JPEG 0,6), mapa de avarias clicável/teclado, km, combustível, itens; status vira "recebido" | Confiança: estado do carro registrado na entrada |
 | Acompanhamento | Linha do tempo com as etapas do serviço, horários, fotos, % e previsão; atualiza sozinho (inclusive entre abas); notificação no "pronto" | Acompanhamento 100% digital |
 | Atendimento (página) | Visão da equipe: check-in, avançar etapa, foto por etapa, entrega | Simula o lado da estética sem backend |
 | Painel (página) | Métricas e dados de demonstração | Indicadores do Product Vision Canvas |
 | Menu lateral + páginas | Rotas por hash, recolher com dica, gaveta no celular, Voltar/F5 | Navegação e consistência |
-| NPS | Pesquisa 0–10 após a entrega | Medir satisfação (meta NPS > 85) |
+| NPS | Pesquisa 0 a 10 após a entrega | Medir satisfação (meta NPS > 85) |
 | Fidelidade | 5 lavagens = Polimento de Refino grátis; resgate leva ao agendamento com R$ 0,00 | Recorrência (meta 40%) |
 | Painel de métricas | NPS, recorrência, ticket médio por mês, mais vendidos, participação de PPF/Vitrificação; dados de demonstração | Gestão da estética |
 | Como funciona | 5 passos, perguntas frequentes e glossário | Ajuda e linguagem do cliente |

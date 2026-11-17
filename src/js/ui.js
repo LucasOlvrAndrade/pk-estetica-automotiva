@@ -1,5 +1,5 @@
 /**
- * ui.js — UI
+ * ui.js: UI
  *
  * Utilitários de interface usados por TODOS os módulos de tela:
  * criar elementos com segurança, toasts, diálogos, formatação de data,

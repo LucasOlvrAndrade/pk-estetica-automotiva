@@ -1,5 +1,5 @@
 /**
- * app.js — App
+ * app.js: App
  *
  * "Maestro" da interface: liga os botões e formulários do index.html
  * às funções dos outros arquivos (AppStorage, Servicos, Api, Agenda, Checkin).
@@ -7,7 +7,7 @@
  *
  * REGRA DE SEGURANÇA: nenhum dado variável entra na página por innerHTML.
  * Usamos createElement + textContent (ou <template>), que tratam o texto
- * como texto puro — assim um nome com "<script>" nunca vira código.
+ * como texto puro: assim um nome com "<script>" nunca vira código.
  *
  * Blocos:
  *  1. Configuração e estado
@@ -317,7 +317,7 @@ export const App = (function () {
    * ===================================================================== */
 
   /**
-   * Converte um nível 0–100 em palavra (a cor/barra nunca é a única informação).
+   * Converte um nível 0 a 100 em palavra (a cor/barra nunca é a única informação).
    * @param {number} valor
    * @returns {string}
    */
@@ -344,7 +344,7 @@ export const App = (function () {
 
   /**
    * Conteúdo de célula de nível: palavra + mini barra.
-   * @param {number} valor 0–100.
+   * @param {number} valor 0 a 100.
    * @returns {HTMLElement}
    */
   function conteudoNivel(valor) {
@@ -1457,7 +1457,7 @@ export const App = (function () {
     iniciarTitulos();
     Movimento.iniciar(); // contadores, antes × depois, cursor, ímã e rolagem suave
 
-    // "Rever a abertura" (rodapé): volta ao topo e roda de novo — útil na apresentação
+    // "Rever a abertura" (rodapé): volta ao topo e roda de novo: útil na apresentação
     const rever = $('btn-rever-abertura');
     if (rever) {
       rever.addEventListener('click', function () {

@@ -1,5 +1,5 @@
 /* =========================================================================
-   PK Estética Automotiva — style.css
+   PK Estética Automotiva: style.css
 
    Identidade "BLACK CHROME" (direção B, "Neon Garage"): pretos em camadas,
    CROMO nos títulos, frisos e no logo, e UM acento só, o VERDE NEON
@@ -1724,7 +1724,7 @@ html.abertura-ativa {
 
 /* ---------- 5.9 Chips do diagnóstico ----------
    O <input type="radio"> continua no HTML e acessível ao teclado/leitor de tela.
-   Ele só fica invisível (opacity: 0) — NUNCA display:none, que o tiraria do Tab. */
+   Ele só fica invisível (opacity: 0): NUNCA display:none, que o tiraria do Tab. */
 .grupo-chips {
   display: flex;
   flex-wrap: wrap;
@@ -1826,6 +1826,138 @@ html.abertura-ativa {
 }
 
 .grade-horarios label:has(input:disabled):hover {
+  border-color: var(--cor-borda-forte);
+}
+
+/* ---------- 5.10b Escolha do dia por semana ----------
+   Setas trocam a semana; 7 botões (seg → dom) com nome, número e horários livres. */
+.semana {
+  display: grid;
+  gap: var(--esp-3);
+}
+
+.semana-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+}
+
+.semana-rotulo {
+  margin: 0;
+  font-family: var(--fonte-display);
+  font-size: var(--texto-g);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.semana-topo .btn-icone:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.semana-dias {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--esp-2);
+}
+
+.semana-dia {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 76px;
+  padding: var(--esp-2) 2px;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie-alta);
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color var(--transicao-rapida),
+    background-color var(--transicao-rapida),
+    color var(--transicao-rapida),
+    transform var(--transicao-rapida);
+}
+
+/* O rádio cobre o botão inteiro, invisível (mesmo truque da grade de horários) */
+.semana-dia input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.semana-dia-nome {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.semana-dia-numero {
+  font-family: var(--fonte-display);
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.semana-dia-situacao {
+  color: var(--cor-texto-suave);
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+/* Hoje: um traço neon embaixo do número */
+.semana-dia--hoje .semana-dia-numero {
+  box-shadow: inset 0 -2px 0 var(--cor-neon);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .semana-dia:hover {
+    border-color: var(--cor-acento);
+  }
+}
+
+.semana-dia:active {
+  transform: scale(0.97);
+}
+
+/* Dia escolhido: cromo (o mesmo destaque dos horários) */
+.semana-dia:has(input:checked) {
+  background: var(--cor-acento);
+  border-color: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+}
+
+.semana-dia:has(input:checked) .semana-dia-nome,
+.semana-dia:has(input:checked) .semana-dia-situacao {
+  color: var(--cor-sobre-acento);
+}
+
+.semana-dia:has(input:focus-visible) {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 3px;
+}
+
+/* Passou, fechado (domingo) ou lotado */
+.semana-dia:has(input:disabled) {
+  border-style: dashed;
+  background: transparent;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.semana-dia:has(input:disabled):hover {
   border-color: var(--cor-borda-forte);
 }
 
@@ -5062,5 +5194,17 @@ main > .secao {
     font-size: 0.66rem;
     letter-spacing: 0.04em;
     overflow-wrap: anywhere;
+  }
+}
+
+/* Celular: 7 dias numa linha só; o texto de situação ("fechado", "9 livres") fica menor */
+@media (max-width: 599.98px) {
+  .semana-dias {
+    gap: var(--esp-1);
+  }
+
+  .semana-dia-situacao {
+    font-size: 0.6rem;
+    letter-spacing: -0.01em;
   }
 }

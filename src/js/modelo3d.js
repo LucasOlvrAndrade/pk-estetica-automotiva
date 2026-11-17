@@ -1,5 +1,5 @@
 /**
- * modelo3d.js — Modelo3D
+ * modelo3d.js: Modelo3D
  *
  * Carrega o Civic 3D e prepara os materiais. É usado por DOIS lugares:
  *  - intro3d.js   (a abertura cinematográfica);

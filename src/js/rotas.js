@@ -1,5 +1,5 @@
 /**
- * rotas.js — páginas por hash e menu lateral
+ * rotas.js: páginas por hash e menu lateral
  *
  * COMO FUNCIONA O ROTEAMENTO POR HASH
  * O "hash" é a parte do endereço depois do # (ex.: index.html#/agendar).
@@ -92,7 +92,7 @@ export const Rotas = (function () {
     const pagina = PAGINAS.find(function (p) {
       return p.id === id;
     });
-    document.title = id === PAGINA_INICIAL ? NOME_SITE : pagina.titulo + ' — ' + NOME_SITE;
+    document.title = id === PAGINA_INICIAL ? NOME_SITE : pagina.titulo + ' | ' + NOME_SITE;
 
     if (mudou) {
       window.scrollTo(0, 0); // página nova começa do topo

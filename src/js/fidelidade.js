@@ -1,7 +1,7 @@
 /**
- * fidelidade.js — Fidelidade
+ * fidelidade.js: Fidelidade
  *
- * Cartão PK Club: 5 carimbos (um por serviço entregue que "conta" — veja
+ * Cartão PK Club: 5 carimbos (um por serviço entregue que "conta", veja
  * contaFidelidade no catálogo) valem um Polimento de Refino grátis.
  * Mostra os carimbos (os novos entram com animação), quanto falta, o estado
  * "Recompensa disponível", o botão de resgate e o histórico.
@@ -83,7 +83,7 @@ export const Fidelidade = (function () {
       const item = UI.criar('li');
       const quando = UI.criar('time', null, UI.data(e.em));
       quando.dateTime = e.em;
-      item.append(quando, ' — ' + e.texto);
+      item.append(quando, ': ' + e.texto);
       lista.append(item);
     });
   }

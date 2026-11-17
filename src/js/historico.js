@@ -1,10 +1,10 @@
 /**
- * historico.js — Historico
+ * historico.js: Historico
  *
  * Seção #historico:
  *  1. Tabela de serviços (mais recente primeiro) com filtro por veículo e status,
  *     "Ver check-in", "Agendar novamente", "Avaliar" e o lembrete de manutenção.
- *  2. Pesquisa NPS num <dialog> (escala 0–10 em radiogroup acessível).
+ *  2. Pesquisa NPS num <dialog> (escala 0 a 10 em radiogroup acessível).
  *  3. Painel de métricas (página Painel), com barras em CSS puro.
  *  4. Dados de demonstração para a apresentação (gerar e limpar).
  *
@@ -28,9 +28,9 @@ export const Historico = (function () {
   const META_RECORRENCIA = 40;
   const NOMES_STATUS = {
     agendado: 'Agendado',
-    recebido: 'Recebido',
-    'em-execucao': 'Em execução',
-    pronto: 'Pronto',
+    recebido: 'Check-in feito',
+    'em-execucao': 'Em lavagem',
+    pronto: 'Pronto para retirada',
     entregue: 'Entregue',
     cancelado: 'Cancelado',
   };
@@ -57,7 +57,7 @@ export const Historico = (function () {
     const entregues = agendamentos.filter((a) => a.status === S.ENTREGUE);
     const faturamento = entregues.reduce((s, a) => s + (a.valor || 0), 0);
 
-    // NPS = % de promotores (9–10) − % de detratores (0–6)
+    // NPS = % de promotores (9 a 10) − % de detratores (0 a 6)
     const promotores = avaliacoes.filter((a) => a.nota >= 9).length;
     const detratores = avaliacoes.filter((a) => a.nota <= 6).length;
     const nps = avaliacoes.length ? Math.round(((promotores - detratores) / avaliacoes.length) * 100) : null;
@@ -283,7 +283,7 @@ export const Historico = (function () {
    * ===================================================================== */
 
   /**
-   * Barra horizontal: largura pelo --valor (0–100) e marcador da meta.
+   * Barra horizontal: largura pelo --valor (0 a 100) e marcador da meta.
    * @returns {HTMLElement}
    */
   function barra(valor, meta, rotulo) {
@@ -318,10 +318,10 @@ export const Historico = (function () {
     const topo = UI.criar('div', 'indicadores');
     const npsOk = m.nps !== null && m.nps > META_NPS;
     topo.append(
-      indicador('NPS', m.nps === null ? '—' : String(m.nps), 'meta > ' + META_NPS + ' · ' + m.avaliacoes + ' avaliações', m.nps === null ? '' : npsOk ? 'ok' : 'abaixo'),
+      indicador('NPS', m.nps === null ? 'sem dados' : String(m.nps), 'meta > ' + META_NPS + ' · ' + m.avaliacoes + ' avaliações', m.nps === null ? '' : npsOk ? 'ok' : 'abaixo'),
       indicador(
         'Recorrência',
-        m.recorrencia === null ? '—' : m.recorrencia + '%',
+        m.recorrencia === null ? 'sem dados' : m.recorrencia + '%',
         'meta ' + META_RECORRENCIA + '% · ' + m.atendidos + ' veículos atendidos',
         m.recorrencia === null ? '' : m.recorrencia >= META_RECORRENCIA ? 'ok' : 'abaixo'
       ),
@@ -330,7 +330,7 @@ export const Historico = (function () {
     );
     area.append(topo);
 
-    // Metas em barras (NPS vai de −100 a 100: convertemos para 0–100 na barra)
+    // Metas em barras (NPS vai de −100 a 100: convertemos para 0 a 100 na barra)
     const metas = UI.criar('div', 'grafico');
     metas.append(UI.criar('h4', null, 'Metas'));
     if (m.nps !== null) {
@@ -356,7 +356,7 @@ export const Historico = (function () {
       item.setAttribute('aria-label', mes.rotulo + ': ' + UI.moeda(mes.ticket) + ' em ' + mes.quantidade + ' serviços');
       const coluna = UI.criar('span', 'coluna');
       coluna.setAttribute('aria-hidden', 'true');
-      item.append(UI.criar('span', 'coluna-valor', mes.ticket ? UI.moeda(mes.ticket).replace(',00', '') : '—'), coluna, UI.criar('span', 'coluna-rotulo', mes.rotulo));
+      item.append(UI.criar('span', 'coluna-valor', mes.ticket ? UI.moeda(mes.ticket).replace(',00', '') : 'sem dados'), coluna, UI.criar('span', 'coluna-rotulo', mes.rotulo));
       lista.append(item);
     });
     colunas.append(lista);

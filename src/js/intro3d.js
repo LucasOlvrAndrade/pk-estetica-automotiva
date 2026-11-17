@@ -1,5 +1,5 @@
 /**
- * intro3d.js — Intro3D
+ * intro3d.js: Intro3D
  *
  * Cena da abertura em 3D real (Three.js) com o Civic carregado pelo modelo3d.js
  * (o mesmo carro do Início). Se o aparelho não aguenta (celular, sem WebGL, conexão

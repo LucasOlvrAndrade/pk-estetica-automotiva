@@ -1,5 +1,5 @@
 /**
- * checkin.js — Checkin
+ * checkin.js: Checkin
  *
  * Check-in do veículo (feito pelo atendente, na página Atendimento):
  * fotos comprimidas, mapa de avarias em SVG (vista de cima), km, combustível,
@@ -119,7 +119,7 @@ export const Checkin = (function () {
       const amostra = UI.criar('span', 'legenda-cor');
       amostra.dataset.tipo = avarias[id];
       amostra.setAttribute('aria-hidden', 'true');
-      item.append(amostra, nomeRegiao(id) + ' — ' + TIPOS[avarias[id]]);
+      item.append(amostra, nomeRegiao(id) + ': ' + TIPOS[avarias[id]]);
       lista.append(item);
     });
   }
@@ -133,7 +133,7 @@ export const Checkin = (function () {
   function escolherRegiao(regiaoId) {
     estado.regiaoAtual = regiaoId;
     $('avaria-escolha').hidden = false;
-    $('avaria-rotulo').textContent = 'Tipo de avaria — ' + nomeRegiao(regiaoId);
+    $('avaria-rotulo').textContent = 'Tipo de avaria: ' + nomeRegiao(regiaoId);
     $('avaria-tipo').value = estado.avarias[regiaoId] || '';
     $('avaria-tipo').focus();
   }
@@ -149,7 +149,7 @@ export const Checkin = (function () {
       const item = UI.criar('li', 'previa-item');
       const img = UI.criar('img');
       img.src = foto.dataUrl;
-      img.alt = 'Foto ' + (i + 1) + ' do check-in – ' + foto.legenda;
+      img.alt = 'Foto ' + (i + 1) + ' do check-in: ' + foto.legenda;
       const campo = UI.criar('label', 'previa-angulo');
       campo.append('Ângulo ');
       const select = UI.criar('select');
@@ -212,7 +212,7 @@ export const Checkin = (function () {
     $('checkin-resumo').textContent =
       (veiculo ? veiculo.marca + ' ' + veiculo.modelo + ' · ' + veiculo.placa + ' · ' : '') +
       (servico ? servico.nome : '') +
-      ' · protocolo ' + (agendamento.protocolo || '—');
+      ' · protocolo ' + (agendamento.protocolo || 'sem número');
     desenharPrevias();
     redesenharMapaEditavel();
     UI.abrirDialogo($('dialog-checkin'));
@@ -286,8 +286,8 @@ export const Checkin = (function () {
   function mostrarFoto() {
     const foto = lightbox.fotos[lightbox.indice];
     $('foto-ampliada').src = foto.dataUrl;
-    $('foto-ampliada').alt = 'Foto ' + (lightbox.indice + 1) + ' do check-in – ' + foto.legenda;
-    $('foto-legenda').textContent = 'Foto ' + (lightbox.indice + 1) + ' de ' + lightbox.fotos.length + ' – ' + foto.legenda;
+    $('foto-ampliada').alt = 'Foto ' + (lightbox.indice + 1) + ' do check-in: ' + foto.legenda;
+    $('foto-legenda').textContent = 'Foto ' + (lightbox.indice + 1) + ' de ' + lightbox.fotos.length + ', ' + foto.legenda;
   }
 
   /**
@@ -330,10 +330,10 @@ export const Checkin = (function () {
       const item = UI.criar('li');
       const botaoFoto = UI.criar('button', 'galeria-botao');
       botaoFoto.type = 'button';
-      botaoFoto.setAttribute('aria-label', 'Ampliar foto ' + (i + 1) + ' – ' + foto.legenda);
+      botaoFoto.setAttribute('aria-label', 'Ampliar foto ' + (i + 1) + ', ' + foto.legenda);
       const img = UI.criar('img');
       img.src = foto.dataUrl;
-      img.alt = 'Foto ' + (i + 1) + ' do check-in – ' + foto.legenda;
+      img.alt = 'Foto ' + (i + 1) + ' do check-in: ' + foto.legenda;
       img.loading = 'lazy';
       botaoFoto.append(img);
       botaoFoto.addEventListener('click', function () {
@@ -356,10 +356,10 @@ export const Checkin = (function () {
     const dados = UI.criar('dl', 'resumo-lista');
     [
       ['Registrado em', UI.dataHora(checkin.registradoEm)],
-      ['Quilometragem', checkin.km !== undefined ? checkin.km.toLocaleString('pt-BR') + ' km' : '—'],
-      ['Combustível', checkin.combustivel !== undefined ? checkin.combustivel + '%' : '—'],
+      ['Quilometragem', checkin.km !== undefined ? checkin.km.toLocaleString('pt-BR') + ' km' : 'não informada'],
+      ['Combustível', checkin.combustivel !== undefined ? checkin.combustivel + '%' : 'não informado'],
       ['Itens deixados', checkin.itens || 'nenhum'],
-      ['Observações', checkin.observacoes || '—'],
+      ['Observações', checkin.observacoes || 'nenhuma'],
     ].forEach(function (par) {
       const grupo = UI.criar('div');
       grupo.append(UI.criar('dt', null, par[0]), UI.criar('dd', null, par[1]));

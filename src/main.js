@@ -1,5 +1,5 @@
 /**
- * main.js — ponto de entrada
+ * main.js: ponto de entrada
  *
  * É o ÚNICO script que o index.html carrega. Ele importa os módulos e o Vite
  * descobre sozinho a ordem certa: cada arquivo diz de quem depende com "import".

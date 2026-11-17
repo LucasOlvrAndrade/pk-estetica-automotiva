@@ -1,5 +1,5 @@
 /**
- * vitrine3d.js — Vitrine3D
+ * vitrine3d.js: Vitrine3D
  *
  * O Civic 3D do Início (o MESMO modelo da abertura, carregado pelo modelo3d.js), num
  * "estúdio" simples: fundo transparente, reflexo do estúdio e um fio de neon embaixo.

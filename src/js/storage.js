@@ -1,5 +1,5 @@
 /**
- * storage.js — AppStorage
+ * storage.js: AppStorage
  *
  * ÚNICO ponto de acesso ao LocalStorage do app.
  * Nenhum outro arquivo deve chamar localStorage diretamente: todos usam AppStorage.
@@ -386,7 +386,7 @@ export const AppStorage = (function () {
       protocolo: dados.protocolo || null,
       previsaoEntrega: dados.previsaoEntrega || null, // data e hora ISO
       fidelidade: Boolean(dados.fidelidade), // resgate do cartão (valor R$ 0,00)
-      fotosEtapas: {}, // { "Nome da etapa": dataURL } — 1 foto por etapa
+      fotosEtapas: {}, // { "Nome da etapa": dataURL }: 1 foto por etapa
       demo: Boolean(dados.demo), // dado de demonstração (pode ser apagado em lote)
       status: STATUS.AGENDADO,
       etapaAtual: null,

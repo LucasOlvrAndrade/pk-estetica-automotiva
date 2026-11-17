@@ -1,4 +1,4 @@
-# CLAUDE.md — PK Estética Automotiva
+# CLAUDE.md: PK Estética Automotiva
 
 > Este arquivo é lido automaticamente pela IA (Claude Code) no início de cada sessão.
 > Ele guarda o contexto do produto e as regras técnicas que valem para **todas** as etapas do projeto.
@@ -10,7 +10,7 @@ Trabalho final da disciplina **Desenvolvimento de Interfaces**. O grupo está ap
 
 ## Produto
 
-- **Nome:** PK Estética Automotiva — aplicação web para uma estética automotiva.
+- **Nome:** PK Estética Automotiva: aplicação web para uma estética automotiva.
 - **Visão:** "Transformar o cuidado e a valorização automotiva em uma experiência simples, transparente e digital."
 - **Problema:** donos de veículos têm dificuldade em achar estéticas confiáveis, com preço transparente,
   padrão técnico e agendamento prático.

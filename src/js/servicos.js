@@ -1,5 +1,5 @@
 /**
- * servicos.js — Servicos
+ * servicos.js: Servicos
  *
  * Catálogo de serviços da estética, pacotes e funções "puras" sobre ele
  * (buscar, filtrar, calcular preço por porte, formatar moeda e
@@ -584,7 +584,7 @@ export const Servicos = (function () {
   }
 
   /* =====================================================================
-   * 5. DIAGNÓSTICO — funções PURAS
+   * 5. DIAGNÓSTICO: funções PURAS
    * "Pura" = só usa o que recebe e devolve um resultado: não lê a tela e
    * não grava nada. Por isso dá para testar direto no Console (F12):
    *   Servicos.recomendar({ porte: 'seda', pintura: 'opaca', objetivo: 'protecao',

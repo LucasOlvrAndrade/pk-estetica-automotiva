@@ -1,5 +1,5 @@
 /**
- * carro3d.js — Carro3D
+ * carro3d.js: Carro3D
  *
  * Um "mini motor 3D" feito só com Canvas 2D: sem Three.js, sem biblioteca.
  * Desenha o carro da abertura e o carro do topo da página.

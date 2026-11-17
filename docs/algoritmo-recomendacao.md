@@ -1,6 +1,6 @@
 # Algoritmo de recomendação (diagnóstico)
 
-Código: `Servicos.recomendar(respostas)` em `src/js/servicos.js` — função **pura**
+Código: `Servicos.recomendar(respostas)` em `src/js/servicos.js`, função **pura**
 (só usa as respostas e o catálogo; não lê a tela nem grava nada).
 
 ## Entradas
@@ -15,21 +15,21 @@ Código: `Servicos.recomendar(respostas)` em `src/js/servicos.js` — função *
 
 Candidatos: os 8 serviços do catálogo **e** 6 pacotes (ex.: Correção + Vitrificação).
 
-## Passo 1 — Filtros eliminatórios
+## Passo 1: Filtros eliminatórios
 
 Um candidato sai da lista se:
 
 1. o **preço para o porte** passa do orçamento;
 2. a **duração** passa do tempo disponível;
 3. a pintura tem **riscos visíveis ou está opaca** e o candidato tem proteção (cera, selante,
-   vitrificação, PPF) **sem** a correção de pintura — proteger por cima do risco "sela" o defeito.
+   vitrificação, PPF) **sem** a correção de pintura: proteger por cima do risco "sela" o defeito.
 
-## Passo 2 — Folga de orçamento
+## Passo 2: Folga de orçamento
 
 Se sobrarem **menos de 3** candidatos, o orçamento é ampliado em **20%** e os filtros rodam de novo.
 Os itens que só entraram pela folga ganham a etiqueta "acima do seu orçamento" e um aviso explica.
 
-## Passo 3 — Pontuação e ordem
+## Passo 3: Pontuação e ordem
 
 `pontos = tabela do objetivo (0 a 10) + ajuste pela pintura`
 

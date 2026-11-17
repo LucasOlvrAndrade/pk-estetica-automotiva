@@ -413,7 +413,7 @@
             </p>
           </blockquote>
           <figcaption>
-            Voz do Cliente — entrevista com proprietário de SUV, 38 anos
+            Voz do Cliente: entrevista com proprietário de SUV, 38 anos
           </figcaption>
         </figure>
       </section>
@@ -666,10 +666,23 @@
             </select>
           </div>
 
-          <div class="campo">
-            <label for="agendar-data">Data</label>
-            <input type="date" id="agendar-data" name="data" required />
-          </div>
+          <!-- Data por SEMANA: setas trocam a semana e cada dia é um botão de rádio (o JS cria),
+               com quantos horários livres ele tem. O dia escolhido vai para o campo escondido
+               #agendar-data, que é o que o resto do agendamento lê. -->
+          <fieldset id="agendar-semana" class="semana">
+            <legend>Dia</legend>
+            <div class="semana-topo">
+              <button type="button" id="semana-anterior" class="btn-icone" aria-label="Semana anterior">
+                <span aria-hidden="true">‹</span>
+              </button>
+              <p id="semana-rotulo" class="semana-rotulo" aria-live="polite"></p>
+              <button type="button" id="semana-proxima" class="btn-icone" aria-label="Próxima semana">
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+            <div id="semana-dias" class="semana-dias"></div>
+            <input type="hidden" id="agendar-data" name="data" />
+          </fieldset>
 
           <!-- Grade de horários: o JS cria um botão de rádio para cada horário livre -->
           <fieldset id="grade-horarios" class="grade-horarios">
@@ -782,7 +795,7 @@
           </button>
         </form>
 
-        <!-- Depois de confirmar: card com protocolo, calendário e cancelamento -->
+        <!-- Depois de confirmar: card com protocolo, resumo e cancelamento -->
         <div id="agendar-confirmacao" aria-live="polite"></div>
       </section>
 
@@ -1140,7 +1153,7 @@
       </p>
       <p>
         Trabalho final da disciplina
-        <strong>Desenvolvimento de Interfaces</strong> —
+        <strong>Desenvolvimento de Interfaces</strong>,
         <time datetime="2026">2026</time>
       </p>
       <p>
@@ -1156,9 +1169,9 @@
       </p>
       <!-- Crédito exigido pela licença CC BY 4.0 do modelo 3D da abertura -->
       <p id="credito-modelo" class="aviso">
-        Modelo 3D: Honda Civic Type R (EK9) por marksform –
-        <a href="https://sketchfab.com/3d-models/honda-civic-type-r-ek9-low-poly-stylized-599b4155e11d41ee9ea9d8306b4b5cff" target="_blank" rel="noopener">Sketchfab</a>
-        (licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>;
+        Modelo 3D: Honda Civic Type R (EK9) por marksform
+        (<a href="https://sketchfab.com/3d-models/honda-civic-type-r-ek9-low-poly-stylized-599b4155e11d41ee9ea9d8306b4b5cff" target="_blank" rel="noopener">Sketchfab</a>),
+        licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>;
         modificado: pintura preta, cromados e compressão).
       </p>
       <p>

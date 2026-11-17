@@ -64,7 +64,7 @@ Os blocos do arquivo:
 3. **`mostrar(id)`**: coloca o atributo `hidden` em todas as seções e tira só da página escolhida.
    Também:
    - marca o link do menu com `aria-current="page"`;
-   - troca o título da aba ("Agendar — PK Estética Automotiva");
+   - troca o título da aba ("Agendar: PK Estética Automotiva");
    - volta a rolagem para o topo;
    - liga a classe `.pagina-entrando` (a transição).
 4. **`ir(id)`**: o que os botões internos usam (ex.: `Rotas.ir('agendar')`). Grava o endereço novo com

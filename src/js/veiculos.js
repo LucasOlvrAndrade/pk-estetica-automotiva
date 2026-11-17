@@ -1,5 +1,5 @@
 /**
- * veiculos.js — Veiculos
+ * veiculos.js: Veiculos
  *
  * Seção "Meus Veículos": formulário com a tabela FIPE (Marca → Modelo → Ano),
  * placa com máscara (padrão antigo ABC-1234 ou Mercosul ABC1D23), cards com
@@ -322,8 +322,8 @@ export const Veiculos = (function () {
       placa.setAttribute('aria-label', 'Placa ' + formatarPlaca(v.placa).split('').join(' '));
       const dados = UI.criar('dl', 'veiculo-dados');
       [
-        ['Ano', v.ano || '—'],
-        ['Cor', v.cor || '—'],
+        ['Ano', v.ano || 'não informado'],
+        ['Cor', v.cor || 'não informada'],
         ['Porte', Servicos.nomePorte(v.porte)],
       ].forEach(function (par) {
         const grupo = UI.criar('div');

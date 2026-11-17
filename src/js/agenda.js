@@ -1,9 +1,9 @@
 /**
- * agenda.js — Agenda
+ * agenda.js: Agenda
  *
  * Regras de funcionamento da estética e o formulário #agendar.
  *
- * Funcionamento: segunda a sexta 8h–18h, sábado 8h–13h, domingo fechado.
+ * Funcionamento: segunda a sexta 8h a 18h, sábado 8h a 13h, domingo fechado.
  * Horários de 1 hora. Uma vaga por vez (um carro sendo atendido).
  *  - Serviço de até 8 h: ocupa as horas seguidas a partir do horário escolhido
  *    (precisa terminar antes de fechar). Entrega = início + duração.
@@ -208,55 +208,11 @@ export const Agenda = (function () {
     return 'PK' + data + '-' + sufixo;
   }
 
-  /** Data no formato do calendário (.ics), hora local: 20261116T080000 */
-  function dataIcs(d) {
-    const p = function (n) {
-      return String(n).padStart(2, '0');
-    };
-    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + 'T' + p(d.getHours()) + p(d.getMinutes()) + '00';
-  }
-
-  /** Texto seguro para o .ics (vírgula, ponto e vírgula e quebra de linha têm escape). */
-  function textoIcs(texto) {
-    return String(texto).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
-  }
-
-  /**
-   * Arquivo de calendário (.ics) do agendamento: abre no Google Agenda, Outlook, celular…
-   * @param {Object} agendamento
-   * @returns {string}
-   */
-  function gerarIcs(agendamento) {
-    const servico = Servicos.obter(agendamento.servicoId);
-    const inicio = paraDia(agendamento.data);
-    inicio.setHours(parseInt(agendamento.horario, 10), 0, 0, 0);
-    const fim = agendamento.previsaoEntrega ? new Date(agendamento.previsaoEntrega) : new Date(inicio.getTime() + 3600000);
-    const agoraUtc = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    // O formato .ics exige quebra de linha CRLF (\r\n)
-    return [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//PK Estetica Automotiva//Agendamento//PT-BR',
-      'CALSCALE:GREGORIAN',
-      'BEGIN:VEVENT',
-      'UID:' + agendamento.id + '@pk-estetica',
-      'DTSTAMP:' + agoraUtc,
-      'DTSTART:' + dataIcs(inicio),
-      'DTEND:' + dataIcs(fim),
-      'SUMMARY:' + textoIcs('PK Estética – ' + (servico ? servico.nome : 'Serviço')),
-      'DESCRIPTION:' + textoIcs('Protocolo ' + (agendamento.protocolo || '') + '\nValor: ' + UI.moeda(agendamento.valor)),
-      'LOCATION:' + textoIcs('PK Estética Automotiva'),
-      'END:VEVENT',
-      'END:VCALENDAR',
-      '',
-    ].join('\r\n');
-  }
-
   /* =====================================================================
    * 2. TELA (#agendar)
    * ===================================================================== */
 
-  const estado = { resgate: false };
+  const estado = { resgate: false, semana: '', ultimaData: '' }; // semana: segunda-feira exibida na faixa
 
   function veiculoEscolhido() {
     const id = $('agendar-veiculo').value;
@@ -287,6 +243,112 @@ export const Agenda = (function () {
     $('agendar-veiculo-dica').hidden = veiculos.length > 0;
   }
 
+  /* ---------- Semana: o cliente escolhe o dia aqui, depois o horário ---------- */
+
+  const SEMANAS_A_FRENTE = 12; // até quantas semanas no futuro dá para agendar
+  const NOMES_DIA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const formatoMes = new Intl.DateTimeFormat('pt-BR', { month: 'short' });
+  const formatoDiaMes = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long' });
+
+  /**
+   * Segunda-feira da semana de uma data (a semana vai de segunda a domingo).
+   * @param {string} dataIso
+   * @returns {string} "AAAA-MM-DD" da segunda-feira.
+   */
+  function inicioDaSemana(dataIso) {
+    const d = paraDia(dataIso);
+    const recuo = (d.getDay() + 6) % 7; // segunda = 0 … domingo = 6
+    d.setDate(d.getDate() - recuo);
+    return UI.dataIso(d);
+  }
+
+  /** Soma dias a uma data ISO. */
+  function somarDias(dataIso, dias) {
+    const d = paraDia(dataIso);
+    d.setDate(d.getDate() + dias);
+    return UI.dataIso(d);
+  }
+
+  /**
+   * Situação de um dia para o serviço escolhido: dá para agendar? Quantos horários livres?
+   * @param {string} dataIso
+   * @param {Object|undefined} servico
+   * @returns {{livre: boolean, texto: string}}
+   */
+  function situacaoDoDia(dataIso, servico) {
+    if (dataIso < UI.dataIso()) return { livre: false, texto: 'passou' };
+    if (!expedienteDe(dataIso)) return { livre: false, texto: 'fechado' };
+    if (!servico) return { livre: true, texto: 'aberto' };
+    const livres = gradeDoDia(dataIso, servico, AppStorage.listarAgendamentos()).slots.filter((s) => s.livre).length;
+    if (livres === 0) return { livre: false, texto: 'lotado' };
+    return { livre: true, texto: livres + (livres === 1 ? ' livre' : ' livres') };
+  }
+
+  /** Desenha os 7 dias da semana atual da faixa, marcando o dia escolhido. */
+  function renderizarSemana() {
+    const caixa = $('semana-dias');
+    const escolhido = $('agendar-data').value;
+    // Se a data mudou por fora (ex.: "Agendar novamente"), a faixa pula para a semana dela
+    if (escolhido && escolhido !== estado.ultimaData) estado.semana = inicioDaSemana(escolhido);
+    estado.ultimaData = escolhido;
+    if (!estado.semana) estado.semana = inicioDaSemana(UI.dataIso());
+
+    const servico = servicoEscolhido();
+    // Redesenhar apaga os botões: se o foco estava num dia (setas do teclado), ele volta depois
+    const tinhaFoco = caixa.contains(document.activeElement);
+    caixa.textContent = '';
+    for (let i = 0; i < 7; i++) {
+      const dia = somarDias(estado.semana, i);
+      const d = paraDia(dia);
+      const situacao = situacaoDoDia(dia, servico);
+      const rotulo = UI.criar('label', 'semana-dia');
+      const radio = UI.criar('input');
+      radio.type = 'radio';
+      radio.name = 'dia';
+      radio.value = dia;
+      radio.disabled = !situacao.livre;
+      radio.checked = dia === escolhido && situacao.livre;
+      rotulo.append(
+        radio,
+        UI.criar('span', 'semana-dia-nome', NOMES_DIA[d.getDay()]),
+        UI.criar('span', 'semana-dia-numero', String(d.getDate())),
+        UI.criar('span', 'semana-dia-situacao', situacao.texto)
+      );
+      if (dia === UI.dataIso()) rotulo.classList.add('semana-dia--hoje');
+      // Nome completo para o leitor de tela: "quarta-feira, 18 de novembro: 9 livres"
+      rotulo.setAttribute('aria-label', UI.dataLonga(dia) + ': ' + situacao.texto);
+      caixa.append(rotulo);
+    }
+    if (tinhaFoco) focarSemana();
+
+    const fim = somarDias(estado.semana, 6);
+    const ini = paraDia(estado.semana);
+    const dFim = paraDia(fim);
+    $('semana-rotulo').textContent =
+      ini.getMonth() === dFim.getMonth()
+        ? ini.getDate() + ' a ' + formatoDiaMes.format(dFim)
+        : ini.getDate() + ' de ' + formatoMes.format(ini).replace('.', '') + ' a ' + formatoDiaMes.format(dFim);
+    $('semana-anterior').disabled = estado.semana <= inicioDaSemana(UI.dataIso());
+    $('semana-proxima').disabled = estado.semana >= somarDias(inicioDaSemana(UI.dataIso()), 7 * SEMANAS_A_FRENTE);
+  }
+
+  /** Leva o foco ao dia escolhido (ou ao primeiro dia disponível da semana). */
+  function focarSemana() {
+    const alvo =
+      document.querySelector('#semana-dias input:checked') || document.querySelector('#semana-dias input:not(:disabled)');
+    if (alvo) alvo.focus({ preventScroll: true });
+    else $('semana-proxima').focus({ preventScroll: true });
+  }
+
+  /**
+   * Troca de semana pelas setas.
+   * @param {number} passo -1 = anterior, 1 = próxima.
+   */
+  function mudarSemana(passo) {
+    estado.semana = somarDias(estado.semana, 7 * passo);
+    renderizarSemana();
+  }
+
   /** Desenha a grade de horários da data escolhida. */
   function renderizarGrade() {
     const grade = $('grade-horarios');
@@ -298,7 +360,7 @@ export const Agenda = (function () {
     const servico = servicoEscolhido();
     const dica = UI.criar('p', 'dica');
     if (!data || !servico) {
-      dica.textContent = 'Escolha o serviço e a data para ver os horários disponíveis.';
+      dica.textContent = 'Escolha o serviço e o dia para ver os horários disponíveis.';
       grade.append(dica);
       return;
     }
@@ -365,20 +427,21 @@ export const Agenda = (function () {
       lista.append(grupo);
     }
     item('Veículo', veiculo.marca + ' ' + veiculo.modelo + ' (' + veiculo.placa + ')');
-    item('Serviço', servico.nome + (estado.resgate ? ' — Fidelidade' : ''));
+    item('Serviço', servico.nome + (estado.resgate ? ' (prêmio Fidelidade)' : ''));
     item('Porte', Servicos.nomePorte(veiculo.porte));
     item('Preço', UI.moeda(valores.preco));
     if (valores.taxa) item('Leva e traz', UI.moeda(valores.taxa));
     item('Total', UI.moeda(valores.total));
     item('Data', data ? UI.dataLonga(data) : 'escolha a data');
     item('Horário', horario || 'escolha o horário');
-    item('Previsão de entrega', previsao ? UI.dataHora(previsao) : '—');
+    item('Previsão de entrega', previsao ? UI.dataHora(previsao) : 'a confirmar');
     item('Leva e traz', $('agendar-leva-traz').checked ? 'Sim (buscamos e devolvemos)' : 'Não');
     if (estado.resgate) resumo.append(UI.criar('span', 'selo', 'Fidelidade'));
     resumo.append(lista);
   }
 
   function atualizar() {
+    renderizarSemana();
     renderizarGrade();
     renderizarResumo();
   }
@@ -459,14 +522,17 @@ export const Agenda = (function () {
     const horario = horarioEscolhido();
     if (!veiculo) return mostrarErro('Escolha o veículo (ou cadastre um em "Meus Veículos").', $('agendar-veiculo'));
     if (!servico) return mostrarErro('Escolha o serviço.', $('agendar-servico'));
-    if (!data || data < UI.dataIso()) return mostrarErro('Escolha uma data a partir de hoje.', $('agendar-data'));
-    if (!horario) return mostrarErro('Escolha um horário livre na grade.', $('agendar-data'));
+    if (!data || data < UI.dataIso()) {
+      mostrarErro('Escolha um dia a partir de hoje.');
+      return focarSemana();
+    }
+    if (!horario) return mostrarErro('Escolha um horário livre na grade.', document.querySelector('#grade-horarios input:not(:disabled)'));
 
     // Conflito de horário: alguém pode ter agendado em outra aba enquanto você escolhia
     const ainda = gradeDoDia(data, servico, AppStorage.listarAgendamentos()).slots.find((s) => s.horario === horario);
     if (!ainda || !ainda.livre) {
       renderizarGrade();
-      return mostrarErro('Esse horário acabou de ser ocupado. Escolha outro.', $('agendar-data'));
+      return mostrarErro('Esse horário acabou de ser ocupado. Escolha outro.', document.querySelector('#grade-horarios input:not(:disabled)'));
     }
 
     const levaTraz = $('agendar-leva-traz').checked;
@@ -506,7 +572,7 @@ export const Agenda = (function () {
     }
   }
 
-  /** Card de confirmação: protocolo, calendário e cancelamento. */
+  /** Card de confirmação: protocolo, resumo e cancelamento. */
   function renderizarConfirmacao(agendamento) {
     const caixa = $('agendar-confirmacao');
     caixa.replaceChildren();
@@ -529,10 +595,7 @@ export const Agenda = (function () {
     }
     if (agendamento.status !== 'cancelado') {
       const acoes = UI.criar('div', 'servico-acoes');
-      acoes.append(
-        UI.botao('Adicionar ao calendário', 'btn btn-primario', { acao: 'ics' }),
-        UI.botao('Cancelar agendamento', 'btn btn-secundario', { acao: 'cancelar' })
-      );
+      acoes.append(UI.botao('Cancelar agendamento', 'btn btn-secundario', { acao: 'cancelar' }));
       card.append(acoes);
     }
     caixa.append(card);
@@ -549,7 +612,7 @@ export const Agenda = (function () {
     if (!agendamento) return false;
     const ok = await UI.confirmar({
       titulo: 'Cancelar agendamento?',
-      mensagem: 'Protocolo ' + (agendamento.protocolo || '—') + '. O horário fica livre para outra pessoa.',
+      mensagem: 'Protocolo ' + (agendamento.protocolo || 'sem número') + '. O horário fica livre para outra pessoa.',
       confirmar: 'Cancelar agendamento',
     });
     if (!ok) return false;
@@ -574,7 +637,7 @@ export const Agenda = (function () {
     if (dados.servicoId) $('agendar-servico').value = dados.servicoId;
     atualizar();
     Rotas.ir('agendar'); // abre a página Agendar (já preenchida)
-    $('agendar-data').focus({ preventScroll: true });
+    focarSemana(); // o próximo passo é escolher o dia
   }
 
   /** Resgate do cartão fidelidade: Polimento de Refino por R$ 0,00. */
@@ -588,8 +651,9 @@ export const Agenda = (function () {
     const form = $('form-agendamento');
     if (!form) return;
     form.noValidate = true; // a validação é nossa, com mensagens que explicam o que fazer
-    $('agendar-data').min = UI.dataIso(); // o calendário não deixa escolher o passado
     preencherVeiculos();
+    $('semana-anterior').addEventListener('click', () => mudarSemana(-1));
+    $('semana-proxima').addEventListener('click', () => mudarSemana(1));
 
     form.addEventListener('change', function (evento) {
       if (evento.target.id === 'agendar-servico' && estado.resgate && evento.target.value !== SERVICO_RESGATE) {
@@ -598,6 +662,10 @@ export const Agenda = (function () {
       }
       if (evento.target.id === 'agendar-leva-traz') return aoMarcarLevaTraz();
       if (evento.target.name === 'horario') return renderizarResumo();
+      if (evento.target.name === 'dia') {
+        $('agendar-data').value = evento.target.value; // o dia escolhido na faixa vira a data
+        estado.ultimaData = evento.target.value;
+      }
       atualizar();
     });
     $('agendar-cep').addEventListener('input', function (evento) {
@@ -611,10 +679,6 @@ export const Agenda = (function () {
       const alvo = evento.target.closest('[data-acao]');
       if (!alvo) return;
       const id = alvo.closest('.confirmacao-card').dataset.id;
-      const agendamento = AppStorage.listarAgendamentos().find((a) => a.id === id);
-      if (alvo.dataset.acao === 'ics') {
-        UI.baixarArquivo('agendamento-' + agendamento.protocolo + '.ics', gerarIcs(agendamento), 'text/calendar');
-      }
       if (alvo.dataset.acao === 'cancelar' && (await cancelar(id))) {
         renderizarConfirmacao(AppStorage.listarAgendamentos().find((a) => a.id === id));
       }
@@ -634,7 +698,6 @@ export const Agenda = (function () {
     previsaoEntrega: previsaoEntrega,
     diasDoServico: diasDoServico,
     gerarProtocolo: gerarProtocolo,
-    gerarIcs: gerarIcs,
     iniciar: iniciar,
     preencher: preencher,
     prepararResgate: prepararResgate,

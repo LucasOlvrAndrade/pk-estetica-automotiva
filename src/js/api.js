@@ -1,5 +1,5 @@
 /**
- * api.js — Api
+ * api.js: Api
  *
  * Conversa com serviços externos:
  *  - Tabela FIPE (parallelum.com.br): marcas, modelos e anos de carros.

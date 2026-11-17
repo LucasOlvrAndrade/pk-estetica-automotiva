@@ -30,7 +30,7 @@ lateral (recolhível; vira gaveta no celular). Voltar do navegador e F5 mantêm 
 | Início | Abertura com o Civic em 3D, painel de marchas/VTEC; título cromado, números da marca, faixa de serviços, comparador **antes × depois** arrastável sobre foto real de polimento |
 | Serviços | Vitrine com preço por porte, filtros, busca, comparativo, detalhes e serviços salvos |
 | Diagnóstico | 5 perguntas → 3 recomendações com motivo ([algoritmo](docs/algoritmo-recomendacao.md)) |
-| Agendar | Horários reais (seg–sex 8–18h, sáb 8–13h), previsão de entrega, leva e traz com ViaCEP, protocolo e `.ics` |
+| Agendar | Horários reais (seg a sex 8 a 18h, sáb 8 a 13h), previsão de entrega, leva e traz com ViaCEP e protocolo; o dia é escolhido numa faixa por semana |
 | Meus Veículos | Cadastro pela tabela FIPE (com plano B), placa antiga ou Mercosul |
 | Acompanhamento | Linha do tempo, %, fotos das etapas, previsão; atualiza sozinho entre abas; notificação no "pronto" |
 | Atendimento | Uso da equipe: check-in (fotos + mapa de avarias), avançar etapas com foto, entrega |
@@ -67,7 +67,7 @@ Civic preto com pintura espelhada, rodas e escapamento cromados, neon verde por 
 bloom, luz de estúdio varrendo a carroceria e o painel de marchas/VTEC. Sem WebGL, com conexão lenta
 ou em aparelho fraco, ela cai para o carro em Canvas 2D.
 
-**Modelo 3D: Honda Civic Type R (EK9) por marksform – [Sketchfab](https://sketchfab.com/3d-models/honda-civic-type-r-ek9-low-poly-stylized-599b4155e11d41ee9ea9d8306b4b5cff)**,
+**Modelo 3D: Honda Civic Type R (EK9) por marksform ([Sketchfab](https://sketchfab.com/3d-models/honda-civic-type-r-ek9-low-poly-stylized-599b4155e11d41ee9ea9d8306b4b5cff))**,
 licença [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Modificado: pintura preta (troca da cor
 da lataria no shader), rodas e escapamento cromados, texto da marca no pneu escondido e compressão
 Draco + WebP (487 KB → 68 KB). O modelo não tem emblemas nem logotipos.
