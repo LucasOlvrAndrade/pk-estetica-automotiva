@@ -61,25 +61,6 @@ Detalhes e mapa da rubrica: [docs/funcionalidades.md](docs/funcionalidades.md).
 | [ViaCEP](https://viacep.com.br/) | Endereço do leva e traz | "CEP não encontrado" e preenchimento manual sem rede |
 | Notification API (navegador) | Aviso de "veículo pronto" | Só com permissão dada pelo usuário |
 
-## Estrutura
-
-```
-index.html            estrutura de todas as seções e diálogos
-src/main.js           ponto de entrada
-src/js/               storage, servicos, ui, api, veiculos, agenda, checkin,
-                      acompanhamento, fidelidade, historico, carro3d, modelo3d,
-                      intro3d, vitrine3d,
-                      rotas (páginas + menu lateral), movimento (animações), app
-src/assets/logo/      monograma PK e logo completo em SVG
-src/css/style.css     estilos
-docs/                 documentação (arquivos, funcionalidades, algoritmo, canvas,
-                      heurísticas de Nielsen, roteiros de capturas e vídeo)
-PROMPTS.md            registro dos prompts usados com IA
-prompts.txt           todos os prompts e respostas resumidas
-```
-
-Responsabilidade de cada arquivo: [docs/descricao-arquivos.md](docs/descricao-arquivos.md).
-
 ## Abertura 3D e créditos do modelo
 
 O site e o `npm run dev` abrem com uma cena **Three.js** (no computador; celular e tablet usam o carro em 2D, mais leve):

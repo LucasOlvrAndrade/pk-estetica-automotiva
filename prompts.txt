@@ -492,13 +492,13 @@ Como foi aplicado:
   Teste novo: confirmação e detalhes do serviço centralizados no desktop e no celular; captura do comparador.
 
 
-PROMPT 37 — Tirar o "Como executar" do README e pôr o GitHub dos integrantes.
+PROMPT 37 — Tirar "Como executar" e "Estrutura" do README e pôr o GitHub dos integrantes.
 ------------------------------------------------------------------------------
 Pedido:
-  Pediu um README só com o resumo e o GitHub de cada integrante (o autor segue todos); depois decidiu manter o README e só tirar a seção "Como executar".
+  Pediu um README só com o resumo e o GitHub de cada integrante (o autor segue todos); depois decidiu manter o README e só tirar as seções "Como executar" e "Estrutura".
 
 Resposta (resumo):
-  Seção "Como executar" removida do README (as instruções continuam em docs/ e no CLAUDE.md); integrantes viraram uma tabela com o GitHub de cada um, encontrados na lista de quem o autor segue e conferidos pelo nome do perfil.
+  Seções "Como executar" e "Estrutura" removidas do README (as instruções continuam em docs/ e no CLAUDE.md); integrantes viraram uma tabela com o GitHub de cada um, encontrados na lista de quem o autor segue e conferidos pelo nome do perfil.
 
 Como foi aplicado:
   README atualizado no repositório do GitHub.
