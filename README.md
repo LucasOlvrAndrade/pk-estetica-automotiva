@@ -65,7 +65,8 @@ Detalhes e mapa da rubrica: [docs/funcionalidades.md](docs/funcionalidades.md).
 O site e o `npm run dev` abrem com uma cena **Three.js** (no computador; celular e tablet usam o carro em 2D, mais leve):
 Civic preto com pintura espelhada, rodas e escapamento cromados, neon verde por baixo, faróis com
 bloom, luz de estúdio varrendo a carroceria e o painel de marchas/VTEC. Sem WebGL, com conexão lenta
-ou em aparelho fraco, ela cai para o carro em Canvas 2D.
+ou em aparelho fraco, ela usa uma imagem do mesmo Civic. No celular, o Civic 3D do Início carrega quando
+a pessoa toca no carro.
 
 **Modelo 3D: Honda Civic Type R (EK9) por marksform ([Sketchfab](https://sketchfab.com/3d-models/honda-civic-type-r-ek9-low-poly-stylized-599b4155e11d41ee9ea9d8306b4b5cff))**,
 licença [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Modificado: pintura preta (troca da cor

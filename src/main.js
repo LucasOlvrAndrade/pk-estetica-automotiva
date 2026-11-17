@@ -24,7 +24,6 @@ import { Checkin } from './js/checkin.js';
 import { Acompanhamento } from './js/acompanhamento.js';
 import { Fidelidade } from './js/fidelidade.js';
 import { Historico } from './js/historico.js';
-import { Carro3D } from './js/carro3d.js';
 import { Movimento } from './js/movimento.js';
 import { Rotas } from './js/rotas.js';
 import { App } from './js/app.js';
@@ -43,7 +42,6 @@ Object.assign(window, {
   Acompanhamento,
   Fidelidade,
   Historico,
-  Carro3D,
   Movimento,
   Rotas,
   App,

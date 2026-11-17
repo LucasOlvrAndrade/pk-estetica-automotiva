@@ -3,7 +3,7 @@
  *
  * Cena da abertura em 3D real (Three.js) com o Civic carregado pelo modelo3d.js
  * (o mesmo carro do Início). Se o aparelho não aguenta (celular, sem WebGL, conexão
- * lenta, pouca memória), o app.js usa o carro em Canvas 2D (carro3d.js).
+ * lenta, pouca memória), o app.js usa a cena leve com a imagem do mesmo Civic (civic-3d.webp).
  *
  * Como a cena funciona:
  *  - CENA       a "caixa" onde ficam o carro, o chão e as luzes.

@@ -19,7 +19,7 @@
  *  7. Diálogo de detalhes
  *  8. Serviços salvos (favoritos)
  *  9. Diagnóstico (validação e desenho das recomendações)
- * 10. Carro 3D: abertura e carro do topo (o desenho é do carro3d.js)
+ * 10. Carro 3D: abertura e carro do topo (o Civic 3D vem do intro3d.js e do vitrine3d.js)
  * 11. Títulos que se revelam ao rolar
  * 12. Inicialização
  *
@@ -30,7 +30,6 @@
 
 import { AppStorage } from './storage.js';
 import { Servicos } from './servicos.js';
-import { Carro3D } from './carro3d.js';
 import { UI } from './ui.js';
 import { Veiculos } from './veiculos.js';
 import { Agenda } from './agenda.js';
@@ -904,8 +903,9 @@ export const App = (function () {
 
   /* =====================================================================
    * 10. CARRO 3D: ABERTURA E CARRO DO TOPO
-   * O Carro3D (carro3d.js) só sabe DESENHAR. Aqui fica o "quando e quanto":
-   * a linha do tempo da abertura e a interação com o carro do topo.
+   * As cenas 3D (intro3d.js e vitrine3d.js) só sabem DESENHAR. Aqui fica o "quando e quanto":
+   * a linha do tempo da abertura e a interação com o carro do topo. Enquanto o 3D não carrega
+   * (ou se o aparelho não aguenta), aparece uma IMAGEM do mesmo Civic (civic-3d.webp).
    * ===================================================================== */
 
   /** Pessoas que pediram "reduzir movimento" no sistema: sem abertura, sem giro sozinho. */
@@ -1031,9 +1031,6 @@ export const App = (function () {
    * @returns {boolean}
    */
   function aparelhoAguenta3D() {
-    // Celular e tablet (só toque, sem mouse): carro em 2D. A cena 3D (shaders, bloom, Draco)
-    // trava o processador do celular por segundos e derruba a nota de desempenho (Lighthouse).
-    if (!window.matchMedia('(pointer: fine)').matches) return false;
     const conexao = navigator.connection;
     if (conexao && (conexao.saveData || /(^|-)2g|3g/.test(conexao.effectiveType || ''))) return false;
     if (navigator.deviceMemory && navigator.deviceMemory < 4) return false;
@@ -1058,32 +1055,41 @@ export const App = (function () {
     ]);
   }
 
+  /** Curva "expo out": começa rápida e assenta devagar (0 → 1). */
+  function suavizar(t) {
+    return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  }
+
   /**
-   * Cena 2D (Canvas 2D, carro3d.js) com a mesma "interface" da cena 3D:
-   * quadro(segundos, estado) e destruir().
+   * Cena leve da abertura (celular, aparelho fraco ou sem WebGL), com a mesma "interface" da
+   * cena 3D: quadro(segundos, estado) e destruir(). Mostra a IMAGEM do mesmo Civic 3D
+   * (civic-3d.webp, de fundo no canvas) se aproximando, com os faróis "acendendo" (brilho)
+   * e o tremor do motor. Só mexe em transform e filter do elemento: leve para o celular.
    */
   function criarCena2D() {
-    const carro = Carro3D.criar($('carro-abertura'), { cor: corDoCarro() });
-    carro.estado.centroVertical = 0.42; // carro mais alto: a marca PK fica embaixo dele
+    const palco = $('carro-abertura');
+    palco.classList.add('carro-canvas--poster');
     return {
       quadro: function (segundos, estado) {
-        const p = Carro3D.suavizar(Math.min(1, segundos / 2.6));
-        carro.estado.giro = 2.3 + (GIRO_INICIAL - 2.3) * p; // de frente → 3/4
-        carro.estado.distancia = 13 + (8.2 - 13) * p;
-        carro.estado.inclinacao = 0.06 + (0.26 - 0.06) * p;
-        carro.estado.farois = estado.farois;
-        carro.estado.alturaAlvo = 0.66 + Math.sin(segundos * 95) * estado.tremor;
-        carro.desenhar();
+        const p = suavizar(Math.min(1, segundos / 2.6));
+        const escala = 0.7 + 0.3 * p; // vem de longe e chega perto
+        const tremor = Math.sin(segundos * 95) * estado.tremor * 40; // em px
+        palco.style.transform = 'translateY(' + tremor.toFixed(2) + 'px) scale(' + escala.toFixed(3) + ')';
+        palco.style.opacity = String(Math.min(1, segundos / 0.6));
+        palco.style.filter = 'brightness(' + (0.55 + 0.6 * estado.farois).toFixed(2) + ')';
       },
-      destruir: carro.destruir,
+      destruir: function () {
+        palco.classList.remove('carro-canvas--poster');
+        palco.style.transform = palco.style.opacity = palco.style.filter = '';
+      },
     };
   }
 
   /**
    * Abertura: o carro surge no escuro, dá a partida (faróis + painel de marchas e VTEC),
    * a marca PK aparece e a "porta de garagem" sobe revelando o site.
-   * No computador, a cena Three.js com o modelo 3D; celular, tablet e aparelhos que não
-   * aguentam usam o carro em Canvas 2D.
+   * Cena Three.js com o modelo 3D (no celular, com qualidade reduzida); aparelhos que não
+   * aguentam (sem WebGL, pouca memória, conexão lenta) usam o carro em Canvas 2D.
    * Pode ser pulada a qualquer momento (botão, Esc, roda do mouse ou toque).
    * @param {boolean} [forcar] true = mostrar mesmo que já tenha sido vista (botão "Rever").
    */
@@ -1164,8 +1170,10 @@ export const App = (function () {
     window.addEventListener('wheel', encerrar, { passive: true });
     window.addEventListener('touchmove', encerrar, { passive: true });
 
-    // Cena 3D (Three.js) só se o aparelho aguenta; senão, o carro em Canvas 2D (mais leve)
-    if (aparelhoAguenta3D()) {
+    // Cena 3D (Three.js) só no computador e se o aparelho aguenta; no celular, a abertura é o
+    // carro em Canvas 2D: a cena cinematográfica (bloom, holofote, 6 s de animação) trava o
+    // processador do celular. O Civic 3D aparece no celular no Início (versão leve, sem bloom).
+    if (window.matchMedia('(pointer: fine)').matches && aparelhoAguenta3D()) {
       abertura.classList.add('abertura--carregando');
       const barra = $('abertura-progresso-barra');
       const texto = $('abertura-progresso-texto');
@@ -1240,8 +1248,16 @@ export const App = (function () {
     const canvas = $('carro-hero');
     if (!canvas) return;
 
-    // Começa com o carro em Canvas 2D (aparece na hora); depois vira o Civic 3D (ver trocarPara3D)
-    let carro = Carro3D.criar(canvas, { cor: corDoCarro() });
+    // Começa com a IMAGEM do Civic (aparece na hora, pesa 21 KB); depois vira o Civic 3D
+    // interativo (ver trocarPara3D). Enquanto é imagem, o "carro" só guarda o giro.
+    const heroCarro = canvas.closest('.hero-carro');
+    heroCarro.classList.add('hero-carro--poster');
+    let carro = {
+      estado: { giro: GIRO_INICIAL },
+      desenhar: function () {},
+      definirCor: function () {},
+      destruir: function () {},
+    };
     const VOLTA_POR_SEGUNDO = (Math.PI * 2) / 30; // uma volta a cada 30 s: ambiente, não distrai
     const ATRITO = 0.94; // a cada quadro a inércia perde 6%
 
@@ -1364,35 +1380,49 @@ export const App = (function () {
     });
 
     /**
-     * Troca o carro 2D pelo MESMO Civic 3D da abertura (vitrine3d.js), só no computador
-     * (mesma regra da abertura: celular e aparelho fraco ficam com o 2D, mais leve).
-     * O canvas 3D entra POR TRÁS; o canvas 2D continua por cima, transparente, e segue
+     * Troca a imagem pelo MESMO Civic 3D da abertura (vitrine3d.js), interativo.
+     * Computador: assim que a página termina de carregar. Celular: no primeiro toque no carro,
+     * foco pelo teclado ou troca de cor (o 3D pesa no processador do celular: só carrega
+     * quando a pessoa quer girar). Aparelho fraco, sem WebGL ou conexão lenta fica com a imagem.
+     * O canvas 3D entra POR TRÁS; o canvas do slider continua por cima, transparente, e segue
      * recebendo o arraste, as setas e o foco: a acessibilidade do "slider" não muda.
      */
+    let trocando = false;
     function trocarPara3D() {
-      if (!aparelhoAguenta3D()) return;
+      if (trocando || !aparelhoAguenta3D()) return;
+      trocando = true;
       const canvas3d = document.createElement('canvas');
       canvas3d.className = 'carro-canvas carro-canvas--vitrine';
       canvas3d.setAttribute('aria-hidden', 'true');
       canvas.before(canvas3d);
       import('./vitrine3d.js')
         .then(function (modulo) {
-          return modulo.Vitrine3D.criar(canvas3d, { cor: corDoCarro() });
+          return modulo.Vitrine3D.criar(canvas3d, {
+            cor: corDoCarro(),
+            celular: window.matchMedia('(pointer: coarse)').matches, // tela de toque: versão mais leve
+          });
         })
         .then(function (vitrine) {
           vitrine.estado.giro = carro.estado.giro;
-          carro.destruir(); // apaga o desenho 2D e solta o canvas
           carro = vitrine;
-          canvas.closest('.hero-carro').classList.add('hero-carro--3d');
+          heroCarro.classList.remove('hero-carro--poster');
+          heroCarro.classList.add('hero-carro--3d');
           desenharAgora();
         })
         .catch(function () {
-          canvas3d.remove(); // deu errado (ex.: sem WebGL): o carro 2D continua
+          canvas3d.remove(); // deu errado (ex.: sem WebGL): a imagem do Civic continua
         });
     }
-    // Depois do "load": o 3D não atrasa o primeiro desenho da página
-    if (document.readyState === 'complete') setTimeout(trocarPara3D, 300);
-    else window.addEventListener('load', () => setTimeout(trocarPara3D, 300), { once: true });
+    if (window.matchMedia('(pointer: fine)').matches) {
+      // Computador: depois do "load" (o 3D não atrasa o primeiro desenho da página)
+      if (document.readyState === 'complete') setTimeout(trocarPara3D, 300);
+      else window.addEventListener('load', () => setTimeout(trocarPara3D, 300), { once: true });
+    } else {
+      // Celular: quando a pessoa mexe no carro
+      canvas.addEventListener('pointerdown', trocarPara3D, { once: true });
+      canvas.addEventListener('focus', trocarPara3D, { once: true });
+      document.querySelector('.cores-carro').addEventListener('change', trocarPara3D, { once: true });
+    }
 
     desenharAgora();
     atualizarAria();

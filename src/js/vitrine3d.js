@@ -4,10 +4,9 @@
  * O Civic 3D do Início (o MESMO modelo da abertura, carregado pelo modelo3d.js), num
  * "estúdio" simples: fundo transparente, reflexo do estúdio e um fio de neon embaixo.
  *
- * Tem a mesma "cara" (interface) do carro em Canvas 2D (carro3d.js):
- *   estado.giro, desenhar(), definirCor(hex), destruir()
- * Por isso o app.js troca um pelo outro sem mudar o resto: arrastar, setas do teclado,
- * giro com a rolagem e as amostras de cor continuam iguais.
+ * Interface simples (estado.giro, desenhar(), definirCor(hex), destruir()): o app.js troca a
+ * imagem do Civic por ela sem mudar o resto (arrastar, setas do teclado, giro com a rolagem e
+ * as amostras de cor continuam iguais).
  *
  * Mais leve que a abertura: sem pós-processamento e com pixelRatio limitado.
  *
@@ -25,7 +24,8 @@ export const Vitrine3D = (function () {
   /**
    * Cria a vitrine 3D no canvas.
    * @param {HTMLCanvasElement} canvas Canvas vazio (sem contexto 2D).
-   * @param {{cor?: string}} [opcoes] cor: hex da pintura (ex.: '#1c1d22').
+   * @param {{cor?: string, celular?: boolean}} [opcoes] cor: hex da pintura (ex.: '#1c1d22');
+   *   celular: versão mais leve (sem suavização de bordas e menos pixels).
    * @returns {Promise<{estado: {giro: number}, desenhar: function(): void, definirCor: function(string): void, destruir: function(): void}>}
    */
   async function criar(canvas, opcoes) {
@@ -33,8 +33,9 @@ export const Vitrine3D = (function () {
     const estado = { giro: GIRO_REFERENCIA };
 
     // alpha: fundo transparente (aparece o "PK" e a luz verde do CSS atrás do carro)
-    const renderizador = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    renderizador.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const celular = Boolean(opcoes.celular);
+    const renderizador = new THREE.WebGLRenderer({ canvas: canvas, antialias: !celular, alpha: true });
+    renderizador.setPixelRatio(Math.min(window.devicePixelRatio || 1, celular ? 1.5 : 2)); // menos pixels no celular
     renderizador.toneMapping = THREE.ACESFilmicToneMapping;
     renderizador.toneMappingExposure = 0.9;
     renderizador.outputColorSpace = THREE.SRGBColorSpace;

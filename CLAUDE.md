@@ -47,12 +47,11 @@ Trabalho final da disciplina **Desenvolvimento de Interfaces**. O grupo está ap
    | `src/js/acompanhamento.js` | `Acompanhamento` |
    | `src/js/fidelidade.js`     | `Fidelidade`     |
    | `src/js/historico.js`      | `Historico`      |
-   | `src/js/carro3d.js`        | `Carro3D`        |
    | `src/js/rotas.js`          | `Rotas` (páginas por hash `#/pagina` + menu lateral recolhível/gaveta) |
    | `src/js/movimento.js`      | `Movimento` (contadores, antes × depois, ímã, Lenis + GSAP) |
    | `src/js/modelo3d.js`       | `Modelo3D` (carrega o Civic 3D e aplica os materiais; usado pela abertura e pelo Início) |
    | `src/js/intro3d.js`        | `Intro3D` (cena Three.js da abertura; carregado com `import()`) |
-   | `src/js/vitrine3d.js`      | `Vitrine3D` (o mesmo Civic girável no Início; mesma interface do `Carro3D`) |
+   | `src/js/vitrine3d.js`      | `Vitrine3D` (o mesmo Civic girável no Início; antes dele carregar, aparece a imagem `civic-3d.webp`) |
    | `src/js/app.js`            | `App`            |
 
    - **Modelo 3D da abertura** (`src/assets/modelos/civic-ek9.glb`): "Honda Civic Type R (EK9) - Low Poly &

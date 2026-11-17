@@ -4318,8 +4318,21 @@ legend {
   font-weight: 900;
 }
 
-/* Início com o Civic 3D: o canvas 3D fica atrás e o 2D (transparente) por cima, recebendo
-   o arraste, as setas e o foco do teclado */
+/* Imagem do Civic (o mesmo do 3D) enquanto o 3D não carrega, ou se o aparelho não aguenta.
+   Fica no fundo do canvas do slider, que é transparente. */
+.hero-carro--poster #carro-hero {
+  background: url('../assets/imagens/civic-3d.webp') center / contain no-repeat;
+}
+
+/* Abertura leve (celular / sem WebGL): a mesma imagem, aproximando-se (o JS anima transform) */
+.carro-canvas--poster {
+  background: url('../assets/imagens/civic-3d.webp') center 38% / min(125vw, 1000px) auto no-repeat;
+  transform-origin: 50% 40%;
+  opacity: 0;
+}
+
+/* Início com o Civic 3D: o canvas 3D fica atrás e o do slider (transparente) por cima,
+   recebendo o arraste, as setas e o foco do teclado */
 .carro-canvas--vitrine {
   position: absolute;
   top: 0;
