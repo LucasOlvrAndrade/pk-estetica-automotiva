@@ -13,21 +13,13 @@ Identidade **Black Chrome**: pretos em camadas, títulos e logo cromados, um ún
 
 ## Integrantes
 
-Henrique Mota Monteiro · João Pedro Duarte Borges · Lucas de Oliveira Andrade · Lucas Martins Barreto · Yuri Marques Oliveira
-
-## Como executar
-
-**Sem instalar nada:** acesse https://pkestetica.lucas-andrade.dev. As APIs FIPE e ViaCEP precisam de
-internet; sem ela, o app usa o preenchimento manual e todo o resto funciona.
-
-**Para desenvolver** (requer [Node.js](https://nodejs.org) LTS):
-
-```bash
-npm install              # 1ª vez
-npm run dev              # http://localhost:5173
-npm run build            # dist/ (versão publicada)
-npm run preview          # testa a dist/ em http://localhost:4173
-```
+| Nome | GitHub |
+|------|--------|
+| Henrique Mota Monteiro | [@Henriquemotaux](https://github.com/Henriquemotaux) |
+| João Pedro Duarte Borges | [@joaopedroduarteborges](https://github.com/joaopedroduarteborges) |
+| Lucas de Oliveira Andrade | [@LucasOlvrAndrade](https://github.com/LucasOlvrAndrade) |
+| Lucas Martins Barreto | [@LucasBarretoDev-eng](https://github.com/LucasBarretoDev-eng) |
+| Yuri Marques Oliveira | [@yuriyz22](https://github.com/yuriyz22) |
 
 ## Funcionalidades
 
