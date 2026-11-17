@@ -1,8 +1,8 @@
 /**
  * fidelidade.js: Fidelidade
  *
- * Cartão PK Club: 5 carimbos (um por serviço entregue que "conta", veja
- * contaFidelidade no catálogo) valem um Polimento de Refino grátis.
+ * Cartão PK Club: 5 carimbos (um por PROCEDIMENTO entregue, qualquer serviço ou pacote;
+ * o próprio prêmio resgatado não conta) valem um Polimento de Refino grátis.
  * Mostra os carimbos (os novos entram com animação), quanto falta, o estado
  * "Recompensa disponível", o botão de resgate e o histórico.
  * Quem DÁ o carimbo é o acompanhamento.js, no "Entregue".
@@ -32,7 +32,7 @@ export const Fidelidade = (function () {
   function textoStatus(carimbos) {
     if (carimbos >= META) return 'Recompensa disponível! Seu Polimento de Refino está liberado.';
     const faltam = META - carimbos;
-    return carimbos + ' de ' + META + ' carimbos · ' + (faltam === 1 ? 'Falta 1 lavagem' : 'Faltam ' + faltam + ' lavagens') + ' para o seu polimento grátis.';
+    return carimbos + ' de ' + META + ' carimbos · ' + (faltam === 1 ? 'Falta 1 procedimento' : 'Faltam ' + faltam + ' procedimentos') + ' para o seu polimento grátis.';
   }
 
   /** Data de validade de um carimbo (12 meses depois). */

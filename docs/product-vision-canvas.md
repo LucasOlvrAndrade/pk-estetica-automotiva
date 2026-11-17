@@ -19,7 +19,7 @@
 | Não sei em que pé está o serviço | Acompanhamento em tempo real | Linha do tempo com etapas, fotos, % e previsão; notificação no "pronto" | Acompanhamento |
 | Falta de tempo | Agendar rápido e não precisar levar o carro | Grade de horários livres, leva e traz com CEP, escolha do dia por semana | Agendar |
 | Cadastro trabalhoso | Cadastrar o carro uma vez só | Tabela FIPE, placa com máscara, veículos salvos | Meus Veículos |
-| Pouco motivo para voltar | Benefício por fidelidade | Cartão de 5 lavagens = polimento grátis | Fidelidade |
+| Pouco motivo para voltar | Benefício por fidelidade | Cartão de 5 procedimentos = polimento grátis | Fidelidade |
 | Esqueço da manutenção | Lembrete | "Hora da manutenção" após 90 dias da última proteção | Histórico |
 
 ## Proposta de valor

@@ -27,7 +27,7 @@
 | Painel (página) | Métricas e dados de demonstração | Indicadores do Product Vision Canvas |
 | Menu lateral + páginas | Rotas por hash, recolher com dica, gaveta no celular, Voltar/F5 | Navegação e consistência |
 | NPS | Pesquisa 0 a 10 após a entrega | Medir satisfação (meta NPS > 85) |
-| Fidelidade | 5 lavagens = Polimento de Refino grátis; resgate leva ao agendamento com R$ 0,00 | Recorrência (meta 40%) |
+| Fidelidade | 5 procedimentos (qualquer serviço ou pacote) = Polimento de Refino grátis; resgate leva ao agendamento com R$ 0,00 | Recorrência (meta 40%) |
 | Painel de métricas | NPS, recorrência, ticket médio por mês, mais vendidos, participação de PPF/Vitrificação; dados de demonstração | Gestão da estética |
 | Como funciona | 5 passos, perguntas frequentes e glossário | Ajuda e linguagem do cliente |
 | Abertura 3D | Civic com painel de marchas e VTEC; 1x por sessão, pulável, desligada com "reduzir movimento" | Identidade da marca |

@@ -66,14 +66,12 @@ export const Servicos = (function () {
    * @property {{hatch: number, seda: number, suv: number, picape: number}} precos
    * @property {string} indicadoPara
    * @property {string[]} cuidados Cuidados pós-serviço.
-   * @property {boolean} [contaFidelidade] true = ganha carimbo no cartão fidelidade.
    */
 
   /** @type {Servico[]} */
   const CATALOGO = [
     {
       id: 'lavagem-tecnica',
-      contaFidelidade: true, // ganha carimbo no cartão PK Club
       nome: 'Lavagem Técnica',
       categoria: 'lavagem',
       icone: '◌',
@@ -101,7 +99,6 @@ export const Servicos = (function () {
     },
     {
       id: 'higienizacao-interna',
-      contaFidelidade: true,
       nome: 'Higienização Interna',
       categoria: 'interior',
       icone: '◇',
@@ -378,7 +375,6 @@ export const Servicos = (function () {
     },
     {
       id: 'pacote-lavagem-completa',
-      contaFidelidade: true,
       nome: 'Lavagem Completa',
       icone: '◎',
       resumo: 'Lavagem técnica por fora e higienização profunda por dentro.',
@@ -462,7 +458,6 @@ export const Servicos = (function () {
         return s.cuidados;
       })),
       itens: Object.freeze(definicao.itens.slice()),
-      contaFidelidade: Boolean(definicao.contaFidelidade),
     });
   }
 

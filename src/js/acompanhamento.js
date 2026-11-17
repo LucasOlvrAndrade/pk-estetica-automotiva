@@ -111,7 +111,7 @@ export const Acompanhamento = (function () {
    * @returns {{status: string, etapa?: string, rotulo: string}|null}
    */
   function proximoPasso(agendamento) {
-    if (agendamento.status === S.RECEBIDO) return { status: S.EM_EXECUCAO, etapa: ETAPA_LAVAGEM, rotulo: 'Iniciar lavagem' };
+    if (agendamento.status === S.RECEBIDO) return { status: S.EM_EXECUCAO, etapa: ETAPA_LAVAGEM, rotulo: 'Iniciar procedimento' };
     if (agendamento.status === S.EM_EXECUCAO) {
       return { status: S.PRONTO, rotulo: agendamento.levaTraz ? 'Saiu para entrega' : 'Pronto para retirada' };
     }
@@ -232,7 +232,8 @@ export const Acompanhamento = (function () {
     const servico = Servicos.obter(agendamento.servicoId);
     if (passo.status === S.PRONTO) UI.toast('Serviço pronto! O cliente foi avisado.', { tipo: 'sucesso' });
     if (passo.status === S.ENTREGUE) {
-      if (servico && servico.contaFidelidade) {
+      // Todo procedimento entregue vale 1 carimbo; só o prêmio resgatado (R$ 0,00) não conta
+      if (servico && !agendamento.fidelidade) {
         AppStorage.adicionarCarimbo(id, servico.id);
         UI.toast('Entregue! +1 carimbo no cartão PK Club.', { tipo: 'sucesso' });
       } else {

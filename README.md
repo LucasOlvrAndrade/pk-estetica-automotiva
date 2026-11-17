@@ -35,7 +35,7 @@ lateral (recolhível; vira gaveta no celular). Voltar do navegador e F5 mantêm 
 | Acompanhamento | Linha do tempo, %, fotos das etapas, previsão; atualiza sozinho entre abas; notificação no "pronto" |
 | Atendimento | Uso da equipe: check-in (fotos + mapa de avarias), avançar etapas com foto, entrega |
 | Painel | Métricas (NPS × meta, recorrência, ticket médio, mais vendidos) e dados de demonstração |
-| Fidelidade | 5 lavagens = Polimento de Refino grátis |
+| Fidelidade | 5 procedimentos (qualquer serviço) = Polimento de Refino grátis |
 | Histórico | Filtros, rever check-in, agendar novamente, lembrete de manutenção, NPS |
 | Como funciona | Passos, perguntas frequentes e glossário |
 
