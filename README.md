@@ -72,7 +72,3 @@ ou em aparelho fraco, ela cai para o carro em Canvas 2D.
 licença [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Modificado: pintura preta (troca da cor
 da lataria no shader), rodas e escapamento cromados, texto da marca no pneu escondido e compressão
 Draco + WebP (487 KB → 68 KB). O modelo não tem emblemas nem logotipos.
-
-## Backup
-
-Compacte a pasta em `.zip` **sem** a pasta `node_modules` (o `npm install` recria).
