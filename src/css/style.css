@@ -1,0 +1,5064 @@
+/* =========================================================================
+   PK Estética Automotiva — style.css
+
+   Identidade "BLACK CHROME" (direção B, "Neon Garage"): pretos em camadas,
+   CROMO nos títulos, frisos e no logo, e UM acento só, o VERDE NEON
+   (#39FF88), usado com economia: CTA em hover, status, foco e o neon do carro.
+   Tipografia condensada e pesada (Saira Extra Condensed) + Manrope no texto.
+   Tema escuro é o padrão; o tema "Silver" (claro) é ligado com <html data-tema="claro">.
+
+   ÍNDICE
+   1. Variáveis (design tokens)
+   2. Reset
+   3. Base
+   4. Layout
+   5. Componentes
+   6. Utilitários
+   7. Animações
+   8. Media queries
+   9. Black Chrome: logo, cromo, antes/depois, cursor e números
+   10. Navegação: menu lateral e páginas
+   ========================================================================= */
+
+/* =========================================================================
+   1. VARIÁVEIS (design tokens)
+   Tokens = "peças" de design com nome. Mudou aqui, muda o site inteiro.
+   ========================================================================= */
+:root {
+  /* ---- Cores: tema ESCURO (padrão) ----
+     Pretos em 4 camadas dão profundidade sem precisar de sombra.
+     Todas as combinações de texto foram medidas: contraste ≥ 4,5:1 (WCAG AA). */
+  --cor-fundo: #000000; /* camada 0: preto absoluto */
+  --cor-superficie: #0a0a0b; /* camada 1: cartões */
+  --cor-superficie-alta: #111214; /* camada 2: cartão sobre cartão, inputs */
+  --cor-superficie-topo: #1a1b1e; /* camada 3: hover, chips */
+  --cor-borda: #232428;
+  --cor-borda-forte: #3a3c42;
+  --cor-texto: #f2f3f5; /* branco gelo: 19:1 sobre o preto */
+  --cor-texto-suave: #9da2aa; /* cinza grafite claro: 7,9:1 sobre o preto */
+
+  /* "Acento" = CROMO (prata clara): botões principais, links, números.
+     É neutro, então pode aparecer bastante sem virar "carnaval". */
+  --cor-acento: #e4e6ea; /* 17:1 sobre o preto */
+  --cor-acento-forte: #ffffff; /* hover */
+  --cor-sobre-acento: #0a0a0b; /* texto em cima do cromo: 16:1 */
+  --cor-acento-suave: rgba(228, 230, 234, 0.07); /* fundos de destaque */
+
+  /* NEON: a ÚNICA cor da marca. Só em status, foco, CTA em hover e no carro. */
+  --cor-neon: #39ff88; /* 15:1 sobre o preto */
+  --cor-sobre-neon: #000000;
+  --cor-neon-suave: rgba(57, 255, 136, 0.1);
+  --brilho-neon: 0 0 0 1px rgba(57, 255, 136, 0.55), 0 0 28px rgba(57, 255, 136, 0.28);
+
+  --cor-sucesso: #39ff88;
+  --cor-alerta: #ffb44a;
+  --cor-erro: #ff7a6b;
+  --cor-info: #8fd3ff;
+  --cor-foco: #39ff88; /* o verde aparece sobre o preto E sobre o cromo */
+
+  /* CROMO: degradê de vários pontos, como uma peça niquelada sob luz de estúdio.
+     Claro → médio → quase branco (a "linha de luz") → escuro. */
+  --cromo: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #d9dce1 30%,
+    #8a9099 48%,
+    #f4f5f7 56%,
+    #a9aeb6 78%,
+    #e8eaee 100%
+  );
+  --cromo-horizontal: linear-gradient(
+    90deg,
+    #6e737b 0%,
+    #f4f5f7 22%,
+    #a3a8b0 45%,
+    #ffffff 62%,
+    #7d828a 100%
+  );
+  /* Friso: linha fina cromada, como o friso da carroceria */
+  --friso: linear-gradient(90deg, transparent, #8a9099 18%, #f4f5f7 50%, #8a9099 82%, transparent);
+
+  --gradiente-metalico: linear-gradient(180deg, #0e0f11 0%, #0a0a0b 100%);
+  --gradiente-reflexo: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 70%
+  );
+  --cor-header: rgba(0, 0, 0, 0.92); /* quase sólido: o conteúdo some atrás dele */
+  /* "Fita": agora um friso cromado com um fio de neon no meio */
+  --fita-box: linear-gradient(90deg, #6e737b, #f4f5f7 30%, #39ff88 50%, #f4f5f7 70%, #6e737b);
+
+  /* ---- Espaçamento: escala de 4px ---- */
+  --esp-1: 4px;
+  --esp-2: 8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-5: 20px;
+  --esp-6: 24px;
+  --esp-8: 32px;
+  --esp-10: 40px;
+  --esp-12: 48px;
+  --esp-16: 64px;
+  --esp-20: 80px;
+
+  /* ---- Raios ---- */
+  --raio-p: 2px; /* cantos retos: peça usinada, não brinquedo */
+  --raio-m: 3px;
+  --raio-g: 6px;
+  --raio-total: 999px; /* pílula / círculo */
+  --inclinacao: -10deg; /* ângulo "de corrida" de botões e faixas */
+  --corte: 18px; /* tamanho do canto cortado na diagonal (clip-path) */
+
+  /* ---- Sombras ---- */
+  --sombra-p: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --sombra-m: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --sombra-g: 0 24px 60px rgba(0, 0, 0, 0.7);
+  --sombra-brilho: 0 0 0 1px rgba(244, 245, 247, 0.5), 0 10px 30px rgba(244, 245, 247, 0.1);
+  /* Linha de luz no topo do cartão, como reflexo na borda de uma lataria */
+  --brilho-borda: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  /* ---- Tipografia ----
+     Display: Saira Extra Condensed 800/900, caixa alta, apertada (voz de corrida).
+     Corpo: Manrope, limpa e legível. As duas vêm do pacote @fontsource (funcionam sem internet). */
+  --fonte-display: 'Saira Extra Condensed', 'Arial Narrow', 'Bahnschrift', sans-serif;
+  --fonte-corpo: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --largura-marca: 100%; /* a Saira já é condensada: não precisa esticar nada */
+  --texto-xs: 0.75rem; /* 12px */
+  --texto-p: 0.875rem; /* 14px */
+  --texto-m: 1rem; /* 16px */
+  /* clamp(MÍNIMO, IDEAL, MÁXIMO): o tamanho cresce junto com a tela,
+     mas nunca fica menor que o mínimo nem maior que o máximo. */
+  --texto-g: clamp(1.125rem, 1.05rem + 0.35vw, 1.25rem); /* 18 → 20px */
+  --texto-xg: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem); /* 28 → 40px */
+  --texto-titulo: clamp(2.75rem, 1.4rem + 5.6vw, 6.5rem); /* títulos de seção: 44 → 104px */
+  --texto-hero: clamp(2.75rem, 1.2rem + 5.2vw, 6.25rem); /* 44 → 100px */
+  --altura-linha: 1.6;
+
+  /* ---- Movimento ----
+     Curvas "fortes": começam rápido (resposta imediata ao toque) e assentam devagar. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* entradas e respostas a clique */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* algo que se desloca na tela */
+  --dur-clique: 160ms; /* resposta ao apertar */
+  --dur-saida: 150ms; /* sair é sempre mais rápido que entrar */
+  --transicao-rapida: 150ms var(--ease-out);
+  --transicao: 250ms var(--ease-out);
+  --transicao-lenta: 300ms var(--ease-out); /* teto da UI: acima de 300ms parece lento */
+
+  /* ---- Medidas de layout ---- */
+  --largura-max: 1240px;
+  --altura-header: 60px; /* barra do topo do celular; 0 no desktop (menu lateral) */
+  --margem-lateral: var(--esp-4); /* respiro nas laterais da página */
+
+  color-scheme: dark; /* barras de rolagem e campos nativos no tom certo */
+}
+
+/* ---- Tema SILVER (claro): fundo prata/gelo e tipografia grafite.
+   Só redefine as cores; o resto dos tokens continua igual. ---- */
+:root[data-tema='claro'] {
+  --cor-fundo: #e4e6e9; /* prata */
+  --cor-superficie: #eef0f2;
+  --cor-superficie-alta: #f7f8f9;
+  --cor-superficie-topo: #ffffff;
+  --cor-borda: #c9cdd2;
+  --cor-borda-forte: #8f949b;
+  --cor-texto: #16171a; /* 14:1 sobre o prata */
+  --cor-texto-suave: #464a51; /* 6,9:1 sobre o prata */
+
+  /* No Silver, o "cromo" vira GRAFITE: botões escuros com texto gelo */
+  --cor-acento: #1d1f23; /* 13:1 */
+  --cor-acento-forte: #000000;
+  --cor-sobre-acento: #f2f3f5; /* 15:1 */
+  --cor-acento-suave: rgba(22, 23, 26, 0.06);
+
+  /* Verde neon some no prata: vira verde-garrafa (5,9:1) */
+  --cor-neon: #076a34;
+  --cor-sobre-neon: #ffffff;
+  --cor-neon-suave: rgba(7, 106, 52, 0.1);
+  --brilho-neon: 0 0 0 1px rgba(7, 106, 52, 0.6), 0 8px 24px rgba(7, 106, 52, 0.18);
+
+  --cor-sucesso: #076a34;
+  --cor-alerta: #8a5300;
+  --cor-erro: #b42318;
+  --cor-info: #0b5cad;
+  --cor-foco: #076a34;
+
+  /* Cromo escuro: aço polido visto contra a luz */
+  --cromo: linear-gradient(180deg, #3b3f46 0%, #16171a 38%, #5b6068 52%, #16171a 64%, #2a2d33 100%);
+  --cromo-horizontal: linear-gradient(90deg, #16171a, #5b6068 40%, #16171a 70%, #3b3f46);
+  --friso: linear-gradient(90deg, transparent, #8a9099 18%, #ffffff 50%, #8a9099 82%, transparent);
+
+  --gradiente-metalico: linear-gradient(180deg, #f4f5f7 0%, #eceef0 100%);
+  --gradiente-reflexo: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 70%
+  );
+  --cor-header: rgba(228, 230, 233, 0.94);
+  --fita-box: linear-gradient(90deg, #8a9099, #ffffff 30%, #076a34 50%, #ffffff 70%, #8a9099);
+
+  --sombra-p: 0 1px 2px rgba(20, 23, 28, 0.1);
+  --sombra-m: 0 8px 24px rgba(20, 23, 28, 0.1);
+  --sombra-g: 0 24px 60px rgba(20, 23, 28, 0.18);
+  --sombra-brilho: 0 0 0 1px rgba(22, 23, 26, 0.5), 0 10px 28px rgba(22, 23, 26, 0.14);
+  --brilho-borda: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+  color-scheme: light;
+}
+
+/* =========================================================================
+   2. RESET
+   Zera diferenças entre navegadores para partirmos da mesma base.
+   ========================================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* largura inclui padding e borda: contas mais fáceis */
+}
+
+* {
+  margin: 0;
+}
+
+/* Imagens fluidas: nunca passam da largura do "pai" e mantêm a proporção */
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+select,
+textarea {
+  font: inherit; /* por padrão, campos de formulário não herdam a fonte */
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0; /* evita que fieldset "estoure" a largura no celular */
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/* O atributo hidden precisa vencer qualquer display definido abaixo */
+[hidden] {
+  display: none !important;
+}
+
+/* =========================================================================
+   3. BASE
+   Estilo dos elementos HTML "puros", sem classe.
+   ========================================================================= */
+html {
+  scroll-behavior: smooth;
+  /* Ao clicar num link #secao, desconta a altura do header fixo */
+  scroll-padding-top: calc(var(--altura-header) + var(--esp-4));
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-corpo);
+  font-size: var(--texto-m);
+  line-height: var(--altura-linha);
+  -webkit-font-smoothing: antialiased;
+  /* Palavras muito longas quebram em vez de empurrar a página para o lado */
+  overflow-wrap: break-word;
+  /* clip: corta o que passar da lateral (a faixa de manifesto usa 100vw) sem
+     criar barra de rolagem horizontal. Diferente de "hidden", não quebra o header sticky. */
+  overflow-x: clip;
+  transition:
+    background-color var(--transicao),
+    color var(--transicao);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--fonte-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+/* Títulos de seção e do diálogo: expandidos e em caixa alta, como emblema */
+h2 {
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: var(--texto-xg);
+  margin-bottom: var(--esp-4);
+}
+
+h3 {
+  font-size: var(--texto-g);
+  margin-bottom: var(--esp-2);
+}
+
+p + p {
+  margin-top: var(--esp-3);
+}
+
+a {
+  color: var(--cor-acento);
+  text-underline-offset: 3px;
+  transition: color var(--transicao-rapida);
+}
+
+a:hover {
+  color: var(--cor-acento-forte);
+}
+
+/* Foco visível em TODOS os elementos interativos (só aparece ao usar teclado) */
+:focus-visible {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 3px;
+  border-radius: var(--raio-p);
+}
+
+/* O <main> recebe foco pelo link "Pular para o conteúdo"; não precisa de contorno */
+main:focus {
+  outline: none;
+}
+
+::selection {
+  background: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+}
+
+/* ---- Campos de formulário ---- */
+input:not([type='radio']):not([type='checkbox']),
+select,
+textarea {
+  width: 100%;
+  min-height: 44px; /* área de toque mínima recomendada */
+  padding: var(--esp-2) var(--esp-3);
+  background: var(--cor-superficie-alta);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  transition:
+    border-color var(--transicao-rapida),
+    box-shadow var(--transicao-rapida);
+}
+
+input:not([type='radio']):not([type='checkbox']):hover,
+select:hover,
+textarea:hover {
+  border-color: var(--cor-texto-suave);
+}
+
+input:not([type='radio']):not([type='checkbox']):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--cor-neon);
+  box-shadow: 0 0 0 3px var(--cor-neon-suave);
+}
+
+/* :user-invalid só marca erro DEPOIS que o usuário mexeu no campo (não grita ao abrir a página) */
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid {
+  border-color: var(--cor-erro);
+}
+
+textarea {
+  resize: vertical;
+}
+
+::placeholder {
+  color: var(--cor-texto-suave);
+  opacity: 0.8;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cor-acento); /* pinta o checkbox nativo com a cor do grupo */
+}
+
+legend {
+  font-family: var(--fonte-display);
+  font-weight: 600;
+  font-size: var(--texto-m);
+  margin-bottom: var(--esp-2);
+}
+
+/* =========================================================================
+   4. LAYOUT
+   Estrutura geral: header, main, seções e rodapé.
+   ========================================================================= */
+
+/* ---- Conteúdo principal ---- */
+main {
+  width: 100%;
+  max-width: var(--largura-max);
+  margin: 0 auto;
+  padding: 0 var(--margem-lateral);
+}
+
+.secao {
+  padding: var(--esp-12) 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+
+.secao > h2 {
+  font-size: var(--texto-titulo);
+  line-height: 1;
+  margin-bottom: var(--esp-6);
+}
+
+.secao > h2::before {
+  /* Número da página na ordem do menu (01, 02…): o rotas.js grava em data-numero.
+     Antes era um contador do CSS, mas com uma página por vez ele mostraria sempre "01". */
+  content: attr(data-numero) ' /';
+  display: block;
+  margin-bottom: var(--esp-3);
+  color: var(--cor-acento);
+  font-size: var(--texto-p);
+  font-stretch: 100%;
+  letter-spacing: 0.2em;
+}
+
+/* Revelação por máscara: o app.js embrulha o texto do título em
+   .titulo-mascara > span. A máscara (overflow: hidden) esconde o texto
+   "embaixo da linha"; ao entrar na tela, ele sobe. Só transform: leve. */
+.titulo-mascara {
+  display: block;
+  overflow: hidden;
+  /* folga para acentos (Ó, Ç) não serem cortados pela máscara */
+  padding: 0.14em 0 0.1em;
+  margin: -0.14em 0 -0.1em;
+}
+
+.titulo-mascara > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 900ms var(--ease-out);
+}
+
+.revelado .titulo-mascara > span {
+  transform: none;
+}
+
+.secao:last-child {
+  border-bottom: 0;
+}
+
+/* Texto de apoio logo depois do título da seção */
+.secao > h2 + p:not(.vazio) {
+  color: var(--cor-texto-suave);
+  max-width: 60ch; /* linhas curtas são mais fáceis de ler */
+  margin-bottom: var(--esp-6);
+}
+
+/* ---- Rodapé ---- */
+.rodape {
+  padding: var(--esp-10) var(--esp-4);
+  background: var(--cor-superficie);
+  border-top: 1px solid var(--cor-borda);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+  text-align: center;
+}
+
+.rodape strong {
+  color: var(--cor-texto);
+}
+
+.rodape .aviso {
+  margin-top: var(--esp-4);
+  font-size: var(--texto-xs);
+}
+
+/* "PK" enorme, só o contorno: assinatura no fim da página */
+.rodape-marca {
+  margin-bottom: var(--esp-8);
+  color: transparent;
+  -webkit-text-stroke: 1px var(--cor-borda-forte);
+  font-family: var(--fonte-display);
+  font-size: clamp(6rem, 30vw, 18rem);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  line-height: 0.8;
+}
+
+/* Fita de box no topo do rodapé: a borda é "pintada" com as listras */
+.rodape {
+  border-top: 6px solid;
+  border-image: var(--fita-box) 1;
+}
+
+/* =========================================================================
+   5. COMPONENTES
+   ========================================================================= */
+
+/* ---------- 5.1 Botões ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-height: 44px;
+  padding: var(--esp-2) var(--esp-5);
+  border: 1px solid transparent;
+  border-radius: var(--raio-p);
+  font-family: var(--fonte-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: var(--texto-p);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    background-color var(--transicao-rapida),
+    border-color var(--transicao-rapida),
+    color var(--transicao-rapida),
+    transform var(--transicao-rapida),
+    box-shadow var(--transicao);
+}
+
+/* Ao apertar, o botão encolhe um pouco: a interface "ouviu" o clique.
+   Sutil (0.97): mais que isso parece desenho animado. */
+.btn:active,
+.btn-menu:active,
+.toast-acao:active {
+  transform: scale(0.97);
+}
+
+.btn-primario {
+  background: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+  box-shadow: var(--sombra-p);
+}
+
+/* (hover: hover) and (pointer: fine) = tem mouse de verdade. No toque, o :hover
+   "gruda" no botão depois do toque e parece que ele continua selecionado. */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primario:hover {
+    background: var(--cor-acento-forte);
+    color: var(--cor-sobre-acento);
+    box-shadow: var(--sombra-brilho);
+  }
+}
+
+.btn-secundario {
+  background: transparent;
+  color: var(--cor-texto);
+  border-color: var(--cor-borda-forte);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-secundario:hover {
+    color: var(--cor-texto);
+    border-color: var(--cor-acento);
+    background: var(--cor-acento-suave);
+  }
+
+  .btn-icone:hover {
+    border-color: var(--cor-acento);
+  }
+}
+
+/* Botões liga/desliga (Modo Estética, salvar): estado "ligado" */
+.btn[aria-pressed='true'] {
+  background: var(--cor-acento-suave);
+  border-color: var(--cor-acento);
+  color: var(--cor-acento);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Botão só com ícone (tema) */
+.btn-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-total);
+  font-size: var(--texto-g);
+  line-height: 1;
+  transition:
+    border-color var(--transicao-rapida),
+    transform var(--transicao);
+}
+
+.btn-icone:active {
+  transform: scale(0.92); /* botão pequeno: precisa de um aperto mais visível */
+}
+
+.btn-icone[aria-pressed='true'] span {
+  display: inline-block;
+  transform: rotate(180deg); /* o ícone gira ao trocar o tema */
+}
+
+/* Botão hambúrguer: 3 linhas desenhadas em CSS que viram um "X" quando aberto */
+.btn-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--esp-2) var(--esp-3);
+  background: transparent;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  font-weight: 600;
+  flex-shrink: 0;
+  transition:
+    border-color var(--transicao-rapida),
+    color var(--transicao-rapida),
+    transform var(--dur-clique) var(--ease-out);
+}
+
+.btn-menu[aria-expanded='true'] {
+  border-color: var(--cor-acento);
+  color: var(--cor-acento);
+}
+
+/* A linha do meio é o próprio span; as de cima e de baixo são ::before e ::after */
+.btn-menu-icone,
+.btn-menu-icone::before,
+.btn-menu-icone::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform var(--transicao),
+    background-color var(--transicao-rapida);
+}
+
+.btn-menu-icone {
+  position: relative;
+}
+
+.btn-menu-icone::before,
+.btn-menu-icone::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.btn-menu-icone::before {
+  top: -6px;
+}
+
+.btn-menu-icone::after {
+  top: 6px;
+}
+
+/* Aberto: a linha do meio some e as outras duas giram formando um X */
+.btn-menu[aria-expanded='true'] .btn-menu-icone {
+  background: transparent;
+}
+
+.btn-menu[aria-expanded='true'] .btn-menu-icone::before {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.btn-menu[aria-expanded='true'] .btn-menu-icone::after {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ---------- 5.2 Link "Pular para o conteúdo" ---------- */
+.pular-conteudo {
+  position: absolute;
+  top: var(--esp-2);
+  left: var(--esp-2);
+  z-index: 200;
+  padding: var(--esp-2) var(--esp-4);
+  background: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+  border-radius: var(--raio-m);
+  font-weight: 600;
+  transform: translateY(-200%); /* fora da tela até receber foco pelo Tab */
+  transition: transform var(--transicao-rapida);
+}
+
+.pular-conteudo:focus {
+  transform: translateY(0);
+  color: var(--cor-sobre-acento);
+}
+
+/* ---------- 5.3 Superfícies (cartões genéricos) ---------- */
+.cartao,
+.principio,
+.servico-card,
+.cartao-fidelidade,
+.resultado:not(:empty) {
+  background: var(--gradiente-metalico);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-g);
+  box-shadow: var(--brilho-borda), var(--sombra-m);
+}
+
+.cartao {
+  padding: var(--esp-5) var(--esp-4);
+  margin-top: var(--esp-6);
+}
+
+/* ---------- 5.4 Hero: título forte + carro 3D ----------
+   Celular: texto em cima, carro embaixo. Desktop: lado a lado (Media queries). */
+.hero {
+  position: relative;
+  display: grid;
+  gap: var(--esp-6);
+  padding: var(--esp-6) 0 var(--esp-8);
+}
+
+/* Selo pequeno acima do título: chanfrado, como etiqueta de peça */
+.hero-selo {
+  display: inline-block;
+  margin-bottom: var(--esp-5);
+  padding: var(--esp-1) var(--esp-4) var(--esp-1) var(--esp-3);
+  border-left: 4px solid var(--cor-acento);
+  background: var(--cor-acento-suave);
+  color: var(--cor-acento);
+  font-size: var(--texto-xs);
+  font-stretch: var(--largura-marca);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.hero-titulo {
+  margin-bottom: var(--esp-6);
+  font-size: var(--texto-hero);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+/* Cada linha é uma máscara: o texto sobe de "dentro" dela */
+.hero-linha {
+  display: block;
+  overflow: hidden;
+  padding: 0.12em 0 0.06em;
+  margin: -0.12em 0 -0.06em;
+}
+
+.hero-linha > span {
+  display: inline-block;
+}
+
+.hero-linha--destaque {
+  color: var(--cor-acento);
+}
+
+.hero-texto {
+  max-width: 46ch;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-g);
+}
+
+/* Celular: botões um embaixo do outro, largura total (fácil de tocar) */
+.hero-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  margin-top: var(--esp-8);
+}
+
+/* Entrada do hero (o app.js troca as classes):
+   .hero--preparar = estado inicial escondido; .hero--revelar = estado final.
+   Sem JavaScript nenhuma das duas existe e tudo aparece normal. */
+.hero-linha > span,
+.hero-selo,
+.hero-texto,
+.hero-acoes,
+.hero-carro {
+  transition:
+    transform 900ms var(--ease-out),
+    opacity 600ms var(--ease-out);
+}
+
+.hero--preparar .hero-linha > span {
+  transform: translateY(110%);
+}
+
+.hero--preparar .hero-selo,
+.hero--preparar .hero-texto,
+.hero--preparar .hero-acoes,
+.hero--preparar .hero-carro {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Atrasos em escada: linha 1, 2, 3, depois texto, botões e carro */
+.hero-linha:nth-child(2) > span {
+  transition-delay: 80ms;
+}
+.hero-linha:nth-child(3) > span {
+  transition-delay: 160ms;
+}
+.hero-texto {
+  transition-delay: 260ms;
+}
+.hero-acoes {
+  transition-delay: 340ms;
+}
+.hero-carro {
+  transition-delay: 120ms;
+}
+
+/* ---------- 5.4b Carro 3D do hero ---------- */
+.hero-carro {
+  position: relative;
+  margin: 0;
+  isolation: isolate;
+  overflow: hidden; /* o "PK" de fundo nunca passa da borda deste bloco */
+}
+
+/* "PK" gigante só no contorno atrás do carro (a marca como cenário)
+   + luz de estúdio no chão, onde o carro "pisa" */
+.hero-carro::before {
+  content: 'PK';
+  position: absolute;
+  inset: 0 0 18%;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse 50% 32% at 50% 78%, rgba(57, 255, 136, 0.16), transparent 70%);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(157, 162, 170, 0.22);
+  font-family: var(--fonte-display);
+  font-size: clamp(7rem, 24vw, 19rem);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.carro-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  cursor: grab;
+  /* pan-y: no celular, arrastar na VERTICAL continua rolando a página;
+     só o arraste na horizontal gira o carro */
+  touch-action: pan-y;
+}
+
+.carro-canvas:active {
+  cursor: grabbing;
+}
+
+.carro-canvas:focus-visible {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 4px;
+}
+
+.hero-carro-dica {
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+/* Amostras de cor: rádios de verdade (teclado e leitor de tela funcionam) */
+.cores-carro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-top: var(--esp-3);
+}
+
+.cores-carro legend {
+  float: left; /* legend ao lado das amostras, não em cima */
+  margin: 0 var(--esp-2) 0 0;
+  color: var(--cor-texto-suave);
+  font-family: var(--fonte-corpo);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.cor-amostra {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px; /* alvo de toque */
+  height: 44px;
+  cursor: pointer;
+}
+
+.cor-amostra::before {
+  content: '';
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--cor-borda-forte);
+  border-radius: var(--raio-total);
+  background: var(--amostra);
+  transition: transform var(--dur-clique) var(--ease-out);
+}
+
+.cor-amostra input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.cor-amostra:has(input:checked)::before {
+  border-color: var(--cor-acento);
+  box-shadow: 0 0 0 3px var(--cor-fundo), 0 0 0 5px var(--cor-acento);
+}
+
+.cor-amostra:has(input:focus-visible)::before {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 5px;
+}
+
+.cor-amostra:active::before {
+  transform: scale(0.9);
+}
+
+/* ---------- 5.4c Faixa de manifesto (letreiro rolando) ----------
+   Ocupa a largura toda da tela (sai do limite do <main>). */
+.faixa {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  background: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+  transform: rotate(-1.2deg); /* levemente torta, como fita colada */
+}
+
+.faixa-trilho {
+  display: flex;
+  width: max-content;
+  animation: faixa-rolar 32s linear infinite;
+}
+
+.faixa:hover .faixa-trilho {
+  animation-play-state: paused;
+}
+
+.faixa-trilho span {
+  padding: var(--esp-3) var(--esp-6);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-g);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.faixa-trilho span::after {
+  content: '◆';
+  margin-left: var(--esp-6);
+  font-size: 0.6em;
+  vertical-align: middle;
+}
+
+/* ---------- 5.4d Abertura (carro 3D + porta de garagem) ---------- */
+.abertura {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  background: radial-gradient(ellipse 70% 50% at 50% 62%, #0b1510 0%, #000 70%);
+  color: #f2f3f5;
+  /* a "porta de garagem" sobe: transform é leve (não recalcula layout) */
+  transition: transform 900ms var(--ease-in-out);
+  /* Rede de segurança: se o JavaScript falhar, a abertura some sozinha */
+  animation: abertura-seguranca 0s 7s forwards;
+}
+
+/* Fita de box na borda de baixo da "porta" */
+.abertura::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10px;
+  background: var(--fita-box);
+}
+
+.abertura .carro-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  cursor: default;
+}
+
+.abertura--saindo {
+  transform: translateY(-100%);
+}
+
+.abertura-marca {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 13vh;
+  text-align: center;
+  pointer-events: none;
+}
+
+.abertura-pk,
+.abertura-nome {
+  display: block;
+  overflow: hidden; /* máscara da revelação */
+}
+
+.abertura-pk > span,
+.abertura-nome > span {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 900ms var(--ease-out);
+}
+
+.abertura-nome > span {
+  transition-delay: 150ms;
+}
+
+.abertura--marca .abertura-pk > span,
+.abertura--marca .abertura-nome > span {
+  transform: none;
+}
+
+.abertura-pk {
+  color: var(--cor-acento);
+  font-family: var(--fonte-display);
+  font-size: clamp(4rem, 3rem + 8vw, 9rem);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.abertura-nome {
+  margin-top: var(--esp-2);
+  font-size: var(--texto-p);
+  font-stretch: var(--largura-marca);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.45em;
+}
+
+.abertura-pular {
+  position: absolute;
+  top: var(--esp-4);
+  right: var(--esp-4);
+  min-height: 44px;
+  padding: var(--esp-2) var(--esp-4);
+  border: 1px solid rgba(243, 241, 234, 0.35);
+  border-radius: var(--raio-p);
+  background: transparent;
+  color: #f2f3f5;
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  transition:
+    border-color var(--transicao-rapida),
+    transform var(--dur-clique) var(--ease-out);
+}
+
+.abertura-pular:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .abertura-pular:hover {
+    border-color: var(--cor-acento);
+  }
+}
+
+/* Painel do motor (conta-giros, marcha e luz VTEC), no canto como num painel de carro.
+   Aparece quando o motor "dá a partida" (.abertura--ligada). */
+.abertura-painel {
+  position: absolute;
+  top: var(--esp-4);
+  left: var(--esp-4);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: var(--esp-3);
+  row-gap: var(--esp-1);
+  width: min(320px, 58vw);
+  font-family: var(--fonte-display);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out);
+}
+
+.abertura--ligada .abertura-painel {
+  opacity: 1;
+}
+
+.painel-marcha {
+  grid-row: span 2;
+  min-width: 1.6ch;
+  color: #39ff88;
+  font-size: 2.75rem;
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Barra do conta-giros: a parte colorida cresce com scaleX (só transform) */
+.painel-rpm {
+  position: relative;
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  background: #26262a;
+}
+
+/* Faixa vermelha no fim: a "linha vermelha" do motor */
+.painel-rpm::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 12%;
+  background: rgba(255, 59, 48, 0.45);
+}
+
+.painel-rpm-barra {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #f2f3f5, #39ff88 68%, #ff3b30);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.painel-leitura {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #9da2aa;
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums; /* números com largura fixa: o texto não "dança" */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Luz VTEC: apagada até o motor passar de 5.500 rpm */
+.painel-vtec {
+  padding: 1px var(--esp-2);
+  border: 1px solid #3a3a40;
+  color: #3d4046;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  transition:
+    color 80ms linear,
+    background-color 80ms linear;
+}
+
+.painel-vtec.acesa {
+  border-color: #39ff88;
+  background: #39ff88;
+  color: #000;
+  box-shadow: 0 0 18px rgba(57, 255, 136, 0.6);
+}
+
+/* Cena 3D (Three.js): ocupa a tela toda, por baixo do painel e da marca */
+.carro-canvas--3d {
+  z-index: 0;
+}
+
+.abertura-painel,
+.abertura-marca,
+.abertura-pular,
+.abertura-progresso {
+  z-index: 1;
+}
+
+/* Barra de carregamento cromada (progresso real do modelo 3D) */
+.abertura-progresso {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: none;
+  width: min(320px, 70vw);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #9da2aa;
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2em;
+}
+
+.abertura--carregando .abertura-progresso {
+  display: block;
+}
+
+.abertura-progresso-trilho {
+  display: block;
+  height: 2px;
+  margin-bottom: var(--esp-3);
+  overflow: hidden;
+  background: #26262a;
+}
+
+#abertura-progresso-barra {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #6e737b, #f4f5f7, #bfc3c9);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms linear;
+}
+
+/* Celular: o painel desce para não ficar embaixo do botão "Pular abertura" */
+@media (max-width: 599.98px) {
+  .abertura-painel {
+    top: calc(var(--esp-4) + 60px);
+    width: calc(100% - 2 * var(--esp-4));
+  }
+}
+
+/* Enquanto a abertura roda, a página atrás não rola */
+html.abertura-ativa {
+  overflow: hidden;
+}
+
+
+.principios {
+  display: grid;
+  gap: var(--esp-4);
+  margin-top: var(--esp-10);
+  counter-reset: principio;
+}
+
+.principio {
+  position: relative;
+  padding: var(--esp-6);
+  transition:
+    transform var(--transicao),
+    border-color var(--transicao);
+}
+
+/* Número grande em contorno amarelo (01, 02, 03), como numeral de carro */
+.principio::before {
+  counter-increment: principio;
+  content: counter(principio, decimal-leading-zero);
+  display: block;
+  margin-bottom: var(--esp-3);
+  color: transparent;
+  -webkit-text-stroke: 1px var(--cor-acento);
+  font-family: var(--fonte-display);
+  font-size: 3rem;
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.principio h3 {
+  font-stretch: var(--largura-marca);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.principio p {
+  color: var(--cor-texto-suave);
+}
+
+.voz-cliente {
+  margin-top: var(--esp-12);
+  padding: var(--esp-6) 0 var(--esp-6) var(--esp-6);
+  border-left: 6px solid var(--cor-acento);
+}
+
+.voz-cliente blockquote p {
+  max-width: 34ch;
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-stretch: 112%;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.voz-cliente figcaption {
+  margin-top: var(--esp-3);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* ---------- 5.6 Cards de serviço (criados pelo JS) ----------
+   Estrutura esperada (para quem for escrever o app.js):
+   <article class="servico-card" style="--i: 0">
+     <span class="servico-icone" aria-hidden="true">✦</span>
+     <h3 class="servico-nome">Vitrificação</h3>
+     <p class="servico-durabilidade">Durabilidade: até 3 anos</p>
+     <dl class="medidores">
+       <div class="medidor"><dt>Proteção</dt><dd><span class="medidor-barra" style="--nivel: 90%"></span></dd></div>
+       <div class="medidor"><dt>Brilho</dt><dd><span class="medidor-barra" style="--nivel: 80%"></span></dd></div>
+     </dl>
+     <p class="servico-preco"><small>a partir de</small> R$ 1.200,00</p>
+     <div class="servico-acoes">
+       <a class="btn btn-primario" href="#agendar">Agendar</a>
+       <button class="btn btn-secundario btn-salvar" aria-pressed="false">Salvar</button>
+     </div>
+   </article> */
+/* Celular: 1 coluna. Tablet: 2. Desktop: 3 (ver Media queries). */
+.vitrine {
+  display: grid;
+  gap: var(--esp-5);
+  grid-template-columns: 1fr;
+}
+
+.servico-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  padding: var(--esp-6);
+  overflow: hidden;
+  transition:
+    transform var(--transicao),
+    border-color var(--transicao),
+    box-shadow var(--transicao);
+  /* Entrada em cascata: cada card espera um pouco mais (--i = posição).
+     50ms entre cards: mais que ~80ms faz a página parecer lenta. */
+  animation: surgir var(--transicao-lenta) backwards; /* backwards: não "prende" o transform depois que termina */
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+/* Depois da 1ª exibição (o app.js marca data-filtrada), os cards só fazem um
+   fade rápido, sem cascata e sem as barras enchendo de novo. */
+.vitrine[data-filtrada] .servico-card {
+  animation: aparecer var(--dur-saida) var(--ease-out) backwards;
+}
+
+.vitrine[data-filtrada] .medidor-barra {
+  animation: none;
+}
+
+/* Reflexo que passa sobre o card no hover */
+.servico-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradiente-reflexo);
+  transform: translateX(-100%);
+  transition: transform 700ms ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .servico-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--cor-acento);
+    box-shadow: var(--brilho-borda), var(--sombra-brilho);
+  }
+
+  .servico-card:hover::after {
+    transform: translateX(100%);
+  }
+}
+
+.servico-icone {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--raio-m);
+  background: var(--cor-acento-suave);
+  color: var(--cor-acento);
+  font-size: var(--texto-xg);
+  line-height: 1;
+}
+
+.servico-nome {
+  margin: 0;
+}
+
+.servico-durabilidade {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* Barras de proteção / brilho */
+.medidores {
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.medidor {
+  display: grid;
+  grid-template-columns: 92px 1fr; /* cabe "PROTEÇÃO" na fonte expandida */
+  align-items: center;
+  gap: var(--esp-3);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.medidor dd {
+  height: 6px;
+  border-radius: var(--raio-total);
+  background: var(--cor-borda);
+  overflow: hidden;
+}
+
+.medidor-barra {
+  display: block;
+  width: var(--nivel, 0%); /* o JS define o --nivel de cada barra */
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cor-acento), var(--cor-acento-forte));
+  transform-origin: left;
+  animation: encher-barra 600ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms + 150ms);
+}
+
+.servico-preco {
+  margin-top: auto; /* empurra preço e botões para o pé do card */
+  padding-top: var(--esp-3);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.servico-preco small {
+  display: block;
+  font-family: var(--fonte-corpo);
+  font-size: var(--texto-xs);
+  font-weight: 400;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Botões dividem a largura; se não couberem lado a lado (celular estreito), descem */
+.servico-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+.servico-acoes .btn {
+  flex: 1 1 auto;
+  padding-inline: var(--esp-3);
+  white-space: nowrap; /* "Ver detalhes" nunca quebra dentro do botão */
+}
+
+/* Card recomendado pelo diagnóstico */
+.servico-card.recomendado {
+  border-color: var(--cor-acento);
+  box-shadow: var(--brilho-borda), var(--sombra-brilho);
+}
+
+/* ---------- 5.7 Tabelas ---------- */
+/* Tablet e desktop: tabela de verdade. Se não couber, rola DENTRO da caixa
+   (a página nunca rola de lado). As "sombras" nas bordas avisam que há mais
+   conteúdo: elas somem quando a rolagem chega ao fim (truque do "local"). */
+.tabela-rolagem {
+  margin-top: var(--esp-8);
+  overflow-x: auto;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-g);
+  background:
+    linear-gradient(to right, var(--cor-superficie) 30%, transparent) left center / 40px 100% no-repeat local,
+    linear-gradient(to left, var(--cor-superficie) 30%, transparent) right center / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.35), transparent) left center / 14px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.35), transparent) right center / 14px 100%
+      no-repeat scroll,
+    var(--cor-superficie);
+}
+
+.tabela {
+  width: 100%;
+  min-width: 600px;
+  font-size: var(--texto-p);
+}
+
+.tabela caption {
+  padding: var(--esp-4) var(--esp-5);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-g);
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela th,
+.tabela td {
+  padding: var(--esp-3) var(--esp-5);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tabela thead th {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--cor-superficie-alta);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela tbody th {
+  font-weight: 600;
+}
+
+.tabela tbody tr + tr {
+  border-top: 1px solid var(--cor-borda);
+}
+
+.tabela tbody tr {
+  transition: background-color var(--transicao-rapida);
+}
+
+.tabela tbody tr:hover {
+  background: var(--cor-acento-suave);
+}
+
+/* Números alinhados à direita e com largura igual: facilita comparar preços */
+.tabela .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Linha "Carregando…" / "Nenhum serviço…" */
+.tabela td[colspan] {
+  padding: var(--esp-8);
+  text-align: center;
+  color: var(--cor-texto-suave);
+}
+
+/* CELULAR (< 600px): cada linha da tabela vira um card empilhado.
+   O JS deve pôr data-rotulo="Preço" etc. em cada <td>; o CSS mostra esse
+   rótulo à esquerda do valor, já que o cabeçalho (<thead>) fica escondido.
+   Exceção ao mobile-first: é mais simples "desmontar" a tabela só no celular. */
+@media (max-width: 599.98px) {
+  .tabela-rolagem {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .tabela,
+  .tabela caption,
+  .tabela tbody,
+  .tabela tr,
+  .tabela th,
+  .tabela td {
+    display: block;
+  }
+
+  .tabela {
+    min-width: 0;
+  }
+
+  .tabela caption {
+    padding: 0 0 var(--esp-3);
+    border-bottom: 0;
+  }
+
+  /* Some da tela, mas o leitor de tela continua lendo os cabeçalhos */
+  .tabela thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .tabela tbody {
+    display: grid;
+    gap: var(--esp-3);
+  }
+
+  .tabela tbody tr,
+  .tabela tbody tr + tr {
+    padding: var(--esp-4);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-g);
+    background: var(--gradiente-metalico);
+    box-shadow: var(--brilho-borda), var(--sombra-p);
+  }
+
+  /* Nome do serviço (th scope="row") = título do card */
+  .tabela tbody th {
+    padding: 0 0 var(--esp-2);
+    margin-bottom: var(--esp-2);
+    border-bottom: 1px solid var(--cor-borda);
+    font-family: var(--fonte-display);
+    font-size: var(--texto-g);
+  }
+
+  .tabela td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--esp-4);
+    padding: var(--esp-2) 0;
+    text-align: right;
+  }
+
+  .tabela td[data-rotulo]::before {
+    content: attr(data-rotulo); /* lê o texto do atributo data-rotulo */
+    flex-shrink: 0;
+    color: var(--cor-texto-suave);
+    font-size: var(--texto-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+  }
+
+  .tabela td[colspan] {
+    justify-content: center;
+    padding: var(--esp-4) 0;
+  }
+}
+
+/* ---------- 5.8 Formulários ---------- */
+.formulario {
+  display: grid;
+  gap: var(--esp-6);
+  max-width: 720px;
+}
+
+.campo {
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.campo > label {
+  font-weight: 600;
+  font-size: var(--texto-p);
+}
+
+.campo-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: 44px; /* a linha toda vira alvo de toque (o label marca o checkbox) */
+}
+
+.campo-checkbox > label {
+  font-weight: 500;
+  font-size: var(--texto-m);
+  cursor: pointer;
+}
+
+.dica {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* Endereço do leva e traz: em grade e "apagado" enquanto estiver desativado */
+/* Celular: 1 coluna (formulário sempre em uma coluna). Tablet+: 2 e 3 colunas. */
+.endereco {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--esp-4);
+  padding: var(--esp-4);
+  border: 1px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-g);
+  transition: opacity var(--transicao);
+}
+
+.endereco legend {
+  padding: 0 var(--esp-2);
+}
+
+.endereco:disabled {
+  opacity: 0.45;
+}
+
+.resumo:not(:empty) {
+  padding: var(--esp-4);
+  border-radius: var(--raio-m);
+  background: var(--cor-acento-suave);
+  border: 1px solid var(--cor-acento);
+  font-weight: 500;
+}
+
+/* ---------- 5.9 Chips do diagnóstico ----------
+   O <input type="radio"> continua no HTML e acessível ao teclado/leitor de tela.
+   Ele só fica invisível (opacity: 0) — NUNCA display:none, que o tiraria do Tab. */
+.grupo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+.grupo-chips legend {
+  width: 100%;
+}
+
+.grupo-chips label,
+.grade-horarios label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--esp-2) var(--esp-4);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie-alta);
+  font-size: var(--texto-p);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color var(--transicao-rapida),
+    background-color var(--transicao-rapida),
+    color var(--transicao-rapida),
+    transform var(--transicao-rapida);
+}
+
+/* O input cobre o chip inteiro e fica transparente: clicar em qualquer ponto marca a opção */
+.grupo-chips input,
+.grade-horarios input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .grupo-chips label:hover,
+  .grade-horarios label:hover {
+    border-color: var(--cor-acento);
+  }
+}
+
+.grupo-chips label:active,
+.grade-horarios label:active {
+  transform: scale(0.97);
+}
+
+/* :has() = "o label que TEM um input marcado dentro" → chip selecionado */
+.grupo-chips label:has(input:checked),
+.grade-horarios label:has(input:checked) {
+  background: var(--cor-acento);
+  border-color: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+}
+
+/* Foco do teclado aparece no chip, já que o input está invisível */
+.grupo-chips label:has(input:focus-visible),
+.grade-horarios label:has(input:focus-visible) {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 3px;
+}
+
+/* ---------- 5.10 Grade de horários ----------
+   Livre = padrão | Ocupado = input disabled | Selecionado = input checked */
+/* Celular: exatamente 3 colunas. Tablet+: quantas couberem (Media queries). */
+.grade-horarios {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--esp-2);
+}
+
+.grade-horarios legend,
+.grade-horarios .dica {
+  grid-column: 1 / -1; /* ocupam a linha inteira */
+}
+
+.grade-horarios label {
+  justify-content: center;
+  padding: var(--esp-2);
+  border-radius: var(--raio-m);
+  font-variant-numeric: tabular-nums;
+}
+
+.grade-horarios label:has(input:disabled) {
+  border-style: dashed;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  text-decoration: line-through;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.grade-horarios label:has(input:disabled):hover {
+  border-color: var(--cor-borda-forte);
+}
+
+/* ---------- 5.11 Resultado do diagnóstico ---------- */
+.resultado:not(:empty) {
+  margin-top: var(--esp-8);
+  padding: var(--esp-6);
+  border-color: var(--cor-acento);
+  animation: surgir var(--transicao-lenta) backwards;
+}
+
+/* ---------- 5.12 Linha do tempo de etapas ----------
+   O JS marca: class="concluida" nas etapas feitas e aria-current="step" na atual. */
+.linha-tempo {
+  display: grid;
+  gap: 0;
+  margin-top: var(--esp-4);
+  counter-reset: etapa; /* contador automático 1, 2, 3… */
+}
+
+.linha-tempo li {
+  position: relative;
+  padding: 0 0 var(--esp-6) var(--esp-12);
+  min-height: 40px;
+  color: var(--cor-texto-suave);
+  counter-increment: etapa;
+}
+
+/* Bolinha numerada */
+.linha-tempo li::before {
+  content: counter(etapa);
+  position: absolute;
+  left: 0;
+  top: -4px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--raio-total);
+  border: 2px solid var(--cor-borda-forte);
+  background: var(--cor-superficie);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-p);
+  font-weight: 700;
+  transition:
+    background-color var(--transicao),
+    border-color var(--transicao),
+    color var(--transicao);
+}
+
+/* Traço que liga uma etapa à próxima */
+.linha-tempo li::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 30px;
+  bottom: 0;
+  width: 2px;
+  background: var(--cor-borda);
+}
+
+.linha-tempo li:last-child::after {
+  display: none;
+}
+
+.linha-tempo li.concluida {
+  color: var(--cor-texto);
+}
+
+.linha-tempo li.concluida::before {
+  content: '✓';
+  background: var(--cor-sucesso);
+  border-color: var(--cor-sucesso);
+  color: var(--cor-fundo);
+}
+
+.linha-tempo li.concluida::after {
+  background: var(--cor-sucesso);
+}
+
+.linha-tempo li[aria-current='step'] {
+  color: var(--cor-texto);
+  font-weight: 600;
+}
+
+.linha-tempo li[aria-current='step']::before {
+  border-color: var(--cor-neon);
+  background: var(--cor-neon);
+  color: var(--cor-sobre-neon);
+  animation: pulso 2s ease-out infinite;
+}
+
+/* Horário de cada etapa (o JS pode colocar um <time> dentro do <li>) */
+.linha-tempo time {
+  display: block;
+  font-size: var(--texto-xs);
+  font-weight: 400;
+  color: var(--cor-texto-suave);
+}
+
+/* Galeria de fotos do check-in */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--esp-2);
+  margin: var(--esp-4) 0 var(--esp-2);
+}
+
+.galeria img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--raio-m);
+  border: 1px solid var(--cor-borda);
+}
+
+.checkin-fotos figcaption {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- 5.13 Cartão fidelidade ---------- */
+.cartao-fidelidade {
+  position: relative;
+  max-width: 460px;
+  padding: var(--esp-6) var(--esp-4);
+  overflow: hidden;
+  /* Visual de cartão "black" com fibra escovada */
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.015) 0 2px,
+      transparent 2px 4px
+    ),
+    linear-gradient(135deg, #2a2c31 0%, #0d0e10 45%, #1d1f23 70%, #08090a 100%);
+  color: #f2f3f5; /* o cartão é escuro nos dois temas, então o texto é fixo (17:1) */
+  border-color: #3a3c42;
+  border-top: 6px solid;
+  border-image: var(--fita-box) 1; /* fita de box: a mesma assinatura do rodapé */
+}
+
+.cartao-fidelidade::before {
+  content: '';
+  position: absolute;
+  inset: -50% -100%;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* Conteúdo acima do reflexo */
+.cartao-fidelidade > * {
+  position: relative;
+}
+
+.cartao-fidelidade h3 {
+  color: #f2f3f5; /* o cartão é escuro nos dois temas (17:1); o cromo vem do .texto-cromo no JS/CSS */
+  font-size: var(--texto-xg);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cartao-fidelidade p {
+  color: #a9aeb6; /* 8:1 sobre o cartão */
+}
+
+/* 5 colunas iguais: os carimbos encolhem junto com a tela (cabem até em 320px) */
+.carimbos {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--esp-2);
+  margin: var(--esp-6) 0 var(--esp-4);
+}
+
+.carimbo {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 56px;
+  aspect-ratio: 1; /* sempre um círculo perfeito (altura = largura) */
+  justify-self: center;
+  border: 2px dashed #5a6372;
+  border-radius: var(--raio-total);
+  color: #b7bec9;
+  font-family: var(--fonte-display);
+  font-weight: 700;
+  font-size: var(--texto-g);
+}
+
+/* Carimbo conquistado: preenchido e "batendo" no cartão */
+.carimbo.carimbado {
+  border: 2px solid #39ff88;
+  background: radial-gradient(circle at 35% 30%, #9dffc4, #18c964);
+  color: #02150a; /* 11:1 sobre o verde */
+  transform: rotate(-12deg);
+  box-shadow: 0 0 18px rgba(57, 255, 136, 0.45);
+  animation: carimbar 450ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+#fidelidade-status {
+  font-weight: 600;
+  color: #e9ebee;
+}
+
+/* ---------- 5.14 Badges de status ----------
+   Uso: <span class="badge" data-status="em-execucao">Em execução</span> */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: 2px var(--esp-3);
+  border-radius: var(--raio-total);
+  border: 1px solid currentColor;
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--cor-texto-suave);
+}
+
+/* Bolinha colorida antes do texto: a cor nunca é a ÚNICA informação (o texto também diz) */
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--raio-total);
+  background: currentColor;
+}
+
+.badge[data-status='agendado'] {
+  color: var(--cor-info);
+}
+
+.badge[data-status='recebido'],
+.badge[data-status='em-execucao'] {
+  color: var(--cor-alerta);
+}
+
+.badge[data-status='pronto'],
+.badge[data-status='entregue'] {
+  color: var(--cor-sucesso);
+}
+
+.badge[data-status='cancelado'] {
+  color: var(--cor-erro);
+}
+
+/* ---------- 5.15 Listas de cartões (veículos, salvos) e métricas ---------- */
+.lista-cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: var(--esp-4);
+  margin-top: var(--esp-6);
+}
+
+.lista-cartoes > .cartao {
+  margin-top: 0;
+  animation: surgir var(--transicao-lenta) backwards;
+}
+
+#form-veiculo {
+  margin-top: var(--esp-6);
+  padding: var(--esp-6);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-g);
+  background: var(--cor-superficie);
+  animation: surgir var(--transicao) backwards;
+}
+
+.lista-salvos {
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.lista-salvos li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie-alta);
+}
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: var(--esp-4);
+  margin-top: var(--esp-4);
+}
+
+.metrica {
+  padding: var(--esp-4);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie-alta);
+  border: 1px solid var(--cor-borda);
+}
+
+.metrica dt {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metrica dd {
+  margin: var(--esp-1) 0 0;
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 5.16 Estados vazios ---------- */
+.vazio {
+  padding: var(--esp-8) var(--esp-4);
+  border: 1px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-g);
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+.lista-cartoes > .vazio {
+  grid-column: 1 / -1;
+}
+
+/* ---------- 5.17 Toasts ----------
+   Uso: <div class="toast toast--sucesso">Veículo salvo!</div> dentro de #toasts */
+.toasts {
+  position: fixed;
+  right: var(--esp-4);
+  bottom: var(--esp-4);
+  left: var(--esp-4);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--esp-2);
+  pointer-events: none; /* não bloqueia cliques na página */
+}
+
+.toast {
+  max-width: 380px;
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-m);
+  border: 1px solid var(--cor-borda-forte);
+  border-left: 4px solid var(--cor-info);
+  background: var(--cor-superficie-alta);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-g);
+  font-size: var(--texto-p);
+  pointer-events: auto;
+  transition:
+    opacity var(--transicao),
+    transform var(--transicao);
+}
+
+/* Estado de partida: o toast nasce com esta classe e o ui.js a remove no quadro
+   seguinte; a transição acima anima até o estado normal (interrompível). */
+.toast--entrando {
+  opacity: 0;
+  transform: translateY(100%) scale(0.96); /* 100% = a própria altura do toast */
+}
+
+.toast--sucesso {
+  border-left-color: var(--cor-sucesso);
+}
+
+.toast--erro {
+  border-left-color: var(--cor-erro);
+}
+
+.toast--alerta {
+  border-left-color: var(--cor-alerta);
+}
+
+/* O JS adiciona .saindo antes de remover o toast.
+   Sai pelo MESMO caminho por onde entrou (para baixo), e mais rápido do que entrou. */
+.toast.saindo {
+  opacity: 0;
+  transform: translateY(50%) scale(0.96);
+  transition-duration: var(--dur-saida);
+  pointer-events: none;
+}
+
+/* ---------- 5.18 Dialog ---------- */
+dialog {
+  width: min(440px, calc(100% - var(--esp-8)));
+  padding: var(--esp-6);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-g);
+  background: var(--gradiente-metalico);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-g);
+}
+
+/* Fechado (e saindo): transparente e um pouco menor. "display" e "overlay" com
+   allow-discrete mantêm o diálogo visível até a animação de saída terminar.
+   Navegador antigo: abre e fecha sem animação (continua funcionando). */
+dialog {
+  opacity: 0;
+  transform: translateY(8px) scale(0.97); /* nunca scale(0): nada surge do nada */
+  transition:
+    opacity var(--dur-saida) var(--ease-out),
+    transform var(--dur-saida) var(--ease-out),
+    overlay var(--dur-saida) allow-discrete,
+    display var(--dur-saida) allow-discrete;
+}
+
+/* Aberto. A entrada (250ms) é mais lenta que a saída (150ms): sair tem de ser ágil. */
+dialog[open] {
+  opacity: 1;
+  transform: none;
+  transition-duration: 250ms;
+  animation: dialog-abrir 250ms var(--ease-out);
+}
+
+/* Fundo escurecido e desfocado atrás do diálogo (acompanha a entrada e a saída) */
+dialog::backdrop {
+  background: rgba(5, 6, 8, 0);
+  /* "none" em vez de blur(0): o minificador do build encurta blur(0) para blur(), que é inválido */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transition:
+    background-color var(--dur-saida) var(--ease-out),
+    backdrop-filter var(--dur-saida) var(--ease-out),
+    overlay var(--dur-saida) allow-discrete,
+    display var(--dur-saida) allow-discrete;
+}
+
+dialog[open]::backdrop {
+  background: rgba(5, 6, 8, 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  transition-duration: 250ms;
+}
+
+dialog[open]::backdrop {
+  animation: fundo-abrir 250ms var(--ease-out);
+}
+
+@keyframes dialog-abrir {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+@keyframes fundo-abrir {
+  from {
+    background-color: rgba(5, 6, 8, 0);
+  }
+}
+
+dialog h2 {
+  font-size: var(--texto-g);
+}
+
+dialog p {
+  color: var(--cor-texto-suave);
+}
+
+.dialog-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  margin-top: var(--esp-6);
+}
+
+/* ---------- 5.19 Serviços: filtros, extras do card, comparativo, salvos ---------- */
+
+/* Barra de filtros: celular = tudo empilhado (tablet/desktop nas Media queries) */
+.servicos-filtros {
+  display: grid;
+  gap: var(--esp-4);
+  margin-bottom: var(--esp-3);
+}
+
+.servicos-filtros legend {
+  font-family: var(--fonte-corpo);
+  font-size: var(--texto-p);
+}
+
+.servicos-contagem {
+  min-height: 1.6em; /* reserva a linha: a vitrine não "pula" quando o texto muda */
+  margin-bottom: var(--esp-4);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+.servico-categoria {
+  margin: 0;
+  color: var(--cor-acento);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.servico-resumo {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* Estado vazio da vitrine ocupa todas as colunas */
+.vitrine > .vazio {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-4);
+}
+
+/* Estrela do botão salvar. O "/ ''" depois do conteúdo é o texto alternativo
+   vazio: o leitor de tela não lê "estrela", só "Salvar, pressionado". */
+.btn-salvar::before {
+  content: '☆'; /* reserva para navegadores antigos */
+  content: '☆' / '';
+}
+
+.btn-salvar[aria-pressed='true']::before {
+  content: '★';
+  content: '★' / '';
+}
+
+/* Nível (proteção/brilho) na tabela: palavra + mini barra */
+.nivel {
+  display: grid;
+  gap: var(--esp-1);
+  min-width: 88px;
+}
+
+.nivel-barra {
+  position: relative;
+  display: block;
+  height: 4px;
+  border-radius: var(--raio-total);
+  background: var(--cor-borda);
+  overflow: hidden;
+}
+
+.nivel-barra::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--nivel, 0%);
+  border-radius: inherit;
+  background: var(--cor-acento);
+}
+
+/* Lista de salvos */
+.lista-salvos li {
+  flex-wrap: wrap;
+}
+
+.salvo-info {
+  display: grid;
+}
+
+.salvo-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* O título recebe foco pelo JS (tabindex="-1"); não precisa de contorno de mouse */
+#salvos-titulo:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------- 5.20 Diálogo de detalhes do serviço ---------- */
+.dialog-servico {
+  width: min(680px, calc(100% - var(--esp-4)));
+  max-height: calc(100vh - var(--esp-4));
+  max-height: calc(100dvh - var(--esp-4));
+  padding: 0; /* o padding fica no .dialog-conteudo: clicar no fundo fecha */
+  overflow: auto;
+}
+
+.dialog-conteudo {
+  padding: var(--esp-5) var(--esp-4) 0;
+}
+
+.detalhe-topo {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-4);
+}
+
+.dialog-servico .detalhe-topo h2 {
+  margin: 0;
+  font-size: var(--texto-xg);
+}
+
+.dialog-servico h3 {
+  margin: var(--esp-6) 0 var(--esp-2);
+  font-size: var(--texto-p);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cor-acento);
+}
+
+.detalhe-preco {
+  margin-top: var(--esp-4);
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-m);
+  background: var(--cor-acento-suave);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.dialog-servico .detalhe-preco {
+  color: var(--cor-texto);
+}
+
+.detalhe-preco small {
+  display: block;
+  font-family: var(--fonte-corpo);
+  font-size: var(--texto-xs);
+  font-weight: 400;
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* O Reset tirou as bolinhas das listas; aqui elas voltam */
+.detalhe-lista {
+  display: grid;
+  gap: var(--esp-1);
+  padding-left: 1.25em;
+  list-style: disc;
+  color: var(--cor-texto-suave);
+}
+
+/* Etapas numeradas com bolinhas (contador automático do CSS) */
+.detalhe-etapas {
+  display: grid;
+  gap: var(--esp-2);
+  counter-reset: passo;
+}
+
+.detalhe-etapas li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: start;
+  gap: var(--esp-3);
+  counter-increment: passo;
+}
+
+.detalhe-etapas li::before {
+  content: counter(passo);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--raio-total);
+  background: var(--cor-acento-suave);
+  color: var(--cor-acento);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-p);
+  font-weight: 700;
+}
+
+/* Botões grudados no pé do diálogo: sempre visíveis, mesmo rolando o conteúdo */
+.dialog-servico .dialog-acoes {
+  position: sticky;
+  bottom: 0;
+  flex-wrap: wrap;
+  margin: var(--esp-6) calc(-1 * var(--esp-4)) 0;
+  padding: var(--esp-4);
+  border-top: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+
+.dialog-servico .dialog-acoes form {
+  display: contents; /* o <form> não cria caixa: o botão se alinha com o outro */
+}
+
+.dialog-servico .dialog-acoes .btn {
+  flex: 1 1 auto;
+}
+
+/* ---------- 5.21 Toast com botão de ação ("Desfazer") ---------- */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+}
+
+.toast-texto {
+  flex: 1;
+}
+
+.toast-acao {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: var(--esp-2) var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-p);
+  background: transparent;
+  color: var(--cor-acento);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.toast-acao:hover {
+  background: var(--cor-acento-suave);
+}
+
+/* ---------- 5.22 Diagnóstico: erros e recomendações ---------- */
+
+/* Mensagem de erro de uma pergunta. O "!" em texto garante que a cor não é a única pista. */
+.mensagem-erro {
+  width: 100%; /* ocupa a linha inteira, entre o título e os chips */
+  color: var(--cor-erro);
+  font-size: var(--texto-p);
+  font-weight: 600;
+}
+
+.mensagem-erro::before {
+  content: '! ';
+}
+
+/* Chips da pergunta com erro ganham borda vermelha */
+.grupo-chips label:has(input[aria-invalid='true']) {
+  border-color: var(--cor-erro);
+}
+
+.resultado-titulo {
+  margin: 0;
+  font-size: var(--texto-xg);
+}
+
+.resultado-titulo:focus {
+  outline: none; /* recebe foco só pelo JS (tabindex=-1); não é um controle */
+}
+
+.resultado-resumo {
+  margin-top: var(--esp-1);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* Aviso de transparência (orçamento ampliado, correção que não coube…) */
+.aviso-diagnostico {
+  display: flex;
+  gap: var(--esp-2);
+  margin-top: var(--esp-4);
+  padding: var(--esp-3) var(--esp-4);
+  border: 1px solid var(--cor-alerta);
+  border-radius: var(--raio-m);
+  color: var(--cor-texto);
+  font-size: var(--texto-p);
+}
+
+.aviso-diagnostico > span:first-child {
+  color: var(--cor-alerta);
+  font-weight: 700;
+}
+
+.recomendacoes {
+  display: grid;
+  gap: var(--esp-4);
+  margin: var(--esp-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recomendacao {
+  display: grid;
+  gap: var(--esp-3);
+  padding: var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-g);
+  background: var(--cor-superficie-alta);
+  animation: surgir var(--transicao-lenta) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* A 1ª opção ganha a borda e o brilho da cor do grupo */
+.recomendacao--destaque {
+  border-color: var(--cor-acento);
+  box-shadow: var(--sombra-brilho);
+}
+
+.recomendacao-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--esp-3);
+}
+
+.recomendacao-cabecalho .servico-icone {
+  width: 40px;
+  height: 40px;
+  font-size: var(--texto-g);
+}
+
+/* O bloco de texto ocupa o que sobra; o selo vai para a direita (ou desce, se não couber) */
+.recomendacao-cabecalho > div {
+  flex: 1 1 160px;
+}
+
+.recomendacao-cabecalho .servico-categoria {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.recomendacao-nome {
+  margin: 0;
+  font-size: var(--texto-g);
+}
+
+/* Selo "Mais indicado" */
+.selo {
+  padding: var(--esp-1) var(--esp-3);
+  border-radius: var(--raio-total);
+  background: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.recomendacao-motivo {
+  margin: 0;
+}
+
+.recomendacao-inclui {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* Preço, tempo e durabilidade em 3 colunas que descem quando falta espaço */
+.recomendacao-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: var(--esp-3);
+  margin: 0;
+  padding: var(--esp-3) 0;
+  border-block: 1px solid var(--cor-borda);
+}
+
+.recomendacao-dados dt {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.recomendacao-dados dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.etiqueta-alerta {
+  display: inline-block;
+  color: var(--cor-alerta);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+}
+
+/* ---------- 5.24 Formulários: carregando, ações, resumo ---------- */
+.acoes-formulario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* Spinner dos selects da FIPE enquanto carregam (aria-busy="true") */
+.campo-fipe {
+  position: relative;
+}
+
+.campo-fipe:has(select[aria-busy='true'])::after {
+  content: '';
+  position: absolute;
+  right: var(--esp-8);
+  bottom: 14px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--cor-borda-forte);
+  border-top-color: var(--cor-acento);
+  border-radius: var(--raio-total);
+  animation: girar 700ms linear infinite;
+}
+
+.form-veiculo {
+  margin-top: var(--esp-6);
+  padding: var(--esp-6);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-g);
+  background: var(--cor-superficie);
+}
+
+.form-veiculo h3 {
+  margin: 0;
+}
+
+.resumo-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--esp-2) var(--esp-4);
+  margin: 0;
+}
+
+.resumo-lista dt {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.resumo-lista dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.resumo .selo {
+  display: inline-block;
+  margin-bottom: var(--esp-3);
+}
+
+.confirmacao-card .protocolo {
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  color: var(--cor-acento);
+  letter-spacing: 0.04em;
+}
+
+.btn-pequeno {
+  min-height: 36px;
+  padding: var(--esp-1) var(--esp-3);
+  font-size: var(--texto-xs);
+}
+
+/* ---------- 5.25 Veículos ---------- */
+.veiculo-card h3 {
+  margin: 0;
+}
+
+/* Placa com cara de placa: fundo claro, borda e letras largas */
+.veiculo-placa {
+  display: inline-block;
+  margin: var(--esp-2) 0;
+  padding: var(--esp-1) var(--esp-3);
+  border: 2px solid #1d1d1f;
+  border-top: 6px solid #1f4fa8;
+  border-radius: var(--raio-m);
+  background: #f4f4f2;
+  color: #111;
+  font-family: var(--fonte-display);
+  font-size: var(--texto-g);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.veiculo-dados {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--esp-2);
+  margin: 0 0 var(--esp-3);
+}
+
+.veiculo-dados dt {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.veiculo-dados dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ---------- 5.26 Acompanhamento ---------- */
+.painel-atendente {
+  margin-bottom: var(--esp-8);
+  padding: var(--esp-5);
+  border: 1px solid var(--cor-borda); /* antes era tracejada: marcava o "Modo Estética" */
+  background: var(--gradiente-metalico);
+}
+
+.lista-atendente {
+  display: grid;
+  gap: var(--esp-3);
+}
+
+.grupo-titulo {
+  margin: var(--esp-4) 0 0;
+  color: var(--cor-acento);
+  font-size: var(--texto-p);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.atendente-card {
+  margin-top: 0;
+}
+
+.atendente-card h4 {
+  margin: 0;
+}
+
+.andamento-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-3);
+}
+
+.andamento-topo h3 {
+  margin: 0;
+}
+
+.andamento-progresso-rotulo {
+  display: block;
+  margin-top: var(--esp-2);
+  font-size: var(--texto-p);
+}
+
+/* Barra de progresso nativa (<progress>) com a cor da marca */
+progress {
+  width: 100%;
+  height: 10px;
+  margin: var(--esp-2) 0;
+  border: 0;
+  border-radius: var(--raio-total);
+  background: var(--cor-borda);
+  overflow: hidden;
+  appearance: none;
+}
+
+progress::-webkit-progress-bar {
+  background: var(--cor-borda);
+}
+
+progress::-webkit-progress-value {
+  background: var(--cor-neon);
+  transition: width var(--transicao-lenta);
+}
+
+progress::-moz-progress-bar {
+  background: var(--cor-neon);
+}
+
+.etapa-foto {
+  display: block;
+  margin-top: var(--esp-2);
+  padding: 0;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  background: none;
+  overflow: hidden;
+}
+
+.etapa-foto img {
+  display: block;
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+}
+
+.confirmado {
+  margin-top: var(--esp-4);
+  color: var(--cor-sucesso);
+  font-weight: 700;
+}
+
+/* ---------- 5.27 Check-in: fotos e mapa de avarias ---------- */
+.form-checkin fieldset {
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-g);
+}
+
+.grade-2 {
+  display: grid;
+  gap: var(--esp-4);
+}
+
+.checkin-previa {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--esp-3);
+  margin: var(--esp-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.previa-item {
+  display: grid;
+  gap: var(--esp-1);
+  font-size: var(--texto-xs);
+}
+
+.previa-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--raio-m);
+}
+
+.previa-tamanho {
+  color: var(--cor-texto-suave);
+}
+
+.previa-angulo select {
+  min-height: 36px;
+  margin-top: var(--esp-1);
+  padding: var(--esp-1);
+}
+
+.mapa-avarias-area {
+  display: grid;
+  gap: var(--esp-4);
+  align-items: start;
+  margin: var(--esp-4) 0;
+}
+
+.mapa-svg {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.mapa-carroceria {
+  fill: var(--cor-superficie-alta);
+  stroke: var(--cor-borda-forte);
+  stroke-width: 2;
+}
+
+.mapa-vidro {
+  fill: var(--cor-borda);
+}
+
+.mapa-regiao {
+  fill: transparent;
+  stroke: var(--cor-borda-forte);
+  stroke-width: 1.5;
+}
+
+.mapa-svg--editavel .mapa-regiao {
+  cursor: pointer;
+}
+
+.mapa-svg--editavel .mapa-regiao:hover {
+  fill: var(--cor-acento-suave);
+}
+
+.mapa-regiao:focus-visible {
+  outline: none;
+  stroke: var(--cor-foco);
+  stroke-width: 4;
+}
+
+/* Cor por tipo de avaria (a letra no centro e a legenda repetem a informação) */
+[data-tipo='risco'] {
+  --cor-avaria: #f59e0b;
+}
+
+[data-tipo='amassado'] {
+  --cor-avaria: #ef4444;
+}
+
+[data-tipo='lascado'] {
+  --cor-avaria: #a855f7;
+}
+
+[data-tipo='mancha'] {
+  --cor-avaria: #3b82f6;
+}
+
+[data-tipo='trinca'] {
+  --cor-avaria: #14b8a6;
+}
+
+.mapa-regiao[data-tipo] {
+  fill: var(--cor-avaria);
+  fill-opacity: 0.55;
+  stroke: var(--cor-avaria);
+}
+
+.mapa-marca {
+  fill: var(--cor-texto);
+  font-family: var(--fonte-display);
+  font-size: 14px;
+  font-weight: 800;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.legenda-avarias {
+  display: grid;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-p);
+}
+
+.legenda-avarias li {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.legenda-cor {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--raio-p);
+  background: var(--cor-avaria, var(--cor-borda));
+  flex-shrink: 0;
+}
+
+.galeria {
+  list-style: none;
+  padding: 0;
+}
+
+.galeria-botao {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-m);
+  background: none;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.galeria-botao img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+/* Lightbox */
+.dialog-foto {
+  width: min(960px, calc(100% - var(--esp-4)));
+  padding: var(--esp-3);
+}
+
+.dialog-foto img {
+  display: block;
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  border-radius: var(--raio-m);
+  background: #000;
+}
+
+.dialog-foto figcaption {
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* ---------- 5.28 NPS ---------- */
+.nps-escala {
+  padding: 0;
+  border: 0;
+}
+
+.nps-opcoes {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--esp-1);
+}
+
+.nps-nota {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nps-nota input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.nps-nota:has(input:checked) {
+  background: var(--cor-acento);
+  border-color: var(--cor-acento);
+  color: var(--cor-sobre-acento);
+}
+
+.nps-nota:has(input:focus-visible) {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 2px;
+}
+
+.nps-extremos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+}
+
+/* ---------- 5.29 Fidelidade ---------- */
+.fidelidade-grade {
+  display: grid;
+  gap: var(--esp-6);
+  align-items: start;
+}
+
+.cartao-fidelidade.recompensa {
+  box-shadow: 0 0 0 2px #39ff88, 0 10px 40px rgba(57, 255, 136, 0.25);
+}
+
+/* Carimbos que já estavam lá não animam de novo ao abrir a página */
+.carimbo.sem-animacao {
+  animation: none;
+}
+
+.lista-simples {
+  display: grid;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-p);
+}
+
+.lista-simples time {
+  font-weight: 700;
+}
+
+/* ---------- 5.30 Histórico e painel de métricas ---------- */
+.historico-filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 260px));
+  gap: var(--esp-4);
+  margin-bottom: var(--esp-4);
+}
+
+.acoes-tabela {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+}
+
+.vazio-tabela {
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+#alerta-manutencao .btn {
+  margin-left: var(--esp-2);
+}
+
+.painel-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+}
+
+.painel-topo h3 {
+  margin: 0;
+}
+
+.painel-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+.metricas-painel {
+  display: grid;
+  gap: var(--esp-6);
+  margin-top: var(--esp-5);
+}
+
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--esp-3);
+}
+
+.indicador {
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-borda-forte);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie-alta);
+}
+
+.indicador--ok {
+  border-left-color: var(--cor-sucesso);
+}
+
+.indicador--abaixo {
+  border-left-color: var(--cor-alerta);
+}
+
+.indicador-titulo {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.indicador-valor {
+  margin: var(--esp-1) 0;
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-stretch: var(--largura-marca);
+  font-weight: 800;
+}
+
+.indicador-detalhe {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+}
+
+.grafico h4 {
+  margin-bottom: var(--esp-3);
+}
+
+.grafico-rotulo {
+  margin: var(--esp-3) 0 var(--esp-1);
+  font-size: var(--texto-p);
+}
+
+/* Barra: o preenchimento é um ::before com a largura vinda do --valor */
+.barra {
+  position: relative;
+  height: 12px;
+  border-radius: var(--raio-total);
+  background: var(--cor-borda);
+}
+
+.barra::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--valor, 0%);
+  border-radius: inherit;
+  background: var(--cor-acento);
+}
+
+/* Marcador da meta: um traço vertical na posição --meta */
+.barra--meta::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: var(--meta);
+  width: 2px;
+  background: var(--cor-texto);
+}
+
+.colunas {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--esp-2);
+  align-items: end;
+  height: 180px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.colunas li {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  text-align: center;
+}
+
+.coluna {
+  align-self: end;
+  height: var(--valor);
+  min-height: 2px;
+  border-radius: var(--raio-p) var(--raio-p) 0 0;
+  background: var(--cor-acento);
+}
+
+.coluna-valor,
+.coluna-rotulo {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- 5.31 Como funciona: passos, FAQ e glossário ---------- */
+.passos {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0 0 var(--esp-8);
+  padding-left: var(--esp-6);
+}
+
+.faq {
+  display: grid;
+  gap: var(--esp-2);
+  margin-bottom: var(--esp-8);
+}
+
+.faq details {
+  padding: var(--esp-3) var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie);
+}
+
+.faq summary {
+  min-height: 32px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.faq details p {
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-suave);
+}
+
+.glossario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--esp-3);
+  margin: 0;
+}
+
+.glossario div {
+  padding: var(--esp-3) var(--esp-4);
+  border-left: 3px solid var(--cor-acento);
+  background: var(--cor-superficie);
+}
+
+.glossario dt {
+  font-weight: 800;
+}
+
+.glossario dd {
+  margin: var(--esp-1) 0 0;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-p);
+}
+
+/* ---------- 5.32 Troca de tema suave ---------- */
+html.trocando-tema,
+html.trocando-tema *,
+html.trocando-tema *::before,
+html.trocando-tema *::after {
+  transition:
+    background-color 350ms var(--ease-out),
+    border-color 350ms var(--ease-out),
+    color 350ms var(--ease-out) !important;
+}
+
+@media (min-width: 600px) {
+  .grade-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .nps-opcoes {
+    grid-template-columns: repeat(11, 1fr);
+  }
+
+  .mapa-avarias-area {
+    grid-template-columns: 220px 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fidelidade-grade {
+    grid-template-columns: minmax(0, 460px) 1fr;
+  }
+}
+
+/* Spinner de carregamento */
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================================
+   6. UTILITÁRIOS
+   Classes pequenas, de uma função só, para usar no HTML ou no JS.
+   ========================================================================= */
+
+/* Esconde da tela, mas o leitor de tela continua lendo */
+.visualmente-oculto {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.texto-suave {
+  color: var(--cor-texto-suave);
+}
+
+.texto-acento {
+  color: var(--cor-acento);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   7. ANIMAÇÕES
+   ========================================================================= */
+
+/* Letreiro: anda metade do trilho (que tem o texto 2x), então o loop não tem emenda */
+@keyframes faixa-rolar {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Abertura: rede de segurança sem JavaScript */
+@keyframes abertura-seguranca {
+  to {
+    visibility: hidden;
+    opacity: 0;
+  }
+}
+
+/* Entrada de cards: sobe um pouco e aparece */
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Barras de proteção/brilho enchendo da esquerda para a direita */
+@keyframes encher-barra {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Carimbo "batendo": vem grande, bate no cartão e assenta torto */
+@keyframes carimbar {
+  0% {
+    opacity: 0;
+    transform: scale(2.2) rotate(-30deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.9) rotate(-8deg);
+  }
+  100% {
+    transform: scale(1) rotate(-12deg);
+  }
+}
+
+/* Etapa atual da linha do tempo "respirando" */
+@keyframes pulso {
+  0% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 136, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(57, 255, 136, 0);
+  }
+}
+
+/* Só opacidade: para conteúdo que troca com frequência (resultado de filtro) */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================================
+   8. MEDIA QUERIES
+   Mobile-first: o CSS acima é para celular; aqui ampliamos para telas maiores.
+   ========================================================================= */
+
+/* BREAKPOINTS
+   base     < 600px   celular (tudo acima deste bloco)
+   tablet   ≥ 600px
+   desktop  ≥ 1024px
+   wide     ≥ 1440px
+   Cada bloco só ACRESCENTA ao anterior: o desktop herda o que o tablet mudou. */
+
+/* ---------- TABLET (≥ 600px) ---------- */
+@media (min-width: 600px) {
+  :root {
+    --margem-lateral: var(--esp-6);
+  }
+
+  .hero {
+    padding: var(--esp-10) 0 var(--esp-12);
+  }
+
+  /* Botões do hero voltam a ficar lado a lado */
+  .hero-acoes {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .principios {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .principio {
+    padding: var(--esp-5);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .principio:hover {
+      transform: translateY(-3px);
+      border-color: var(--cor-borda-forte);
+    }
+  }
+
+  .voz-cliente blockquote p {
+    font-size: var(--texto-xg);
+  }
+
+  .secao {
+    padding: var(--esp-16) 0;
+  }
+
+  /* Cards de serviço em 2 colunas */
+  .vitrine {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Horários: quantos couberem, cada um com no mínimo 88px */
+  .grade-horarios {
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  }
+
+  .endereco {
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--esp-5);
+  }
+
+  .cartao {
+    padding: var(--esp-6);
+  }
+
+  .cartao-fidelidade {
+    padding: var(--esp-8) var(--esp-6);
+  }
+
+  /* Filtros: porte e busca lado a lado; chips na linha de baixo */
+  .servicos-filtros {
+    grid-template-columns: minmax(160px, 220px) 1fr;
+  }
+
+  .servicos-filtros fieldset {
+    grid-column: 1 / -1;
+  }
+
+  /* Tabela comparativa tem 7 colunas: largura mínima para não espremer (rola dentro da caixa) */
+  #tabela-comparativa {
+    min-width: 820px;
+  }
+
+  .dialog-conteudo {
+    padding: var(--esp-6) var(--esp-6) 0;
+  }
+
+  .dialog-servico .dialog-acoes {
+    justify-content: flex-end;
+    margin: var(--esp-6) calc(-1 * var(--esp-6)) 0;
+    padding: var(--esp-4) var(--esp-6);
+  }
+
+  .dialog-servico .dialog-acoes .btn {
+    flex: 0 0 auto;
+  }
+}
+
+/* ---------- DESKTOP (≥ 1024px) ---------- */
+@media (min-width: 1024px) {
+  :root {
+    --margem-lateral: var(--esp-8);
+    --altura-header: 0px; /* no desktop não há barra no topo: o menu fica na lateral */
+  }
+
+  /* Hero lado a lado: texto | carro, ocupando quase a tela toda */
+  .hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    min-height: min(680px, calc(100vh - var(--altura-header)));
+    padding-top: var(--esp-8);
+  }
+
+
+  /* Cards de serviço em 3 colunas */
+  .vitrine {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .endereco {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Desktop: porte e busca mais estreitos, alinhados à esquerda (chips continuam embaixo) */
+  .servicos-filtros {
+    grid-template-columns: 220px 320px;
+  }
+
+  /* Diagnóstico: formulário à esquerda, resultado à direita */
+  #diagnostico {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    column-gap: var(--esp-10);
+    align-items: start;
+  }
+
+  #diagnostico > h2,
+  #diagnostico > p {
+    grid-column: 1 / -1; /* título e texto ocupam as 2 colunas */
+  }
+
+  #diagnostico .resultado {
+    margin-top: 0;
+  }
+
+  /* sticky: o aviso "responda ao lado" acompanha a rolagem enquanto a pessoa responde.
+     Só quando está vazio: com 3 recomendações a caixa fica mais alta que a tela,
+     e o sticky esconderia o final dela. */
+  #diagnostico .resultado:empty {
+    position: sticky;
+    top: calc(var(--altura-header) + var(--esp-4));
+  }
+
+  /* Antes de responder, a coluna da direita mostra um "espaço reservado" */
+  #diagnostico .resultado:empty {
+    display: grid;
+    place-items: center;
+    min-height: 260px;
+    padding: var(--esp-6);
+    border: 1px dashed var(--cor-borda-forte);
+    border-radius: var(--raio-g);
+    color: var(--cor-texto-suave);
+    text-align: center;
+  }
+
+  #diagnostico .resultado:empty::before {
+    content: 'Responda as perguntas ao lado para ver aqui o serviço ideal para o seu carro.';
+    max-width: 28ch;
+  }
+
+  /* Linha do tempo HORIZONTAL: 5 etapas lado a lado */
+  .linha-tempo {
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: var(--esp-6);
+  }
+
+  .linha-tempo li {
+    padding: var(--esp-12) var(--esp-2) 0;
+    text-align: center;
+  }
+
+  .linha-tempo li::before {
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%); /* centraliza a bolinha acima do texto */
+  }
+
+  /* O traço agora é horizontal: vai do centro desta bolinha ao centro da próxima */
+  .linha-tempo li::after {
+    left: calc(50% + 20px);
+    right: calc(-50% + 20px);
+    top: 15px;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+  }
+}
+
+/* ---------- WIDE (≥ 1440px) ---------- */
+@media (min-width: 1440px) {
+  :root {
+    --largura-max: 1320px;
+    --margem-lateral: var(--esp-10);
+  }
+}
+
+/* Alto contraste do Windows: textos "só contorno" (transparentes) sumiriam.
+   Aqui eles voltam a ter cor sólida. */
+@media (forced-colors: active) {
+  .rodape-marca,
+  .principio::before {
+    color: CanvasText;
+    -webkit-text-stroke: 0;
+  }
+}
+
+/* ACESSIBILIDADE: quem ativou "reduzir movimento" no sistema.
+   Reduzir NÃO é zerar: os fades continuam (mostram o que mudou), mas nada
+   desliza, gira, pula ou fica se mexendo sem parar. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* As keyframes de entrada viram fade puro (redefinir aqui substitui as de cima) */
+  @keyframes surgir {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes carimbar {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+      transform: rotate(-12deg);
+    }
+  }
+
+  /* Sem cascata, sem barras enchendo e sem movimento infinito */
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0ms !important;
+  }
+
+  .medidor-barra,
+  .linha-tempo li[aria-current='step']::before {
+    animation: none;
+  }
+
+  .servico-card::after {
+    display: none; /* sem faixa de reflexo se movendo */
+  }
+
+  /* Letreiro parado e títulos sem subir (aparecem direto) */
+  .faixa-trilho {
+    animation: none;
+  }
+
+  .titulo-mascara > span,
+  .hero-linha > span {
+    transform: none !important;
+  }
+
+  /* Toast e diálogo: só o fade, sem deslizar nem mudar de tamanho */
+  .toast,
+  .toast.saindo,
+  dialog,
+  dialog[open] {
+    transform: none;
+  }
+
+  .toast--entrando {
+    transform: none;
+  }
+
+  @keyframes dialog-abrir {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Apertar, passar o mouse e trocar o tema: sem deslocamento nem giro */
+  .btn:active,
+  .btn-menu:active,
+  .toast-acao:active,
+  .btn-icone:active,
+  .grupo-chips label:active,
+  .grade-horarios label:active,
+  .servico-card:hover,
+  .principio:hover,
+  .btn-icone[aria-pressed='true'] span {
+    transform: none;
+  }
+}
+
+/* =========================================================================
+   9. BLACK CHROME
+   Peças da identidade nova. Ficam no fim de propósito: o que está aqui
+   VENCE as regras de cima com a mesma especificidade (a última regra ganha).
+   ========================================================================= */
+
+/* ---------- 9.1 Tokens extras: logo e faixa de luz ---------- */
+:root {
+  /* Cores do degradê do logo (o SVG lê estas variáveis) */
+  --logo-1: #ffffff;
+  --logo-2: #d9dce1;
+  --logo-3: #8a9099;
+  --logo-4: #e8eaee;
+  /* Cromo claro FIXO: para peças que são escuras nos dois temas (cartão fidelidade, abertura) */
+  --cromo-fixo: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #d9dce1 30%,
+    #8a9099 48%,
+    #f4f5f7 56%,
+    #a9aeb6 78%,
+    #e8eaee 100%
+  );
+  /* "Luz de inspeção": faixa branca estreita que corre pelo cromo (shine sweep) */
+  --faixa-luz: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.95) 50%,
+    transparent 58%
+  );
+}
+
+:root[data-tema='claro'] {
+  --logo-1: #5b6068;
+  --logo-2: #16171a;
+  --logo-3: #3b3f46;
+  --logo-4: #2a2d33;
+}
+
+/* ---------- 9.2 Logo (SVG com <use>) ---------- */
+/* O sprite não pode ser display:none (os degradês parariam de pintar): fica com 0×0 */
+.sprite-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.logo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 124 / 72;
+  fill: url(#grad-cromo); /* herdado pelo conteúdo do <use> */
+}
+
+.marca-logo {
+  width: 52px;
+  flex-shrink: 0;
+}
+
+/* ---------- 9.3 Texto cromado + brilho que corre ----------
+   background-clip: text = o degradê aparece SÓ dentro das letras.
+   Duas camadas: a faixa de luz (fora da tela, à direita) e o cromo por baixo. */
+.cromado,
+.hero-linha > span,
+.secao > h2 > .titulo-mascara > span,
+.numero dd,
+.faixa-trilho span,
+.rodape-nome {
+  background-image: var(--faixa-luz), var(--cromo);
+  background-size:
+    250% 100%,
+    100% 100%;
+  background-position:
+    160% 0,
+    0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* A luz atravessa o título UMA vez quando ele aparece (e de novo no hover, no hero) */
+@keyframes varrer-cromo {
+  from {
+    background-position:
+      160% 0,
+      0 0;
+  }
+  to {
+    background-position:
+      -60% 0,
+      0 0;
+  }
+}
+
+.revelado > .titulo-mascara > span {
+  animation: varrer-cromo 1.6s 0.5s var(--ease-in-out) both;
+}
+
+.hero--revelado .hero-linha > span {
+  animation: varrer-cromo 1.8s 0.4s var(--ease-in-out) both;
+}
+
+.hero--revelado .hero-linha:nth-child(2) > span {
+  animation-delay: 0.55s;
+}
+
+.hero--revelado .hero-linha:nth-child(3) > span {
+  animation-delay: 0.7s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-titulo:hover .hero-linha > span {
+    animation: varrer-cromo 1.2s var(--ease-in-out);
+  }
+}
+
+/* ---------- 9.4 Títulos de seção ---------- */
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+h2 {
+  font-weight: 900;
+}
+
+.secao > h2 {
+  font-size: var(--texto-titulo);
+  line-height: 0.88;
+  letter-spacing: -0.005em;
+}
+
+/* "01 /" vira um rótulo técnico em verde neon, pequeno, como a numeração de uma peça */
+.secao > h2::before {
+  margin-bottom: var(--esp-4);
+  color: var(--cor-neon);
+  font-family: var(--fonte-corpo);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+}
+
+/* Divisória entre seções: friso cromado, mais forte no meio (como luz batendo) */
+.secao {
+  position: relative;
+  border-bottom: 0;
+}
+
+.secao::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--friso);
+  opacity: 0.5;
+}
+
+.secao:last-child::after {
+  display: none;
+}
+
+h3 {
+  text-transform: uppercase;
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem);
+  line-height: 1.05;
+}
+
+legend {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- 9.5 Botões: inclinados como faixa de corrida ----------
+   skewX inclina o botão inteiro (texto incluso: o "itálico de corrida").
+   O aperto usa a propriedade "scale" e o botão magnético usa "translate":
+   são propriedades separadas, então nenhuma apaga a outra. */
+.btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 0;
+  font-family: var(--fonte-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  transform: skewX(var(--inclinacao));
+  transition:
+    background-color var(--transicao-rapida),
+    border-color var(--transicao-rapida),
+    color var(--transicao-rapida),
+    scale var(--dur-clique) var(--ease-out),
+    translate 400ms var(--ease-out),
+    box-shadow var(--transicao);
+}
+
+.btn:active {
+  transform: skewX(var(--inclinacao));
+  scale: 0.97;
+}
+
+.btn:disabled {
+  transform: skewX(var(--inclinacao));
+  scale: 1;
+}
+
+/* Reflexo que atravessa o botão no hover (luz passando no cromo) */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.5) 50%, transparent 65%);
+  translate: -120% 0;
+  pointer-events: none;
+}
+
+.btn-primario {
+  background: var(--cromo);
+  color: var(--cor-sobre-acento);
+  border-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn::after {
+    transition: translate 700ms var(--ease-out);
+  }
+
+  .btn:hover::after {
+    translate: 120% 0;
+  }
+
+  /* O ÚNICO lugar onde o CTA ganha cor: o halo neon no hover */
+  .btn-primario:hover {
+    background: var(--cromo);
+    color: var(--cor-sobre-acento);
+    box-shadow: var(--brilho-neon);
+  }
+
+  .btn-secundario:hover {
+    border-color: var(--cor-neon);
+    background: var(--cor-neon-suave);
+  }
+
+  .btn-icone:hover {
+    border-color: var(--cor-neon);
+  }
+}
+
+.btn[aria-pressed='true'] {
+  background: var(--cor-neon-suave);
+  border-color: var(--cor-neon);
+  color: var(--cor-texto);
+}
+
+/* ---------- 9.7 Hero ---------- */
+.hero-selo {
+  padding: 0 0 0 var(--esp-3);
+  border-left: 2px solid var(--cor-neon);
+  background: none;
+  color: var(--cor-texto-suave);
+  font-family: var(--fonte-corpo);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
+
+.hero-titulo {
+  font-size: var(--texto-hero);
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Última linha em "itálico de corrida" (a Saira não tem itálico: o navegador inclina) */
+.hero-linha--destaque {
+  font-style: italic;
+}
+
+.hero-linha > span {
+  padding-right: 0.08em; /* a inclinação do itálico não corta a última letra */
+}
+
+/* Números da marca: grandes, cromados, com rótulo pequeno embaixo */
+.numeros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-4);
+  margin: var(--esp-10) 0 0;
+  padding-top: var(--esp-5);
+  background: var(--friso) top / 100% 1px no-repeat;
+}
+
+.numero {
+  display: flex;
+  flex-direction: column-reverse; /* no HTML o rótulo vem antes (dt/dd); na tela, embaixo */
+  gap: var(--esp-1);
+}
+
+.numero dt {
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.numero dd {
+  margin: 0;
+  font-family: var(--fonte-display);
+  font-size: clamp(2.5rem, 1.8rem + 2.6vw, 4.25rem);
+  font-weight: 900;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums; /* a contagem não "dança" */
+}
+
+.hero-carro::before {
+  font-weight: 900;
+}
+
+/* ---------- 9.8 Faixa (marquee): POLIMENTO • VITRIFICAÇÃO • PPF ---------- */
+.faixa {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  border-block: 1px solid var(--cor-borda-forte);
+  transform: rotate(-2deg);
+}
+
+.faixa-trilho span {
+  padding: var(--esp-2) var(--esp-5);
+  font-size: clamp(2rem, 1.3rem + 2.8vw, 3.75rem);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+/* O separador é a única coisa verde da faixa */
+.faixa-trilho span::after {
+  content: '•';
+  margin-left: var(--esp-5);
+  color: var(--cor-neon);
+  font-size: 0.7em;
+}
+
+/* ---------- 9.9 Antes e depois ---------- */
+.antes-depois {
+  margin-top: var(--esp-16);
+}
+
+.antes-depois-legenda {
+  max-width: 56ch;
+  margin-bottom: var(--esp-5);
+  color: var(--cor-texto-suave);
+}
+
+.antes-depois-rotulo {
+  display: block;
+  margin-bottom: var(--esp-2);
+  color: var(--cor-texto);
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.antes-depois-quadro {
+  position: relative;
+  aspect-ratio: 4 / 5; /* retrato: a mesma proporção da foto, sem esticar */
+  width: 100%;
+  max-width: 560px;
+  overflow: hidden;
+  border: 1px solid var(--cor-borda-forte);
+  background: #000;
+  user-select: none;
+}
+
+/* As duas camadas usam a MESMA foto (a metade polida de polimento.webp), então ficam
+   alinhadas: ao arrastar, só a pintura muda. background-size 200% + posição 100% = mostra
+   só a metade direita da imagem. */
+.pintura {
+  position: absolute;
+  inset: 0;
+  background: url('../assets/imagens/polimento.webp') 100% 50% / 200% auto no-repeat;
+}
+
+/* ANTES: a mesma foto "envelhecida" em CSS: menos contraste, véu acinzentado (pintura
+   oxidada) e micro-riscos circulares por cima (os "swirls" da lavagem errada). */
+.pintura--antes {
+  filter: contrast(0.72) brightness(1.22) saturate(0.6);
+}
+
+.pintura--antes::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.09) 0 1px, transparent 1px 5px),
+    repeating-radial-gradient(circle at 70% 58%, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, rgba(200, 204, 210, 0.16), rgba(200, 204, 210, 0.06));
+  mix-blend-mode: screen; /* clareia como risco na luz, sem cobrir a foto */
+}
+
+/* DEPOIS: a foto como ela é (preto espelhado, reflexos nítidos).
+   clip-path recorta pela posição do controle: só a parte à direita aparece. */
+.pintura--depois {
+  clip-path: inset(0 0 0 var(--pos));
+}
+
+.pintura-etiqueta {
+  position: absolute;
+  top: var(--esp-3);
+  padding: var(--esp-1) var(--esp-3);
+  background: rgba(0, 0, 0, 0.7);
+  color: #f2f3f5;
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.pintura--antes .pintura-etiqueta {
+  left: var(--esp-3);
+}
+
+.pintura--depois .pintura-etiqueta {
+  right: var(--esp-3);
+}
+
+/* Alça: friso cromado vertical com um "botão" no meio */
+.antes-depois-alca {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  width: 2px;
+  translate: -1px 0;
+  background: linear-gradient(180deg, #8a9099, #ffffff, #8a9099);
+  pointer-events: none;
+}
+
+.antes-depois-alca::after {
+  content: '◂ ▸';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  translate: -50% -50%;
+  border: 1px solid #ffffff;
+  border-radius: var(--raio-total);
+  background: #000;
+  color: #f2f3f5;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+/* O controle de verdade cobre o quadro inteiro, invisível: arrastar em qualquer
+   ponto funciona. O foco do teclado aparece no quadro (o input é transparente). */
+.antes-depois-quadro .antes-depois-controle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y; /* no celular, arrastar na vertical continua rolando a página */
+}
+
+.antes-depois-quadro:has(.antes-depois-controle:focus-visible) {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 4px;
+}
+
+/* ---------- 9.10 Cartões: canto cortado na diagonal ---------- */
+.servico-card,
+.principio {
+  border-radius: 0;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--corte)) 0,
+    100% var(--corte),
+    100% 100%,
+    0 100%
+  );
+}
+
+.principio::before {
+  -webkit-text-stroke: 1px var(--cor-texto-suave);
+  font-size: 4.5rem;
+  font-weight: 900;
+}
+
+.voz-cliente {
+  border-left: 2px solid var(--cor-neon);
+}
+
+.voz-cliente blockquote p {
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+/* ---------- 9.11 Cartão fidelidade: metal escovado ---------- */
+.cartao-fidelidade {
+  border-radius: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+    linear-gradient(135deg, #2a2c31 0%, #0d0e10 45%, #1d1f23 70%, #08090a 100%);
+}
+
+.cartao-fidelidade h3 {
+  background-image: var(--faixa-luz), var(--cromo-fixo);
+  background-size:
+    250% 100%,
+    100% 100%;
+  background-position:
+    160% 0,
+    0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 900;
+}
+
+/* ---------- 9.12 Abertura (sempre escura, nos dois temas) ---------- */
+.abertura .logo-svg {
+  fill: url(#grad-cromo-fixo);
+}
+
+.abertura-pk .logo-svg {
+  width: clamp(160px, 28vw, 340px);
+  margin: 0 auto;
+}
+
+.abertura-nome {
+  font-family: var(--fonte-display);
+  font-size: var(--texto-g);
+  font-weight: 800;
+  letter-spacing: 0.5em;
+}
+
+.abertura-pular:hover {
+  border-color: #39ff88;
+}
+
+/* ---------- 9.13 Rodapé ---------- */
+.rodape-marca {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-4);
+  color: inherit;
+  -webkit-text-stroke: 0;
+  font-size: var(--texto-m);
+  line-height: 1;
+}
+
+.rodape-marca .logo-svg {
+  width: clamp(180px, 36vw, 440px);
+}
+
+.rodape-nome {
+  font-family: var(--fonte-display);
+  font-size: var(--texto-xg);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em; /* compensa o espaçamento da última letra: fica centralizado */
+}
+
+/* ---------- 9.14 Grão de filme ----------
+   Um ruído (SVG feTurbulence) bem fraco por cima de tudo: tira o "liso de computador"
+   do preto. pointer-events: none = não atrapalha nenhum clique. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+:root[data-tema='claro'] body::after {
+  opacity: 0.04;
+}
+
+/* ---------- 9.16 Rolagem suave (Lenis) ----------
+   Com o Lenis ligado, o scroll-behavior do CSS precisa sair (senão os dois brigam). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* ---------- 9.17 Layout em telas maiores ---------- */
+@media (max-width: 599.98px) {
+  .marca-logo {
+    width: 44px;
+  }
+
+  .numeros {
+    gap: var(--esp-3);
+  }
+}
+
+/* Telas largas: texto à esquerda, foto à direita (a foto é em pé e não pode esticar) */
+@media (min-width: 900px) {
+  .antes-depois {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 560px);
+    align-items: center;
+    gap: var(--esp-10);
+  }
+}
+
+/* Desktop: o título do hero ocupa a largura TODA; embaixo, texto à esquerda e carro à direita.
+   display: contents "desmancha" a div do texto: os filhos dela entram direto na grade. */
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-areas:
+      'selo selo'
+      'titulo titulo'
+      'texto carro'
+      'acoes carro'
+      'numeros carro';
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: var(--esp-10);
+    row-gap: 0;
+    align-items: start;
+    min-height: 0;
+  }
+
+  .hero-conteudo {
+    display: contents;
+  }
+
+  .hero-selo {
+    grid-area: selo;
+    justify-self: start;
+  }
+
+  .hero-titulo {
+    grid-area: titulo;
+    margin-bottom: var(--esp-8);
+  }
+
+  .hero-texto {
+    grid-area: texto;
+  }
+
+  .hero-acoes {
+    grid-area: acoes;
+  }
+
+  .numeros {
+    grid-area: numeros;
+    align-self: start;
+  }
+
+  .hero-carro {
+    grid-area: carro;
+    align-self: center;
+  }
+
+  .marca-logo {
+    width: 58px;
+  }
+}
+
+/* ---------- 9.18 Acessibilidade ---------- */
+/* Alto contraste do Windows: texto com degradê "recortado" sumiria; volta a cor sólida */
+@media (forced-colors: active) {
+  .cromado,
+  .hero-linha > span,
+  .secao > h2 > .titulo-mascara > span,
+  .numero dd,
+  .faixa-trilho span,
+  .rodape-nome,
+  .cartao-fidelidade h3 {
+    background: none;
+    color: CanvasText;
+  }
+
+  .logo-svg {
+    fill: CanvasText;
+  }
+
+  body::after {
+    display: none;
+  }
+}
+
+/* Reduzir movimento: sem brilho correndo, sem reflexo no botão e sem cursor seguindo */
+@media (prefers-reduced-motion: reduce) {
+  .revelado > .titulo-mascara > span,
+  .hero--revelado .hero-linha > span,
+  .hero-titulo:hover .hero-linha > span {
+    animation: none;
+  }
+
+  .btn::after {
+    display: none;
+  }
+
+  .btn:active {
+    scale: 1;
+  }
+
+  .btn {
+    translate: none !important;
+  }
+}
+
+/* =========================================================================
+   10. NAVEGAÇÃO: MENU LATERAL E PÁGINAS
+   Desktop (≥ 1024px): barra fixa à esquerda; recolhida, mostra só os ícones.
+   Celular/tablet: a mesma barra vira uma gaveta aberta pelo hambúrguer.
+   O estado vem de atributos no <html>, trocados pelo rotas.js:
+     data-menu="recolhido"  → barra só com ícones (desktop)
+     .menu-aberto           → gaveta aberta (celular)
+   ========================================================================= */
+:root {
+  --largura-barra: 248px;
+  --largura-barra-recolhida: 76px;
+}
+
+/* ---------- 10.1 Barra do topo (só celular/tablet) ---------- */
+.barra-topo {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  height: var(--altura-header);
+  padding: 0 var(--margem-lateral);
+  background:
+    var(--friso) bottom / 100% 1px no-repeat,
+    var(--cor-header);
+}
+
+.marca-topo {
+  display: block;
+  width: 52px;
+}
+
+/* ---------- 10.2 Menu lateral ---------- */
+.barra-lateral {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  width: min(var(--largura-barra), 86vw);
+  padding: var(--esp-5) var(--esp-3) var(--esp-4);
+  overflow-y: auto;
+  overscroll-behavior: contain; /* rolar o menu não rola a página atrás */
+  scrollbar-width: thin; /* barra de rolagem fina e discreta, no tom do menu */
+  scrollbar-color: var(--cor-borda-forte) transparent;
+  background:
+    var(--friso) right / 1px 100% no-repeat,
+    var(--cor-superficie);
+  /* Celular: fora da tela até abrir (transform é leve, não recalcula o layout) */
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform 300ms var(--ease-out),
+    visibility 0s 300ms;
+}
+
+/* O friso da direita é vertical: o degradê precisa ir de cima para baixo */
+.barra-lateral {
+  background:
+    linear-gradient(180deg, transparent, #8a9099 20%, #f4f5f7 50%, #8a9099 80%, transparent) right / 1px 100%
+      no-repeat,
+    var(--cor-superficie);
+}
+
+:root[data-tema='claro'] .barra-lateral {
+  background:
+    linear-gradient(180deg, transparent, #8a9099 20%, #ffffff 50%, #8a9099 80%, transparent) right / 1px 100%
+      no-repeat,
+    var(--cor-superficie);
+}
+
+.menu-aberto .barra-lateral {
+  transform: none;
+  visibility: visible;
+  transition: transform 300ms var(--ease-out);
+}
+
+/* Fundo escurecido atrás da gaveta */
+.barra-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0, 0, 0, 0.6);
+  animation: aparecer 200ms var(--ease-out);
+}
+
+/* Com a gaveta aberta, a página atrás não rola */
+html.menu-aberto {
+  overflow: hidden;
+}
+
+/* Topo da barra: logo à esquerda, botão de recolher à direita */
+.barra-cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+}
+
+/* Logo + nome no topo da barra */
+.barra-lateral .marca {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: 44px;
+  padding: 0 var(--esp-2);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.barra-lateral .marca-logo {
+  width: 56px;
+}
+
+.marca-texto {
+  font-family: var(--fonte-display);
+  font-size: var(--texto-p);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Lista de páginas: ícone + nome */
+.menu {
+  display: block;
+  flex: 1;
+}
+
+.menu ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+}
+
+.menu a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: 40px; /* alvo de toque (acima dos 24px mínimos do WCAG 2.2) */
+  padding: var(--esp-1) var(--esp-3);
+  border-radius: var(--raio-p);
+  color: var(--cor-texto-suave);
+  font-family: var(--fonte-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    color var(--transicao-rapida),
+    background-color var(--transicao-rapida);
+}
+
+.menu a:hover {
+  color: var(--cor-texto);
+  background: var(--cor-acento-suave);
+}
+
+/* Página atual: texto claro, fundo da camada de cima e um traço neon à esquerda */
+.menu a[aria-current='page'] {
+  color: var(--cor-texto);
+  background: var(--cor-superficie-topo);
+}
+
+.menu a[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  background: var(--cor-neon);
+  box-shadow: 0 0 10px var(--cor-neon);
+}
+
+.menu a[aria-current='page'] .menu-icone {
+  color: var(--cor-neon);
+}
+
+.menu-icone {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: square;
+}
+
+.menu-rotulo {
+  white-space: nowrap;
+}
+
+/* Título do grupo "Estética" */
+.menu-grupo {
+  margin: var(--esp-5) 0 var(--esp-2);
+  padding: var(--esp-3) var(--esp-3) 0;
+  background: var(--friso) top / 100% 1px no-repeat;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.btn-recolher {
+  position: relative;
+  display: none; /* só existe no desktop */
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--cor-borda-forte);
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition:
+    color var(--transicao-rapida),
+    border-color var(--transicao-rapida);
+}
+
+.btn-recolher:hover {
+  color: var(--cor-texto);
+  border-color: var(--cor-neon);
+}
+
+.btn-recolher .menu-icone {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--transicao);
+}
+
+/* Botão de tema: fixo no canto superior direito (no celular, dentro da barra do topo) */
+.btn-tema {
+  position: fixed;
+  top: 8px;
+  right: var(--margem-lateral);
+  z-index: 200;
+  background: var(--cor-superficie);
+}
+
+@media (min-width: 1024px) {
+  .btn-tema {
+    top: var(--esp-4);
+    right: var(--esp-6);
+  }
+}
+
+/* ---------- 10.3 Páginas ---------- */
+/* Uma página por vez: a seção já começa sem a borda de "fim de seção" */
+main > .secao::after {
+  display: none;
+}
+
+main > .secao {
+  min-height: calc(100vh - var(--altura-header) - 120px);
+}
+
+/* Transição ao entrar numa página: sobe 16px e aparece (só transform e opacity) */
+@keyframes pagina-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.pagina-entrando {
+  animation: pagina-entrar 380ms var(--ease-out);
+}
+
+/* O título recebe foco ao trocar de página (leitor de tela): sem contorno no clique */
+.secao > h2:focus {
+  outline: none;
+}
+
+.secao > h2:focus-visible {
+  outline: 3px solid var(--cor-foco);
+}
+
+/* ---------- 10.4 Desktop: barra fixa, sempre visível ---------- */
+@media (min-width: 1024px) {
+  .barra-topo {
+    display: none;
+  }
+
+  .barra-lateral {
+    width: var(--largura-barra);
+    transform: none;
+    visibility: visible;
+    transition: width 250ms var(--ease-out);
+  }
+
+  /* O conteúdo e o rodapé abrem espaço para a barra */
+  body {
+    padding-left: var(--largura-barra);
+    transition: padding-left 250ms var(--ease-out);
+  }
+
+  .btn-recolher {
+    display: inline-flex;
+  }
+
+  /* O texto do botão é o nome dele para o leitor de tela; na tela, aparece só como dica */
+  .btn-recolher .menu-rotulo {
+    position: fixed;
+    top: var(--dica-y, 0);
+    left: calc(var(--largura-barra) + 12px);
+    padding: var(--esp-1) var(--esp-3);
+    border: 1px solid var(--cor-borda-forte);
+    background: var(--cor-superficie-topo);
+    color: var(--cor-texto);
+    font-size: var(--texto-p);
+    white-space: nowrap;
+    opacity: 0;
+    translate: -4px -50%;
+    pointer-events: none;
+    transition:
+      opacity 150ms var(--ease-out),
+      translate 150ms var(--ease-out);
+  }
+
+  .btn-recolher:hover .menu-rotulo,
+  .btn-recolher:focus-visible .menu-rotulo {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+
+  /* ---- Recolhida: só ícones; o nome vira uma dica ao lado (hover ou foco) ---- */
+  [data-menu='recolhido'] {
+    --largura-barra: var(--largura-barra-recolhida);
+  }
+
+  /* A barra continua com rolagem própria: em tela baixa, nada fica inalcançável.
+     As dicas usam position: fixed (calculada pelo rotas.js), então não são cortadas pela rolagem. */
+  [data-menu='recolhido'] .barra-lateral {
+    align-items: center;
+    scrollbar-width: none; /* rola com a roda do mouse, sem a barra de rolagem ocupando espaço */
+  }
+
+  [data-menu='recolhido'] .barra-cabeca {
+    flex-direction: column;
+  }
+
+  [data-menu='recolhido'] .marca-texto,
+  [data-menu='recolhido'] .menu-grupo {
+    display: none;
+  }
+
+  [data-menu='recolhido'] .barra-lateral .marca {
+    padding: 0;
+  }
+
+  [data-menu='recolhido'] .barra-lateral .marca-logo {
+    width: 46px;
+  }
+
+  [data-menu='recolhido'] .menu a {
+    justify-content: center;
+    width: 52px;
+    padding: 0;
+  }
+
+  [data-menu='recolhido'] .menu ul + .menu-grupo + ul,
+  [data-menu='recolhido'] .menu ul + ul {
+    margin-top: var(--esp-5);
+  }
+
+  /* O nome continua no HTML (é o nome acessível do link): só sai da linha e vira dica */
+  [data-menu='recolhido'] .menu a .menu-rotulo {
+    position: fixed;
+    left: calc(var(--largura-barra) + 12px);
+    top: var(--dica-y, 0);
+    z-index: 1;
+    padding: var(--esp-1) var(--esp-3);
+    border: 1px solid var(--cor-borda-forte);
+    background: var(--cor-superficie-topo);
+    color: var(--cor-texto);
+    font-size: var(--texto-p);
+    opacity: 0;
+    translate: -4px -50%;
+    pointer-events: none;
+    transition:
+      opacity 150ms var(--ease-out),
+      translate 150ms var(--ease-out);
+  }
+
+  [data-menu='recolhido'] .menu a:hover .menu-rotulo,
+  [data-menu='recolhido'] .menu a:focus-visible .menu-rotulo {
+    opacity: 1;
+    translate: 0 -50%;
+  }
+
+  [data-menu='recolhido'] .btn-recolher .menu-icone {
+    transform: rotate(180deg); /* a seta passa a apontar para "abrir" */
+  }
+}
+
+/* Reduzir movimento: páginas e gaveta trocam sem deslizar */
+@media (prefers-reduced-motion: reduce) {
+  .pagina-entrando {
+    animation: none;
+  }
+
+  .barra-lateral,
+  .menu-aberto .barra-lateral,
+  body {
+    transition: none;
+  }
+}
+
+/* Alto contraste: o traço da página atual vira uma borda de verdade */
+@media (forced-colors: active) {
+  .menu a[aria-current='page'] {
+    outline: 2px solid LinkText;
+  }
+}
+
+/* A faixa (marquee) ocupa a largura da tela MENOS o menu lateral (senão sobra para a direita) */
+:root {
+  --recuo-pagina: 0px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --recuo-pagina: var(--largura-barra);
+  }
+}
+
+.faixa {
+  width: calc(100vw - var(--recuo-pagina));
+  margin-left: calc(50% - (100vw - var(--recuo-pagina)) / 2);
+}
+
+/* Rótulos dos números: palavra longa ("acompanhamento") quebra com hífen, não no meio */
+.numero dt {
+  hyphens: auto;
+  overflow-wrap: normal;
+}
+
+/* Números do hero: com column-reverse, o "início" da coluna é EMBAIXO; flex-end alinha
+   os números pelo topo mesmo quando um rótulo tem mais linhas que o outro */
+.numero {
+  justify-content: flex-end;
+}
+
+/* Celular: rótulo menor e quebra garantida ("acompanhamento" não invade a coluna vizinha) */
+@media (max-width: 599.98px) {
+  .numero dt {
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+  }
+}

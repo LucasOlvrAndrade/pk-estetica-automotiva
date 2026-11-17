@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="PK Estética Automotiva: cuidado técnico com padrão de fábrica, preço transparente, agendamento online e acompanhamento 100% digital do seu veículo."
+    />
+    <meta name="theme-color" content="#000000" />
+    <title>PK Estética Automotiva</title>
+    <!-- Favicon: o monograma PK embutido como SVG (data URI), sem arquivo extra -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20124%2072'%3E%3Crect%20width='124'%20height='72'%20rx='8'%20fill='%23000'/%3E%3Cg%20fill='%23e4e6ea'%20transform='translate(14%200)%20skewX(-12)'%3E%3Crect%20x='8'%20y='8'%20width='13'%20height='56'/%3E%3Cpath%20d='M21%208h25l10%2010v14l-10%2010H21V31h19l3-3v-6l-3-3H21z'/%3E%3Crect%20x='62'%20y='8'%20width='13'%20height='56'/%3E%3Cpath%20d='M75%2030L96%208h16L86%2036z'/%3E%3Cpath%20d='M84%2031l28%2033H96L75%2043z'/%3E%3C/g%3E%3C/svg%3E" />
+    <!-- As fontes (Saira Extra Condensed + Manrope) vêm do pacote @fontsource, importado no
+         src/main.js: ficam dentro do build e funcionam sem internet. -->
+    <!-- Tema: este script roda antes do CSS desenhar a página, para não "piscar" no tema errado.
+         Usa o tema salvo; na 1ª visita, segue o sistema (prefers-color-scheme). -->
+    <script>
+      (function () {
+        try {
+          var salvo = JSON.parse(localStorage.getItem('estetica:tema'));
+          var claro = salvo ? salvo === 'claro' : window.matchMedia('(prefers-color-scheme: light)').matches;
+          if (claro) document.documentElement.setAttribute('data-tema', 'claro');
+        } catch (erro) {
+          /* sem armazenamento: fica no tema escuro padrão */
+        }
+      })();
+    </script>
+    <!-- O Vite processa este CSS (no build ele vira um arquivo otimizado) -->
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+
+  <body>
+    <!-- Logo em SVG reaproveitável: desenhado uma vez aqui e usado com <use href="#pk-monograma">
+         no topo, no rodapé e na abertura. As cores do cromo vêm de variáveis CSS (mudam com o tema).
+         Não é display:none de propósito: gradientes dentro de um SVG escondido não pintam. -->
+    <svg class="sprite-svg" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="grad-cromo" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color: var(--logo-1)" />
+          <stop offset="0.3" style="stop-color: var(--logo-2)" />
+          <stop offset="0.48" style="stop-color: var(--logo-3)" />
+          <stop offset="0.56" style="stop-color: var(--logo-1)" />
+          <stop offset="0.78" style="stop-color: var(--logo-2)" />
+          <stop offset="1" style="stop-color: var(--logo-4)" />
+        </linearGradient>
+        <!-- Cromo FIXO (claro): para lugares que são escuros nos dois temas (abertura) -->
+        <linearGradient id="grad-cromo-fixo" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" />
+          <stop offset="0.3" stop-color="#d9dce1" />
+          <stop offset="0.48" stop-color="#8a9099" />
+          <stop offset="0.56" stop-color="#f4f5f7" />
+          <stop offset="0.78" stop-color="#a9aeb6" />
+          <stop offset="1" stop-color="#e8eaee" />
+        </linearGradient>
+        <mask id="mascara-corte">
+          <rect width="124" height="72" fill="#fff" />
+          <polygon points="0,49 124,27 124,31 0,53" fill="#000" />
+        </mask>
+      </defs>
+      <!-- Ícones lineares do menu (traço fino, sem preenchimento): cor = currentColor -->
+      <symbol id="ic-inicio" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10v10h13V10" /><path d="M10 20v-5h4v5" /></symbol>
+      <symbol id="ic-servicos" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9l-4.7 1.8L12 15.5l-1.8-4.7L5.5 9l4.7-1.3z" /><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" /></symbol>
+      <symbol id="ic-diagnostico" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0" /><path d="M12 17l4-5" /><path d="M4 17h2M18 17h2M12 9v1.5" /></symbol>
+      <symbol id="ic-agendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" /><path d="M3.5 10h17M8 3v4M16 3v4" /><path d="M8 14h2M12 14h2M8 17h2" /></symbol>
+      <symbol id="ic-veiculos" viewBox="0 0 24 24"><path d="M3 15.5V12l2.2-4.5h10L19 11l2 1v3.5" /><path d="M3 15.5h18" /><circle cx="7.5" cy="16.5" r="1.8" /><circle cx="16.5" cy="16.5" r="1.8" /><path d="M6.5 11h11" /></symbol>
+      <symbol id="ic-acompanhamento" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3.5 2" /></symbol>
+      <symbol id="ic-fidelidade" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" /><path d="M3 10h18" /><circle cx="8" cy="14.5" r="1" /><circle cx="12" cy="14.5" r="1" /><circle cx="16" cy="14.5" r="1" /></symbol>
+      <symbol id="ic-historico" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7" /><path d="M4 4v4h4" /><path d="M12 8v4l3 2" /></symbol>
+      <symbol id="ic-como-funciona" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="M9.6 9.5a2.5 2.5 0 1 1 3.3 2.3c-.6.3-.9.8-.9 1.4v.6" /><path d="M12 16.5v.5" /></symbol>
+      <symbol id="ic-atendimento" viewBox="0 0 24 24"><path d="M9 4h6v3H9z" /><path d="M7 5.5H5V21h14V5.5h-2" /><path d="M8.5 12l2.2 2.2L15.5 9.5" /><path d="M8.5 17.5h7" /></symbol>
+      <symbol id="ic-painel" viewBox="0 0 24 24"><path d="M4 20V4" /><path d="M4 20h16" /><path d="M8 16v-4M12 16V8M16 16v-6" /></symbol>
+      <symbol id="ic-recolher" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" /><path d="M20 6l-6 6 6 6" /></symbol>
+      <symbol id="pk-monograma" viewBox="0 0 124 72">
+        <!-- sem "fill" aqui: a cor vem do CSS (.logo-svg), herdada pelo <use> -->
+        <g mask="url(#mascara-corte)">
+          <g transform="translate(14 0) skewX(-12)">
+            <rect x="8" y="8" width="13" height="56" />
+            <path d="M21 8h25l10 10v14l-10 10H21V31h19l3-3v-6l-3-3H21z" />
+            <rect x="62" y="8" width="13" height="56" />
+            <path d="M75 30L96 8h16L86 36z" />
+            <path d="M84 31l28 33H96L75 43z" />
+          </g>
+        </g>
+      </symbol>
+    </svg>
+
+    <!-- Atalho de acessibilidade: quem navega pelo teclado pula direto para o conteúdo -->
+    <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+    <!-- ===================== ABERTURA =====================
+         Carro 3D surgindo do escuro + "porta de garagem" subindo.
+         O app.js decide se ela roda (1ª visita da sessão, sem "reduzir movimento").
+         Sem JavaScript, o CSS a esconde sozinho depois de alguns segundos. -->
+    <div id="abertura" class="abertura">
+      <canvas id="carro-abertura" class="carro-canvas" aria-hidden="true"></canvas>
+      <!-- Painel do motor: marcha (câmbio manual), conta-giros e a luz VTEC.
+           O app.js atualiza tudo a cada quadro da abertura. Decorativo: aria-hidden. -->
+      <div class="abertura-painel" aria-hidden="true">
+        <span id="painel-marcha" class="painel-marcha">N</span>
+        <span class="painel-rpm"><span id="painel-rpm-barra" class="painel-rpm-barra"></span></span>
+        <span class="painel-leitura">
+          <span><span id="painel-rpm-numero">0</span> rpm</span>
+          <span id="painel-vtec" class="painel-vtec">VTEC</span>
+        </span>
+      </div>
+      <p class="abertura-marca" aria-hidden="true">
+        <span class="abertura-pk"
+          ><span><svg class="logo-svg"><use href="#pk-monograma" /></svg></span
+        ></span>
+        <span class="abertura-nome"><span>Estética Automotiva</span></span>
+      </p>
+      <!-- Carregamento do modelo 3D (progresso real; só aparece nas versões com o modelo) -->
+      <div class="abertura-progresso" aria-hidden="true">
+        <span class="abertura-progresso-trilho"><span id="abertura-progresso-barra"></span></span>
+        <span id="abertura-progresso-texto">0%</span>
+      </div>
+      <button type="button" id="btn-pular-abertura" class="abertura-pular">
+        Pular abertura
+      </button>
+    </div>
+
+    <!-- ===================== CABEÇALHO ===================== -->
+    <!-- ===================== BARRA DO TOPO (só no celular) =====================
+         Hambúrguer que abre o menu em gaveta + logo. No desktop o CSS esconde. -->
+    <div class="barra-topo" role="region" aria-label="Barra superior">
+      <button
+        type="button"
+        id="btn-menu"
+        class="btn-menu"
+        aria-controls="barra-lateral"
+        aria-expanded="false"
+      >
+        <span class="btn-menu-icone" aria-hidden="true"></span>
+        <span class="btn-menu-texto">Menu</span>
+      </button>
+      <a class="marca-topo" href="#/inicio" aria-label="PK Estética Automotiva: ir para o início">
+        <svg class="logo-svg" aria-hidden="true" focusable="false"><use href="#pk-monograma" /></svg>
+      </a>
+    </div>
+    <!-- Fundo escuro atrás da gaveta: tocar nele fecha o menu -->
+    <div id="barra-fundo" class="barra-fundo" hidden></div>
+
+    <!-- ===================== MENU LATERAL =====================
+         Desktop: fixo à esquerda, recolhível (só ícones, com o nome como dica).
+         Celular: gaveta. aria-current="page" marca a página aberta (o rotas.js cuida disso). -->
+    <header id="barra-lateral" class="barra-lateral">
+      <!-- Topo do menu: logo + botão de recolher. Fica SEMPRE visível (mesmo em telas baixas),
+           para o menu recolhido nunca ficar sem o botão de expandir. -->
+      <div class="barra-cabeca">
+        <a class="marca" href="#/inicio" aria-label="PK Estética Automotiva: ir para o início">
+          <svg class="marca-logo logo-svg" aria-hidden="true" focusable="false">
+            <use href="#pk-monograma" />
+          </svg>
+          <span class="marca-texto" aria-hidden="true">Estética<br />Automotiva</span>
+        </a>
+        <!-- Recolher/expandir: aria-expanded diz se o menu está aberto (com os nomes) -->
+        <button
+          type="button"
+          id="btn-recolher"
+          class="btn-recolher"
+          aria-controls="barra-lateral"
+          aria-expanded="true"
+        >
+          <svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-recolher" /></svg
+          ><span class="menu-rotulo">Recolher menu</span>
+        </button>
+      </div>
+
+      <nav id="menu-principal" class="menu" aria-label="Principal">
+        <ul>
+            <li>
+              <a href="#/inicio" data-pagina="inicio"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-inicio" /></svg
+                ><span class="menu-rotulo">Início</span></a
+              >
+            </li>
+            <li>
+              <a href="#/servicos" data-pagina="servicos"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-servicos" /></svg
+                ><span class="menu-rotulo">Serviços</span></a
+              >
+            </li>
+            <li>
+              <a href="#/diagnostico" data-pagina="diagnostico"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-diagnostico" /></svg
+                ><span class="menu-rotulo">Diagnóstico</span></a
+              >
+            </li>
+            <li>
+              <a href="#/agendar" data-pagina="agendar"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-agendar" /></svg
+                ><span class="menu-rotulo">Agendar</span></a
+              >
+            </li>
+            <li>
+              <a href="#/veiculos" data-pagina="veiculos"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-veiculos" /></svg
+                ><span class="menu-rotulo">Meus Veículos</span></a
+              >
+            </li>
+            <li>
+              <a href="#/acompanhamento" data-pagina="acompanhamento"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-acompanhamento" /></svg
+                ><span class="menu-rotulo">Acompanhamento</span></a
+              >
+            </li>
+            <li>
+              <a href="#/fidelidade" data-pagina="fidelidade"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-fidelidade" /></svg
+                ><span class="menu-rotulo">Fidelidade</span></a
+              >
+            </li>
+            <li>
+              <a href="#/historico" data-pagina="historico"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-historico" /></svg
+                ><span class="menu-rotulo">Histórico</span></a
+              >
+            </li>
+            <li>
+              <a href="#/como-funciona" data-pagina="como-funciona"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-como-funciona" /></svg
+                ><span class="menu-rotulo">Como funciona</span></a
+              >
+            </li>
+        </ul>
+        <!-- Páginas de uso da estética (antes ficavam escondidas no "Modo Estética") -->
+        <p id="menu-grupo-estetica" class="menu-grupo">Estética</p>
+        <ul aria-labelledby="menu-grupo-estetica">
+            <li>
+              <a href="#/atendimento" data-pagina="atendimento"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-atendimento" /></svg
+                ><span class="menu-rotulo">Atendimento</span></a
+              >
+            </li>
+            <li>
+              <a href="#/painel" data-pagina="painel"
+                ><svg class="menu-icone" aria-hidden="true" focusable="false"><use href="#ic-painel" /></svg
+                ><span class="menu-rotulo">Painel</span></a
+              >
+            </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Tema claro/escuro: fixo no canto superior direito, em todas as páginas.
+         aria-pressed indica se o botão está ligado (true) ou desligado (false) -->
+    <button
+      type="button"
+      id="btn-tema"
+      class="btn-icone btn-tema"
+      aria-label="Tema escuro"
+      aria-pressed="false"
+    >
+      <span aria-hidden="true">◐</span>
+    </button>
+
+    <!-- tabindex="-1" permite que o link "Pular para o conteúdo" coloque o foco aqui -->
+    <main id="conteudo" tabindex="-1">
+      <!-- O h1 é o nome do site; cada página tem o seu h2 -->
+      <h1 class="visualmente-oculto">PK Estética Automotiva</h1>
+      <!-- ===================== 1. INÍCIO ===================== -->
+      <section id="inicio" class="secao" aria-labelledby="inicio-titulo">
+        <div class="hero">
+          <div class="hero-conteudo">
+            <p class="hero-selo">Detailing de alto padrão · Est. 2026</p>
+            <!-- Cada linha num <span>: o CSS revela uma de cada vez (o leitor de tela lê a frase inteira) -->
+            <h2 id="inicio-titulo" class="hero-titulo">
+              <span class="hero-linha"><span>Preto</span></span>
+              <span class="hero-linha"><span>no espelho.</span></span>
+              <span class="hero-linha hero-linha--destaque"
+                ><span>Padrão de fábrica.</span></span
+              >
+            </h2>
+            <p class="hero-texto">
+              Cuidado técnico com padrão de fábrica, acompanhamento 100% digital
+              e proteção veicular garantida. Preço fechado antes de começar e
+              cada etapa no seu celular.
+            </p>
+            <div class="hero-acoes">
+              <a class="btn btn-primario" href="#/agendar">Agendar agora</a>
+              <a class="btn btn-secundario" href="#/diagnostico"
+                >Descobrir o serviço ideal</a
+              >
+            </div>
+            <!-- Números da marca: o JS conta de 0 até o valor quando aparecem na tela.
+                 O valor final já está no HTML (sem JS ou com "reduzir movimento", fica assim). -->
+            <dl class="numeros">
+              <div class="numero">
+                <dt>Serviços no catálogo</dt>
+                <dd><span id="numero-servicos" data-contar="0">0</span></dd>
+              </div>
+              <div class="numero">
+                <dt>Acompanhamento digital</dt>
+                <dd><span data-contar="100">100</span>%</dd>
+              </div>
+              <div class="numero">
+                <dt>Lavagens = 1 polimento grátis</dt>
+                <dd><span data-contar="5">5</span></dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Carro 3D. role="slider": girar o carro é como mexer num controle de 0 a 359 graus.
+               Funciona com mouse/dedo (arrastar) e teclado (setas). -->
+          <div class="hero-carro">
+            <canvas
+              id="carro-hero"
+              class="carro-canvas"
+              tabindex="0"
+              role="slider"
+              aria-label="Girar o carro 3D"
+              aria-valuemin="0"
+              aria-valuemax="359"
+              aria-valuenow="32"
+              aria-valuetext="32 graus"
+            ></canvas>
+            <p class="hero-carro-dica">Arraste ou use as setas para girar</p>
+            <fieldset class="cores-carro">
+              <legend>Cor da pintura</legend>
+              <label class="cor-amostra" style="--amostra: #1c1d22"
+                ><input type="radio" name="cor-carro" value="#1c1d22" checked />
+                <span class="visualmente-oculto">Preto Ônix</span></label
+              >
+              <label class="cor-amostra" style="--amostra: #39ff88"
+                ><input type="radio" name="cor-carro" value="#2fd877" />
+                <span class="visualmente-oculto">Verde Neon</span></label
+              >
+              <label class="cor-amostra" style="--amostra: #c3c8cf"
+                ><input type="radio" name="cor-carro" value="#c3c8cf" />
+                <span class="visualmente-oculto">Prata</span></label
+              >
+              <label class="cor-amostra" style="--amostra: #c0161d"
+                ><input type="radio" name="cor-carro" value="#c0161d" />
+                <span class="visualmente-oculto">Vermelho Corsa</span></label
+              >
+            </fieldset>
+          </div>
+        </div>
+
+        <!-- Faixa de manifesto: decorativa (os serviços estão listados na seção seguinte),
+             por isso aria-hidden. O texto se repete 2x para o loop não ter emenda. -->
+        <div class="faixa" aria-hidden="true">
+          <div class="faixa-trilho">
+            <span>Polimento</span><span>Vitrificação</span><span>PPF</span
+            ><span>Higienização</span><span>Preço fechado</span
+            ><span>Leva e traz</span><span>Polimento</span><span>Vitrificação</span
+            ><span>PPF</span><span>Higienização</span><span>Preço fechado</span
+            ><span>Leva e traz</span>
+          </div>
+        </div>
+
+        <!-- Antes e depois: a mesma pintura opaca (com marcas de lavagem) e polida.
+             O controle é um <input type="range"> de verdade: funciona com mouse, dedo e
+             teclado (setas), e o leitor de tela anuncia o valor. As duas camadas usam a mesma foto
+             (src/assets/imagens/polimento.webp): o "antes" é a foto envelhecida no CSS. -->
+        <figure class="antes-depois" aria-labelledby="antes-depois-titulo">
+          <figcaption id="antes-depois-titulo" class="antes-depois-legenda">
+            <span class="antes-depois-rotulo">Antes × depois</span>
+            Correção de pintura: da pintura opaca, cheia de micro-riscos, ao preto espelhado.
+          </figcaption>
+          <div class="antes-depois-quadro" style="--pos: 50%">
+            <div class="pintura pintura--antes" aria-hidden="true">
+              <span class="pintura-etiqueta">Antes</span>
+            </div>
+            <div class="pintura pintura--depois" aria-hidden="true">
+              <span class="pintura-etiqueta">Depois</span>
+            </div>
+            <span class="antes-depois-alca" aria-hidden="true"></span>
+            <input
+              id="antes-depois-controle"
+              class="antes-depois-controle"
+              type="range"
+              min="0"
+              max="100"
+              value="50"
+              aria-label="Comparar antes e depois: arraste para revelar a pintura polida"
+            />
+          </div>
+        </figure>
+
+        <!-- Os 3 princípios: cada um é um <article> porque faz sentido sozinho -->
+        <div class="principios">
+          <article class="principio">
+            <h3>Transparência</h3>
+            <p>
+              Preço fechado por porte do veículo, sem surpresas. Você vê tudo
+              antes de confirmar.
+            </p>
+          </article>
+          <article class="principio">
+            <h3>Excelência Técnica</h3>
+            <p>
+              Produtos e processos com padrão de fábrica, check-in com fotos e
+              controle de qualidade.
+            </p>
+          </article>
+          <article class="principio">
+            <h3>Conveniência</h3>
+            <p>
+              Agendamento online, opção leva e traz e acompanhamento em tempo
+              real.
+            </p>
+          </article>
+        </div>
+
+        <!-- <figure> agrupa a citação (<blockquote>) e quem disse (<figcaption>) -->
+        <figure class="voz-cliente">
+          <blockquote>
+            <p>
+              “Eu só queria saber quanto ia custar, quanto tempo ia levar e ter
+              a certeza de que meu carro estava em boas mãos.”
+            </p>
+          </blockquote>
+          <figcaption>
+            Voz do Cliente — entrevista com proprietário de SUV, 38 anos
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================== 2. SERVIÇOS ===================== -->
+      <section id="servicos" class="secao" aria-labelledby="servicos-titulo">
+        <h2 id="servicos-titulo">Serviços</h2>
+        <p>Escolha o serviço e veja o preço para o porte do seu veículo.</p>
+
+        <!-- Barra de filtros: porte (recalcula preços), busca e categorias -->
+        <div class="servicos-filtros">
+          <div class="campo">
+            <label for="servicos-porte">Porte do seu veículo</label>
+            <select id="servicos-porte">
+              <option value="hatch">Hatch</option>
+              <option value="seda">Sedã</option>
+              <option value="suv">SUV</option>
+              <option value="picape">Picape</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="servicos-busca">Buscar serviço</label>
+            <input
+              type="search"
+              id="servicos-busca"
+              placeholder="Ex.: vitrificação"
+              autocomplete="off"
+            />
+          </div>
+          <!-- Os chips de categoria são criados pelo JS a partir do catálogo -->
+          <fieldset id="filtro-categorias" class="grupo-chips">
+            <legend>Categoria</legend>
+          </fieldset>
+        </div>
+
+        <!-- Anuncia ao leitor de tela quantos serviços apareceram após filtrar -->
+        <p id="servicos-contagem" class="servicos-contagem" aria-live="polite"></p>
+
+        <!-- Vitrine vazia: o app.js cria os cartões aqui a partir do template abaixo -->
+        <div id="vitrine-servicos" class="vitrine"></div>
+
+        <!-- <template> não aparece na tela: é um "molde" que o JS copia para cada card -->
+        <template id="tpl-card-servico">
+          <article class="servico-card">
+            <span class="servico-icone" aria-hidden="true"></span>
+            <p class="servico-categoria"></p>
+            <h3 class="servico-nome"></h3>
+            <p class="servico-resumo"></p>
+            <p class="servico-durabilidade"></p>
+            <dl class="medidores">
+              <div class="medidor">
+                <dt>Proteção</dt>
+                <dd>
+                  <span class="medidor-barra" data-medidor="protecao"></span>
+                  <span class="visualmente-oculto" data-medidor-texto="protecao"></span>
+                </dd>
+              </div>
+              <div class="medidor">
+                <dt>Brilho</dt>
+                <dd>
+                  <span class="medidor-barra" data-medidor="brilho"></span>
+                  <span class="visualmente-oculto" data-medidor-texto="brilho"></span>
+                </dd>
+              </div>
+            </dl>
+            <p class="servico-preco">
+              <small class="servico-preco-rotulo"></small>
+              <span class="servico-preco-valor"></span>
+            </p>
+            <div class="servico-acoes">
+              <button type="button" class="btn btn-primario" data-acao="detalhes">
+                Ver detalhes
+              </button>
+              <button
+                type="button"
+                class="btn btn-secundario btn-salvar"
+                data-acao="salvar"
+                aria-pressed="false"
+              >
+                Salvar
+              </button>
+            </div>
+          </article>
+        </template>
+
+        <!-- Tabela comparativa: o JavaScript preenche o <tbody> -->
+        <div class="tabela-rolagem">
+          <table id="tabela-comparativa" class="tabela">
+            <caption>
+              Comparativo de proteção: Cera × Selante × Vitrificação × PPF
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Serviço</th>
+                <th scope="col">Durabilidade</th>
+                <th scope="col">Proteção</th>
+                <th scope="col">Brilho</th>
+                <th scope="col">Tempo de execução</th>
+                <th scope="col" id="comparativo-th-preco">Preço</th>
+                <th scope="col">Indicado para</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="7">Carregando serviços…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== 3. DIAGNÓSTICO ===================== -->
+      <section
+        id="diagnostico"
+        class="secao"
+        aria-labelledby="diagnostico-titulo"
+      >
+        <h2 id="diagnostico-titulo">Descubra o serviço ideal</h2>
+        <p>
+          Responda 5 perguntas rápidas e receba uma recomendação personalizada.
+        </p>
+
+        <!-- novalidate: desliga o balão padrão do navegador; o app.js valida e mostra a mensagem dentro de cada pergunta -->
+        <form id="form-diagnostico" class="formulario" novalidate>
+          <!-- Cada pergunta é um <fieldset>; a <legend> é o "título" lido pelo leitor de tela -->
+          <fieldset class="grupo-chips" data-campo="porte">
+            <legend>Porte do veículo</legend>
+            <!-- Mensagem de erro: fica escondida até a validação falhar -->
+            <p id="erro-porte" class="mensagem-erro" hidden></p>
+            <label
+              ><input type="radio" name="porte" value="hatch" required />
+              Hatch</label
+            >
+            <label><input type="radio" name="porte" value="seda" /> Sedã</label>
+            <label><input type="radio" name="porte" value="suv" /> SUV</label>
+            <label
+              ><input type="radio" name="porte" value="picape" /> Picape</label
+            >
+          </fieldset>
+
+          <fieldset class="grupo-chips" data-campo="pintura">
+            <legend>Estado da pintura</legend>
+            <p id="erro-pintura" class="mensagem-erro" hidden></p>
+            <label
+              ><input type="radio" name="pintura" value="nova" required />
+              Nova</label
+            >
+            <label
+              ><input type="radio" name="pintura" value="riscos-leves" /> Riscos
+              leves</label
+            >
+            <label
+              ><input type="radio" name="pintura" value="riscos-visiveis" />
+              Riscos visíveis</label
+            >
+            <label
+              ><input type="radio" name="pintura" value="opaca" />
+              Opaca/oxidada</label
+            >
+          </fieldset>
+
+          <fieldset class="grupo-chips" data-campo="objetivo">
+            <legend>Objetivo</legend>
+            <p id="erro-objetivo" class="mensagem-erro" hidden></p>
+            <label
+              ><input type="radio" name="objetivo" value="limpeza" required />
+              Limpeza</label
+            >
+            <label
+              ><input type="radio" name="objetivo" value="brilho" />
+              Brilho</label
+            >
+            <label
+              ><input type="radio" name="objetivo" value="protecao" /> Proteção
+              duradoura</label
+            >
+            <label
+              ><input type="radio" name="objetivo" value="revenda" /> Valorizar
+              para revenda</label
+            >
+          </fieldset>
+
+          <fieldset class="grupo-chips" data-campo="orcamento">
+            <legend>Orçamento</legend>
+            <p id="erro-orcamento" class="mensagem-erro" hidden></p>
+            <label
+              ><input type="radio" name="orcamento" value="200" required /> Até
+              R$ 200</label
+            >
+            <label
+              ><input type="radio" name="orcamento" value="600" /> Até R$
+              600</label
+            >
+            <label
+              ><input type="radio" name="orcamento" value="1500" /> Até R$
+              1.500</label
+            >
+            <label
+              ><input type="radio" name="orcamento" value="sem-limite" /> Sem
+              limite</label
+            >
+          </fieldset>
+
+          <fieldset class="grupo-chips" data-campo="tempo">
+            <legend>Tempo disponível para deixar o carro</legend>
+            <p id="erro-tempo" class="mensagem-erro" hidden></p>
+            <label
+              ><input type="radio" name="tempo" value="3h" required /> Até
+              3h</label
+            >
+            <label
+              ><input type="radio" name="tempo" value="1-dia" /> 1 dia</label
+            >
+            <label
+              ><input type="radio" name="tempo" value="2-3-dias" /> 2 a 3
+              dias</label
+            >
+          </fieldset>
+
+          <button type="submit" class="btn btn-primario">
+            Ver recomendação
+          </button>
+        </form>
+
+        <!-- O app.js desenha aqui as 3 recomendações e leva o foco ao título delas
+             (o leitor de tela lê o título ao receber o foco) -->
+        <div id="diagnostico-resultado" class="resultado"></div>
+      </section>
+
+      <!-- ===================== 4. AGENDAR ===================== -->
+      <section id="agendar" class="secao" aria-labelledby="agendar-titulo">
+        <h2 id="agendar-titulo">Agendar serviço</h2>
+
+        <form id="form-agendamento" class="formulario">
+          <div class="campo">
+            <label for="agendar-veiculo">Veículo</label>
+            <!-- A 1ª opção com value="" é exigida pelo W3C em <select required> -->
+            <select id="agendar-veiculo" name="veiculo" required>
+              <option value="">Selecione um veículo cadastrado</option>
+            </select>
+            <p id="agendar-veiculo-dica" class="dica" hidden>
+              Você ainda não tem veículo. <a href="#/veiculos">Cadastre o primeiro</a> e volte aqui.
+            </p>
+          </div>
+
+          <div class="campo">
+            <label for="agendar-servico">Serviço</label>
+            <select id="agendar-servico" name="servico" required>
+              <option value="">Selecione um serviço</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="agendar-data">Data</label>
+            <input type="date" id="agendar-data" name="data" required />
+          </div>
+
+          <!-- Grade de horários: o JS cria um botão de rádio para cada horário livre -->
+          <fieldset id="grade-horarios" class="grade-horarios">
+            <legend>Horário</legend>
+            <p class="dica">
+              Escolha uma data para ver os horários disponíveis.
+            </p>
+          </fieldset>
+
+          <div class="campo campo-checkbox">
+            <input type="checkbox" id="agendar-leva-traz" name="levaTraz" />
+            <label for="agendar-leva-traz">Quero o serviço leva e traz</label>
+          </div>
+
+          <!-- "disabled" no fieldset desativa todos os campos de endereço de uma vez;
+               o JS remove o disabled quando o leva e traz for marcado -->
+          <fieldset id="endereco-leva-traz" class="endereco" disabled>
+            <legend>Endereço para buscar o veículo</legend>
+
+            <p id="cep-status" class="dica" aria-live="polite">
+              Digite o CEP: rua, bairro e cidade são preenchidos sozinhos.
+            </p>
+            <div class="campo">
+              <label for="agendar-cep">CEP</label>
+              <input
+                type="text"
+                id="agendar-cep"
+                name="cep"
+                inputmode="numeric"
+                autocomplete="postal-code"
+                placeholder="00000-000"
+                pattern="\d{5}-?\d{3}"
+                maxlength="9"
+                required
+              />
+            </div>
+            <div class="campo">
+              <label for="agendar-logradouro">Rua</label>
+              <input
+                type="text"
+                id="agendar-logradouro"
+                name="logradouro"
+                autocomplete="address-line1"
+                required
+              />
+            </div>
+            <div class="campo">
+              <label for="agendar-numero">Número</label>
+              <input
+                type="text"
+                id="agendar-numero"
+                name="numero"
+                inputmode="numeric"
+                required
+              />
+            </div>
+            <div class="campo">
+              <label for="agendar-complemento">Complemento</label>
+              <input
+                type="text"
+                id="agendar-complemento"
+                name="complemento"
+                autocomplete="address-line2"
+              />
+            </div>
+            <div class="campo">
+              <label for="agendar-bairro">Bairro</label>
+              <input type="text" id="agendar-bairro" name="bairro" required />
+            </div>
+            <div class="campo">
+              <label for="agendar-cidade">Cidade</label>
+              <input
+                type="text"
+                id="agendar-cidade"
+                name="cidade"
+                autocomplete="address-level2"
+                required
+              />
+            </div>
+            <div class="campo">
+              <label for="agendar-uf">UF</label>
+              <input
+                type="text"
+                id="agendar-uf"
+                name="uf"
+                maxlength="2"
+                autocomplete="address-level1"
+                required
+              />
+            </div>
+          </fieldset>
+
+          <div class="campo">
+            <label for="agendar-observacoes">Observações</label>
+            <textarea
+              id="agendar-observacoes"
+              name="observacoes"
+              rows="3"
+              maxlength="300"
+              placeholder="Ex.: risco na porta traseira, cheiro de cigarro…"
+            ></textarea>
+          </div>
+
+          <!-- Resumo com preço calculado pelo JS antes de confirmar (princípio da transparência) -->
+          <p id="agendar-resumo" class="resumo" aria-live="polite"></p>
+
+          <p id="agendar-erro" class="mensagem-erro" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primario">
+            Confirmar agendamento
+          </button>
+        </form>
+
+        <!-- Depois de confirmar: card com protocolo, calendário e cancelamento -->
+        <div id="agendar-confirmacao" aria-live="polite"></div>
+      </section>
+
+      <!-- ===================== 5. MEUS VEÍCULOS ===================== -->
+      <section id="veiculos" class="secao" aria-labelledby="veiculos-titulo">
+        <h2 id="veiculos-titulo">Meus Veículos</h2>
+        <p>Cadastre seu carro uma vez e use em todos os agendamentos.</p>
+
+        <button
+          type="button"
+          id="btn-cadastrar-veiculo"
+          class="btn btn-primario"
+          aria-controls="form-veiculo"
+          aria-expanded="false"
+        >
+          Cadastrar veículo
+        </button>
+
+        <!-- Formulário: começa escondido; o JS mostra ao clicar no botão acima -->
+        <form id="form-veiculo" class="formulario form-veiculo" hidden novalidate>
+          <input type="hidden" id="veiculo-id" name="id" />
+          <h3 id="form-veiculo-titulo">Novo veículo</h3>
+
+          <!-- Aviso de falha da FIPE (o JS mostra quando a API não responde) -->
+          <p id="fipe-aviso" class="aviso-diagnostico" role="alert" hidden></p>
+
+          <!-- Selects encadeados da FIPE: Marca → Modelo → Ano.
+               aria-busy="true" enquanto carregam (o CSS mostra o spinner). -->
+          <div class="campo campo-fipe">
+            <label for="veiculo-marca">Marca</label>
+            <select id="veiculo-marca" name="marca" required disabled aria-busy="true">
+              <option value="">Carregando marcas…</option>
+            </select>
+          </div>
+          <div class="campo campo-fipe">
+            <label for="veiculo-modelo">Modelo</label>
+            <select id="veiculo-modelo" name="modelo" required disabled>
+              <option value="">Escolha a marca primeiro</option>
+            </select>
+          </div>
+          <div class="campo campo-fipe">
+            <label for="veiculo-ano">Ano</label>
+            <select id="veiculo-ano" name="ano" required disabled>
+              <option value="">Escolha o modelo primeiro</option>
+            </select>
+          </div>
+
+          <!-- Reserva: campos de texto, usados quando a FIPE falha (ficam escondidos até lá) -->
+          <div class="campo campo-manual" hidden>
+            <label for="veiculo-marca-texto">Marca</label>
+            <input type="text" id="veiculo-marca-texto" autocomplete="off" disabled />
+          </div>
+          <div class="campo campo-manual" hidden>
+            <label for="veiculo-modelo-texto">Modelo</label>
+            <input type="text" id="veiculo-modelo-texto" autocomplete="off" disabled />
+          </div>
+          <div class="campo campo-manual" hidden>
+            <label for="veiculo-ano-texto">Ano</label>
+            <input type="number" id="veiculo-ano-texto" min="1950" max="2027" disabled />
+          </div>
+
+          <div class="campo">
+            <label for="veiculo-placa">Placa</label>
+            <input
+              type="text"
+              id="veiculo-placa"
+              name="placa"
+              placeholder="ABC-1234 ou ABC1D23"
+              maxlength="8"
+              autocomplete="off"
+              aria-describedby="veiculo-placa-dica"
+              required
+            />
+            <p id="veiculo-placa-dica" class="dica">
+              Padrão antigo (ABC-1234) ou Mercosul (ABC1D23).
+            </p>
+          </div>
+          <div class="campo">
+            <label for="veiculo-cor">Cor</label>
+            <input type="text" id="veiculo-cor" name="cor" placeholder="Ex.: Preto" />
+          </div>
+          <div class="campo">
+            <label for="veiculo-porte">Porte</label>
+            <select id="veiculo-porte" name="porte" required>
+              <option value="">Selecione</option>
+              <option value="hatch">Hatch</option>
+              <option value="seda">Sedã</option>
+              <option value="suv">SUV</option>
+              <option value="picape">Picape</option>
+            </select>
+          </div>
+          <p id="veiculo-erro" class="mensagem-erro" role="alert" hidden></p>
+          <div class="acoes-formulario">
+            <button type="submit" class="btn btn-primario">Salvar veículo</button>
+            <button type="button" id="btn-cancelar-veiculo" class="btn btn-secundario">
+              Cancelar
+            </button>
+          </div>
+        </form>
+
+        <!-- O JS cria um <article> por veículo (ou o estado vazio) -->
+        <div id="lista-veiculos" class="lista-cartoes" aria-live="polite"></div>
+      </section>
+
+      <!-- ===================== 6. ACOMPANHAMENTO ===================== -->
+      <section
+        id="acompanhamento"
+        class="secao"
+        aria-labelledby="acompanhamento-titulo"
+      >
+        <h2 id="acompanhamento-titulo">Acompanhamento</h2>
+        <p>Veja cada etapa do serviço em tempo real, com fotos e previsão de entrega.</p>
+
+        <!-- Visão do cliente -->
+        <div id="visao-cliente" class="visao-cliente" aria-live="polite">
+          <p id="acompanhamento-vazio" class="vazio">
+            Nenhum serviço em andamento. Quando você agendar, o progresso aparece aqui.
+          </p>
+          <div class="campo" id="acompanhamento-escolha" hidden>
+            <label for="acompanhamento-agendamento">Serviço acompanhado</label>
+            <select id="acompanhamento-agendamento"></select>
+          </div>
+          <article id="servico-andamento" class="cartao" hidden>
+            <div class="andamento-topo">
+              <div>
+                <h3 id="andamento-titulo">Serviço em andamento</h3>
+                <p id="andamento-resumo" class="texto-suave"></p>
+              </div>
+              <span id="andamento-badge" class="badge"></span>
+            </div>
+            <!-- Barra de progresso nativa: o leitor de tela lê o valor -->
+            <label for="andamento-progresso" class="andamento-progresso-rotulo">
+              Progresso: <strong id="andamento-percentual">0%</strong>
+            </label>
+            <progress id="andamento-progresso" max="100" value="0">0%</progress>
+            <p id="andamento-previsao" class="dica"></p>
+            <ol id="linha-tempo" class="linha-tempo"></ol>
+            <button type="button" id="btn-avisar-pronto" class="btn btn-secundario">
+              Avise-me quando ficar pronto
+            </button>
+          </article>
+
+          <article id="checkin-recebido" class="cartao" hidden>
+            <h3>Check-in recebido</h3>
+            <div id="checkin-relatorio"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===================== 7. FIDELIDADE ===================== -->
+      <section
+        id="fidelidade"
+        class="secao"
+        aria-labelledby="fidelidade-titulo"
+      >
+        <h2 id="fidelidade-titulo">Cartão Fidelidade</h2>
+
+        <div class="fidelidade-grade">
+          <article id="cartao-fidelidade" class="cartao-fidelidade">
+            <h3>PK Club</h3>
+            <p>Complete 5 lavagens e ganhe um polimento de refino grátis.</p>
+            <!-- 5 carimbos fixos; o JS marca os conquistados com a classe "carimbado" -->
+            <ol
+              id="carimbos"
+              class="carimbos"
+              aria-label="Carimbos do cartão fidelidade"
+            >
+              <li class="carimbo">1</li>
+              <li class="carimbo">2</li>
+              <li class="carimbo">3</li>
+              <li class="carimbo">4</li>
+              <li class="carimbo">5</li>
+            </ol>
+            <p id="fidelidade-status" aria-live="polite">0 de 5 carimbos</p>
+            <button
+              type="button"
+              id="btn-resgatar"
+              class="btn btn-primario"
+              hidden
+            >
+              Resgatar polimento
+            </button>
+          </article>
+
+          <div class="fidelidade-info">
+            <h3>Como funciona o PK Club</h3>
+            <ul class="detalhe-lista">
+              <li>
+                Contam carimbo: <strong>Lavagem Técnica</strong>,
+                <strong>Higienização Interna</strong> e <strong>Lavagem Completa</strong>.
+              </li>
+              <li>1 carimbo por serviço entregue (o mesmo serviço não carimba duas vezes).</li>
+              <li>Com 5 carimbos, o Polimento de Refino sai por R$ 0,00.</li>
+              <li>Os carimbos valem por 12 meses a partir da entrega.</li>
+            </ul>
+            <h3 id="historico-carimbos-titulo">Histórico de carimbos</h3>
+            <ul
+              id="historico-carimbos"
+              class="lista-simples"
+              aria-labelledby="historico-carimbos-titulo"
+            ></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 8. HISTÓRICO ===================== -->
+      <section id="historico" class="secao" aria-labelledby="historico-titulo">
+        <h2 id="historico-titulo">Histórico</h2>
+
+        <p id="alerta-manutencao" class="aviso-diagnostico" role="status" hidden></p>
+
+        <div class="historico-filtros">
+          <div class="campo">
+            <label for="filtro-veiculo">Veículo</label>
+            <select id="filtro-veiculo">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="filtro-status">Status</label>
+            <select id="filtro-status">
+              <option value="">Todos</option>
+              <option value="agendado">Agendado</option>
+              <option value="recebido">Recebido</option>
+              <option value="em-execucao">Em execução</option>
+              <option value="pronto">Pronto</option>
+              <option value="entregue">Entregue</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tabela-rolagem">
+          <table id="tabela-historico" class="tabela">
+            <caption>
+              Serviços, do mais recente para o mais antigo
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Veículo</th>
+                <th scope="col">Serviço</th>
+                <th scope="col">Valor</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6">Nenhum serviço ainda.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <article class="cartao">
+          <!-- tabindex="-1": o JS pode pôr o foco aqui depois de remover um item -->
+          <h3 id="salvos-titulo" tabindex="-1">Serviços salvos</h3>
+          <ul id="lista-salvos" class="lista-salvos"></ul>
+          <p id="salvos-vazio" class="vazio">
+            Você ainda não salvou nenhum serviço.
+          </p>
+        </article>
+
+      </section>
+
+      <!-- ===================== 9. COMO FUNCIONA ===================== -->
+      <section id="como-funciona" class="secao" aria-labelledby="como-funciona-titulo">
+        <h2 id="como-funciona-titulo">Como funciona</h2>
+        <ol class="passos">
+          <li><strong>Descubra:</strong> o diagnóstico indica o serviço certo para a sua pintura.</li>
+          <li><strong>Agende:</strong> escolha data e horário livres, com o preço fechado na tela.</li>
+          <li><strong>Check-in:</strong> registramos fotos e avarias na entrada, e você confirma.</li>
+          <li><strong>Acompanhe:</strong> cada etapa aparece aqui, com fotos e previsão de entrega.</li>
+          <li><strong>Retire e avalie:</strong> sua nota nos ajuda a melhorar e as lavagens viram carimbos.</li>
+        </ol>
+
+        <h3>Perguntas frequentes</h3>
+        <div class="faq">
+          <details>
+            <summary>O preço pode mudar depois que eu agendar?</summary>
+            <p>Não. O valor mostrado no resumo é fechado pelo porte do veículo. A única taxa extra é o leva e traz (R$ 30,00), que aparece antes de confirmar.</p>
+          </details>
+          <details>
+            <summary>Posso cancelar?</summary>
+            <p>Sim, até o início do serviço. O horário volta a ficar livre na hora.</p>
+          </details>
+          <details>
+            <summary>Por que preciso confirmar o check-in?</summary>
+            <p>Para que você e a estética concordem sobre o estado do carro na entrada. Isso evita discussões sobre riscos que já existiam.</p>
+          </details>
+          <details>
+            <summary>Meus dados ficam salvos onde?</summary>
+            <p>Neste navegador (LocalStorage). Se limpar os dados do navegador, eles são apagados.</p>
+          </details>
+        </div>
+
+        <h3 id="glossario-titulo">Glossário</h3>
+        <dl class="glossario" aria-labelledby="glossario-titulo">
+          <div><dt>Descontaminação</dt><dd>Remoção de sujeira grudada na pintura (piche, resina, poeira de freio) com clay bar, antes de polir ou proteger.</dd></div>
+          <div><dt>Clay bar</dt><dd>Massa que "puxa" a sujeira presa no verniz, deixando a superfície lisa.</dd></div>
+          <div><dt>Polimento de refino</dt><dd>Polimento leve, em uma etapa, que tira marcas superficiais e devolve o brilho.</dd></div>
+          <div><dt>Correção de pintura</dt><dd>Polimento em etapas (corte e refino) que remove riscos visíveis e oxidação.</dd></div>
+          <div><dt>Selante</dt><dd>Proteção sintética que dura meses e faz a água escorrer.</dd></div>
+          <div><dt>Vitrificação (coating)</dt><dd>Camada cerâmica rígida sobre o verniz, com brilho intenso e proteção por anos.</dd></div>
+          <div><dt>PPF</dt><dd>Película transparente que protege a pintura contra pedras e riscos.</dd></div>
+          <div><dt>Verniz</dt><dd>Camada transparente por cima da cor. É ela que o polimento trabalha.</dd></div>
+        </dl>
+      </section>
+      <!-- ===================== 10. ATENDIMENTO (uso da estética) =====================
+           Check-in, avançar etapas (com foto) e entrega. Antes ficava no "Modo Estética". -->
+      <section id="atendimento" class="secao" aria-labelledby="atendimento-titulo">
+        <h2 id="atendimento-titulo">Atendimento</h2>
+        <p>
+          Área da equipe: faça o check-in, avance as etapas e marque a entrega. A página
+          Acompanhamento do cliente atualiza sozinha, inclusive em outra aba.
+        </p>
+        <div id="painel-atendente" class="painel-atendente">
+          <h3>Agendamentos</h3>
+          <div id="lista-atendente" class="lista-atendente" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- ===================== 11. PAINEL (uso da estética) ===================== -->
+      <section id="painel" class="secao" aria-labelledby="painel-titulo">
+        <h2 id="painel-titulo">Painel</h2>
+        <p>NPS, recorrência, ticket médio e serviços mais vendidos.</p>
+        <article id="painel-metricas" class="cartao">
+          <div class="painel-topo">
+            <h3>Indicadores do negócio</h3>
+            <div class="painel-acoes">
+              <button type="button" id="btn-gerar-demo" class="btn btn-secundario">
+                Gerar dados de demonstração
+              </button>
+              <button type="button" id="btn-limpar-demo" class="btn btn-secundario">
+                Limpar dados de demonstração
+              </button>
+            </div>
+          </div>
+          <div id="metricas" class="metricas-painel" aria-live="polite"></div>
+        </article>
+      </section>
+    </main>
+
+    <!-- ===================== RODAPÉ ===================== -->
+    <footer class="rodape">
+      <p class="rodape-marca" aria-hidden="true">
+        <svg class="logo-svg"><use href="#pk-monograma" /></svg>
+        <span class="rodape-nome">Estética Automotiva</span>
+      </p>
+      <p>
+        <strong>Integrantes:</strong> Henrique Mota Monteiro, João Pedro Duarte
+        Borges, Lucas de Oliveira Andrade, Lucas Martins Barreto e Yuri Marques
+        Oliveira
+      </p>
+      <p>
+        Trabalho final da disciplina
+        <strong>Desenvolvimento de Interfaces</strong> —
+        <time datetime="2026">2026</time>
+      </p>
+      <p>
+        <strong>Créditos das APIs:</strong>
+        <a href="https://viacep.com.br/" target="_blank" rel="noopener"
+          >ViaCEP</a
+        >
+        (consulta de endereço por CEP).
+      </p>
+      <p class="aviso">
+        Protótipo acadêmico: os dados ficam salvos apenas neste navegador
+        (LocalStorage).
+      </p>
+      <!-- Crédito exigido pela licença CC BY 4.0 do modelo 3D da abertura -->
+      <p id="credito-modelo" class="aviso">
+        Modelo 3D: Honda Civic Type R (EK9) por marksform –
+        <a href="https://sketchfab.com/3d-models/honda-civic-type-r-ek9-low-poly-stylized-599b4155e11d41ee9ea9d8306b4b5cff" target="_blank" rel="noopener">Sketchfab</a>
+        (licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>;
+        modificado: pintura preta, cromados e compressão).
+      </p>
+      <p>
+        <button type="button" id="btn-rever-abertura" class="btn btn-secundario">
+          Rever a abertura
+        </button>
+      </p>
+    </footer>
+
+    <!-- Toasts: mensagens rápidas ("Veículo salvo!"). role="status" faz o leitor de tela anunciá-las -->
+    <div id="toasts" class="toasts" role="status"></div>
+
+    <!-- Diálogo genérico de confirmação: o JS troca o título/mensagem e abre com showModal() -->
+    <dialog
+      id="dialog-confirmacao"
+      aria-labelledby="dialog-titulo"
+      aria-describedby="dialog-mensagem"
+    >
+      <!-- method="dialog" fecha o diálogo e guarda o "value" do botão clicado em dialog.returnValue -->
+      <form method="dialog">
+        <h2 id="dialog-titulo">Confirmar ação</h2>
+        <p id="dialog-mensagem">Tem certeza que deseja continuar?</p>
+        <div class="dialog-acoes">
+          <button type="submit" value="cancelar" class="btn btn-secundario">
+            Cancelar
+          </button>
+          <button type="submit" value="confirmar" class="btn btn-primario">
+            Confirmar
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Diálogo de detalhes do serviço: estrutura fixa, o JS só troca os textos.
+         O padding fica no .dialog-conteudo para o clique no fundo escuro fechar o diálogo. -->
+    <dialog id="dialog-servico" class="dialog-servico" aria-labelledby="detalhe-titulo">
+      <div class="dialog-conteudo">
+        <header class="detalhe-topo">
+          <span id="detalhe-icone" class="servico-icone" aria-hidden="true"></span>
+          <div>
+            <p id="detalhe-categoria" class="servico-categoria"></p>
+            <h2 id="detalhe-titulo">Serviço</h2>
+          </div>
+          <form method="dialog">
+            <button type="submit" class="btn-icone" aria-label="Fechar detalhes">
+              <span aria-hidden="true">✕</span>
+            </button>
+          </form>
+        </header>
+
+        <p id="detalhe-descricao"></p>
+        <p class="detalhe-preco">
+          <small id="detalhe-preco-rotulo"></small>
+          <span id="detalhe-preco-valor"></span>
+        </p>
+
+        <h3>Técnica</h3>
+        <p id="detalhe-tecnica"></p>
+
+        <h3>Produtos usados</h3>
+        <ul id="detalhe-produtos" class="detalhe-lista"></ul>
+
+        <h3>Etapas</h3>
+        <ol id="detalhe-etapas" class="detalhe-etapas"></ol>
+
+        <h3>Durabilidade</h3>
+        <p id="detalhe-durabilidade"></p>
+
+        <h3>Cuidados pós-serviço</h3>
+        <ul id="detalhe-cuidados" class="detalhe-lista"></ul>
+
+        <div class="dialog-acoes">
+          <form method="dialog">
+            <button type="submit" class="btn btn-secundario">Fechar</button>
+          </form>
+          <button type="button" id="btn-detalhe-agendar" class="btn btn-primario">
+            Agendar este serviço
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Check-in (página Atendimento) -->
+    <dialog id="dialog-checkin" class="dialog-servico" aria-labelledby="checkin-titulo">
+      <div class="dialog-conteudo">
+        <form id="form-checkin" class="formulario form-checkin" method="dialog" novalidate>
+          <header class="detalhe-topo">
+            <span class="servico-icone" aria-hidden="true">◫</span>
+            <div>
+              <p class="servico-categoria">Atendimento</p>
+              <h2 id="checkin-titulo">Check-in do veículo</h2>
+            </div>
+            <button type="button" class="btn-icone" data-fechar aria-label="Fechar check-in">
+              <span aria-hidden="true">✕</span>
+            </button>
+          </header>
+          <p id="checkin-resumo" class="texto-suave"></p>
+
+          <fieldset>
+            <legend>Fotos (até 6)</legend>
+            <div class="campo">
+              <label for="checkin-fotos">Adicionar fotos</label>
+              <input type="file" id="checkin-fotos" accept="image/*" capture="environment" multiple />
+            </div>
+            <p id="checkin-fotos-info" class="dica" aria-live="polite">
+              As fotos são reduzidas para no máximo 1024 px antes de salvar.
+            </p>
+            <ul id="checkin-previa" class="checkin-previa"></ul>
+          </fieldset>
+
+          <fieldset>
+            <legend>Mapa de avarias</legend>
+            <p class="dica">
+              Clique (ou use Tab e Enter) numa parte do carro para marcar o tipo de avaria.
+            </p>
+            <div class="mapa-avarias-area">
+              <div id="checkin-mapa" class="mapa-avarias"></div>
+              <div class="mapa-avarias-lado">
+                <div class="campo" id="avaria-escolha" hidden>
+                  <label for="avaria-tipo" id="avaria-rotulo">Tipo de avaria</label>
+                  <select id="avaria-tipo">
+                    <option value="">Sem avaria</option>
+                    <option value="risco">Risco</option>
+                    <option value="amassado">Amassado</option>
+                    <option value="lascado">Lascado</option>
+                    <option value="mancha">Mancha</option>
+                    <option value="trinca">Trinca</option>
+                  </select>
+                </div>
+                <ul id="checkin-legenda" class="legenda-avarias" aria-live="polite"></ul>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="grade-2">
+            <div class="campo">
+              <label for="checkin-km">Quilometragem (km)</label>
+              <input type="number" id="checkin-km" min="0" inputmode="numeric" required />
+            </div>
+            <div class="campo">
+              <label for="checkin-combustivel">Combustível</label>
+              <output id="checkin-combustivel-valor" for="checkin-combustivel">50%</output>
+              <input type="range" id="checkin-combustivel" min="0" max="100" step="25" value="50" />
+            </div>
+          </div>
+          <div class="campo">
+            <label for="checkin-itens">Itens deixados no veículo</label>
+            <textarea id="checkin-itens" rows="2" placeholder="Ex.: cadeirinha, guarda-chuva"></textarea>
+          </div>
+          <div class="campo">
+            <label for="checkin-observacoes">Observações</label>
+            <textarea id="checkin-observacoes" rows="2"></textarea>
+          </div>
+          <p id="checkin-erro" class="mensagem-erro" role="alert" hidden></p>
+          <div class="dialog-acoes">
+            <button type="button" class="btn btn-secundario" data-fechar>Cancelar</button>
+            <button type="submit" class="btn btn-primario" value="salvar">Salvar check-in</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- Pesquisa NPS -->
+    <dialog id="dialog-nps" aria-labelledby="nps-titulo">
+      <form id="form-nps" method="dialog" class="formulario">
+        <h2 id="nps-titulo">Como foi o serviço?</h2>
+        <fieldset class="nps-escala">
+          <legend>Qual a probabilidade de você indicar a PK Estética Automotiva a um amigo?</legend>
+          <div id="nps-opcoes" class="nps-opcoes"></div>
+          <p class="nps-extremos" aria-hidden="true"><span>0 = nada provável</span><span>10 = muito provável</span></p>
+        </fieldset>
+        <div class="campo">
+          <label for="nps-comentario">Comentário (opcional)</label>
+          <textarea id="nps-comentario" rows="3" maxlength="300"></textarea>
+        </div>
+        <p id="nps-erro" class="mensagem-erro" role="alert" hidden></p>
+        <div class="dialog-acoes">
+          <button type="button" class="btn btn-secundario" data-fechar>Agora não</button>
+          <button type="submit" class="btn btn-primario" value="enviar">Enviar avaliação</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Relatório de check-in (aberto pelo histórico) -->
+    <dialog id="dialog-relatorio" class="dialog-servico" aria-labelledby="relatorio-titulo">
+      <div class="dialog-conteudo">
+        <header class="detalhe-topo">
+          <span class="servico-icone" aria-hidden="true">◫</span>
+          <div>
+            <p class="servico-categoria">Check-in</p>
+            <h2 id="relatorio-titulo">Relatório de check-in</h2>
+          </div>
+          <button type="button" class="btn-icone" data-fechar aria-label="Fechar relatório">
+            <span aria-hidden="true">✕</span>
+          </button>
+        </header>
+        <div id="relatorio-conteudo"></div>
+      </div>
+    </dialog>
+
+    <!-- Lightbox das fotos -->
+    <dialog id="dialog-foto" class="dialog-foto" aria-labelledby="foto-legenda">
+      <figure>
+        <img id="foto-ampliada" src="data:," alt="" />
+        <figcaption id="foto-legenda"></figcaption>
+      </figure>
+      <div class="dialog-acoes">
+        <button type="button" id="foto-anterior" class="btn btn-secundario">Anterior</button>
+        <button type="button" id="foto-proxima" class="btn btn-secundario">Próxima</button>
+        <button type="button" class="btn btn-primario" data-fechar>Fechar</button>
+      </div>
+    </dialog>
+
+    <!-- Um único script, do tipo MÓDULO: o main.js importa todos os outros.
+         type="module" já espera o HTML terminar de carregar (como o defer). -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

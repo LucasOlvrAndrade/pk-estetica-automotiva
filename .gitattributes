@@ -1,0 +1,4 @@
+# Quebra de linha LF em todos os arquivos de texto (igual ao .vscode/settings.json)
+* text=auto eol=lf
+*.glb binary
+*.webp binary

@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "ritwickdey.LiveServer",
+    "esbenp.prettier-vscode",
+    "HTMLHint.vscode-htmlhint",
+    "MS-CEINTL.vscode-language-pack-pt-BR"
+  ]
+}

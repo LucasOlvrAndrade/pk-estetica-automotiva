@@ -1,0 +1,16 @@
+# Dependências: o "npm install" recria
+node_modules/
+
+# Build (gerado pelo "npm run build"; o site publicado vem dele)
+dist/
+dist-professor/
+
+# Segredos e configuração local da Vercel: NUNCA versionar
+.env
+.env.*
+.vercel/
+
+# Sistema e editor
+.DS_Store
+Thumbs.db
+*.log

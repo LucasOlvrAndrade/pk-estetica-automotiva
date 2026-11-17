@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 72" role="img" aria-labelledby="t">
+  <title id="t">PK Estética Automotiva</title>
+  <!-- Versão completa: monograma cromado + nome em caixa alta, com um friso e um fio de neon.
+       O nome usa a Saira Extra Condensed (a fonte do site); sem ela, cai numa condensada do sistema. -->
+  <defs>
+    <linearGradient id="cromo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.3" stop-color="#d9dce1" />
+      <stop offset="0.48" stop-color="#8a9099" />
+      <stop offset="0.56" stop-color="#f4f5f7" />
+      <stop offset="0.78" stop-color="#a9aeb6" />
+      <stop offset="1" stop-color="#e8eaee" />
+    </linearGradient>
+    <linearGradient id="friso" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a9099" />
+      <stop offset="0.5" stop-color="#f4f5f7" />
+      <stop offset="1" stop-color="#8a9099" stop-opacity="0" />
+    </linearGradient>
+    <mask id="corte">
+      <rect width="124" height="72" fill="#fff" />
+      <polygon points="0,49 124,27 124,31 0,53" fill="#000" />
+    </mask>
+  </defs>
+  <g mask="url(#corte)" fill="url(#cromo)">
+    <g transform="translate(14 0) skewX(-12)">
+      <rect x="8" y="8" width="13" height="56" />
+      <path d="M21 8h25l10 10v14l-10 10H21V31h19l3-3v-6l-3-3H21z" />
+      <rect x="62" y="8" width="13" height="56" />
+      <path d="M75 30L96 8h16L86 36z" />
+      <path d="M84 31l28 33H96L75 43z" />
+    </g>
+  </g>
+  <text x="140" y="40" fill="url(#cromo)" font-family="'Saira Extra Condensed', 'Arial Narrow', sans-serif"
+    font-size="34" font-weight="800" letter-spacing="3">ESTÉTICA AUTOMOTIVA</text>
+  <rect x="140" y="52" width="370" height="2" fill="url(#friso)" />
+  <rect x="140" y="52" width="40" height="2" fill="#39ff88" />
+</svg>
