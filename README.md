@@ -2,7 +2,6 @@
 
 Trabalho final da disciplina **Desenvolvimento de Interfaces** (2026).
 
-> "Transformar o cuidado e a valorização automotiva em uma experiência simples, transparente e digital."
 
 Aplicação web de uma estética automotiva: o cliente descobre o serviço certo para o carro, vê o preço
 fechado, agenda, acompanha cada etapa pelo celular, avalia e acumula fidelidade. O lado da estética
