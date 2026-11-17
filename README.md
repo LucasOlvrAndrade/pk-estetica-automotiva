@@ -75,7 +75,8 @@ Detalhes e mapa da rubrica: [docs/funcionalidades.md](docs/funcionalidades.md).
 index.html            estrutura de todas as seções e diálogos
 src/main.js           ponto de entrada
 src/js/               storage, servicos, ui, api, veiculos, agenda, checkin,
-                      acompanhamento, fidelidade, historico, carro3d, intro3d,
+                      acompanhamento, fidelidade, historico, carro3d, modelo3d,
+                      intro3d, vitrine3d,
                       rotas (páginas + menu lateral), movimento (animações), app
 src/assets/logo/      monograma PK e logo completo em SVG
 src/css/style.css     estilos

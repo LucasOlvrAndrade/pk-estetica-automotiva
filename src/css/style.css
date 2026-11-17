@@ -2220,6 +2220,10 @@ html.abertura-ativa {
 
 /* ---------- 5.18 Dialog ---------- */
 dialog {
+  /* margin: auto centraliza o diálogo na tela. O navegador já faz isso, mas o reset
+     "* { margin: 0 }" do topo apagava: sem esta linha ele ia para o canto de cima. */
+  margin: auto;
+  max-height: calc(100dvh - var(--esp-8));
   width: min(440px, calc(100% - var(--esp-8)));
   padding: var(--esp-6);
   border: 1px solid var(--cor-borda-forte);
@@ -4182,6 +4186,20 @@ legend {
   font-weight: 900;
 }
 
+/* Início com o Civic 3D: o canvas 3D fica atrás e o 2D (transparente) por cima, recebendo
+   o arraste, as setas e o foco do teclado */
+.carro-canvas--vitrine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.hero-carro--3d #carro-hero {
+  position: relative;
+  z-index: 1;
+}
+
 /* ---------- 9.8 Faixa (marquee): POLIMENTO • VITRIFICAÇÃO • PPF ---------- */
 .faixa {
   background: var(--cor-superficie);
@@ -4238,35 +4256,19 @@ legend {
   user-select: none;
 }
 
-/* As duas camadas usam a MESMA foto (a metade polida de polimento.webp), então ficam
-   alinhadas: ao arrastar, só a pintura muda. background-size 200% + posição 100% = mostra
-   só a metade direita da imagem. */
+/* Duas fotos de verdade, ambas do arquivo polimento.webp (que tem as duas lado a lado):
+   background-size 200% mostra só METADE da imagem; a posição escolhe qual metade.
+   ANTES = metade esquerda (pintura opaca, cheia de micro-riscos). */
 .pintura {
   position: absolute;
   inset: 0;
-  background: url('../assets/imagens/polimento.webp') 100% 50% / 200% auto no-repeat;
+  background: url('../assets/imagens/polimento.webp') 0% 50% / 200% auto no-repeat;
 }
 
-/* ANTES: a mesma foto "envelhecida" em CSS: menos contraste, véu acinzentado (pintura
-   oxidada) e micro-riscos circulares por cima (os "swirls" da lavagem errada). */
-.pintura--antes {
-  filter: contrast(0.72) brightness(1.22) saturate(0.6);
-}
-
-.pintura--antes::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.09) 0 1px, transparent 1px 5px),
-    repeating-radial-gradient(circle at 70% 58%, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 7px),
-    linear-gradient(180deg, rgba(200, 204, 210, 0.16), rgba(200, 204, 210, 0.06));
-  mix-blend-mode: screen; /* clareia como risco na luz, sem cobrir a foto */
-}
-
-/* DEPOIS: a foto como ela é (preto espelhado, reflexos nítidos).
+/* DEPOIS = metade direita (preto espelhado, reflexos nítidos).
    clip-path recorta pela posição do controle: só a parte à direita aparece. */
 .pintura--depois {
+  background-position: 100% 50%;
   clip-path: inset(0 0 0 var(--pos));
 }
 

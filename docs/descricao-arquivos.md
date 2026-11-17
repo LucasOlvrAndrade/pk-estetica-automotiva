@@ -21,6 +21,9 @@ As setas indicam quem importa quem.
 | `src/js/fidelidade.js` | `Fidelidade` | Cartão PK Club: carimbos, "faltam X", recompensa, resgate e histórico | `textoStatus`, `iniciar` |
 | `src/js/historico.js` | `Historico` | Histórico com filtros, lembrete de manutenção, pesquisa NPS, painel de métricas e dados de demonstração | `calcularMetricas`, `abrirNps`, `montarDemo` |
 | `src/js/carro3d.js` | `Carro3D` | Mini motor 3D em Canvas 2D (modelo, rotação, projeção, pintor, luz) | `criar`, `suavizar` |
+| `src/js/modelo3d.js` | `Modelo3D` | Carrega o Civic 3D (Draco), centraliza, orienta a frente e aplica os materiais (pintura com verniz trocada no shader, cromados, vidro fumê). Usado pela abertura e pelo Início | `carregar`, `COMPRIMENTO` |
+| `src/js/intro3d.js` | `Intro3D` | Cena cinematográfica da abertura (câmera em dolly, neon, holofote, bloom) | `criar`, `suportado` |
+| `src/js/vitrine3d.js` | `Vitrine3D` | O mesmo Civic girável no Início, com a mesma interface do `Carro3D` (giro, desenhar, cor) | `criar` |
 | `src/js/app.js` | `App` | Orquestra a página: tema, menu, vitrine de serviços, comparativo, detalhes, salvos, diagnóstico, abertura, carro do topo e títulos; inicia os outros módulos | `iniciar`, `abrirDetalhes`, `reverAbertura` |
 | `src/css/style.css` | — | Design tokens, componentes, temas escuro/claro, responsividade e "reduzir movimento" | — |
 | `vite.config.js` | — | Build do site (`dist/`) com caminhos relativos | — |

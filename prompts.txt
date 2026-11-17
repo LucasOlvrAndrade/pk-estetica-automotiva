@@ -36,8 +36,9 @@ Dados e APIs
 Módulos do código (src/js)
   storage (AppStorage), servicos (Servicos), ui (UI), api (Api), veiculos (Veiculos),
   agenda (Agenda), checkin (Checkin), acompanhamento (Acompanhamento), fidelidade (Fidelidade),
-  historico (Historico), carro3d (Carro3D), intro3d (Intro3D), rotas (Rotas),
-  movimento (Movimento), app (App) — ponto de entrada: src/main.js.
+  historico (Historico), carro3d (Carro3D, carro em Canvas 2D), modelo3d (Modelo3D, carrega o
+  Civic 3D), intro3d (Intro3D, abertura), vitrine3d (Vitrine3D, carro 3D do Início),
+  rotas (Rotas), movimento (Movimento), app (App) — ponto de entrada: src/main.js.
 
 Recursos visuais
   - Modelo 3D: Honda Civic Type R (EK9) por marksform – Sketchfab (CC BY 4.0), comprimido com
@@ -69,18 +70,6 @@ Resposta (resumo):
 
 Como foi aplicado:
   Arquivos salvos na raiz do projeto; estrutura pronta para receber o código nas próximas etapas.
-
-
-PROMPT 1 — Corrigir o rumo: retirar Git/GitHub e manter o projeto 100% local.
-------------------------------------------------------------------------------
-Pedido:
-  Pediu para apagar .git/.gitignore, remover menções a Git do CLAUDE.md, adicionar a regra "Projeto local, sem controle de versão. Nunca sugerir Git/GitHub." e explicar backup por .zip.
-
-Resposta (resumo):
-  Exclusão da pasta .git e dos .gitkeep; nova regra nº 8 no CLAUDE.md; guia de backup/compartilhamento por .zip.
-
-Como foi aplicado:
-  Pasta do projeto ficou sem controle de versão; regra passa a valer para todas as etapas seguintes.
 
 
 PROMPT 2 — Criar a estrutura semântica da página única (index.html).
@@ -477,5 +466,29 @@ Resposta (resumo):
 
 Como foi aplicado:
   Repositório público com o código, a documentação e o PROMPTS.md.
+
+
+PROMPT 35 — Abertura menos brilhante e o mesmo carro 3D no Início.
+------------------------------------------------------------------------------
+Pedido:
+  A abertura estava brilhando demais: o neon não precisa refletir tanto no chão nem a janela refletir tanta luz; o carro da página inicial deve ser o mesmo da abertura. Também: atualizar o prompts.txt até o momento e tirar o prompt 1 (o que proibia GitHub).
+
+Resposta (resumo):
+  Novo src/js/modelo3d.js (carrega o Civic e aplica os materiais; usado pela abertura e pelo Início). Abertura: neon com alcance curto e halo no chão mais fraco, holofote e faróis mais fracos, chão fosco, bloom menor, vidro fumê escuro e menos reflexivo, verniz mais contido; intensidades reunidas na constante LUZ do intro3d.js. Novo src/js/vitrine3d.js: o mesmo Civic no Início, com fundo transparente, sem pós-processamento e com a mesma interface do carro 2D (estado.giro, desenhar, definirCor), então arrastar, setas, giro com a rolagem e as cores continuam; ele entra depois do carregamento da página, atrás do canvas 2D, que segue recebendo foco e teclado. Celular continua com o 2D (desempenho). Linha do prompt 1 removida do PROMPTS.md.
+
+Como foi aplicado:
+  Testes: Início troca para o 3D, setas giram, cor muda, abertura sem erros; regressão completa e Lighthouse.
+
+
+PROMPT 36 — Antes × depois com duas fotos e pop-ups centralizados.
+------------------------------------------------------------------------------
+Pedido:
+  O antes × depois precisa ser duas imagens (uma do carro opaco e outra do carro reluzente), como a enviada, e não um filtro; os pop-ups (ex.: "Remover veículo?") apareciam no canto superior esquerdo e precisam ficar no centro.
+
+Resposta (resumo):
+  Comparador: "antes" = metade esquerda da foto polimento.webp (pintura opaca e riscada) e "depois" = metade direita (preto reluzente), mesmo controle arrastável; filtro e micro-riscos em CSS removidos. Diálogos: o reset "* { margin: 0 }" apagava o margin: auto que o navegador usa para centralizar o <dialog>; voltou margin: auto (e altura máxima da tela).
+
+Como foi aplicado:
+  Teste novo: confirmação e detalhes do serviço centralizados no desktop e no celular; captura do comparador.
 
 

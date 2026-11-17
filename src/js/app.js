@@ -1240,7 +1240,8 @@ export const App = (function () {
     const canvas = $('carro-hero');
     if (!canvas) return;
 
-    const carro = Carro3D.criar(canvas, { cor: corDoCarro() });
+    // Começa com o carro em Canvas 2D (aparece na hora); depois vira o Civic 3D (ver trocarPara3D)
+    let carro = Carro3D.criar(canvas, { cor: corDoCarro() });
     const VOLTA_POR_SEGUNDO = (Math.PI * 2) / 30; // uma volta a cada 30 s: ambiente, não distrai
     const ATRITO = 0.94; // a cada quadro a inércia perde 6%
 
@@ -1361,6 +1362,37 @@ export const App = (function () {
     document.querySelector('.cores-carro').addEventListener('change', function (evento) {
       carro.definirCor(evento.target.value);
     });
+
+    /**
+     * Troca o carro 2D pelo MESMO Civic 3D da abertura (vitrine3d.js), só no computador
+     * (mesma regra da abertura: celular e aparelho fraco ficam com o 2D, mais leve).
+     * O canvas 3D entra POR TRÁS; o canvas 2D continua por cima, transparente, e segue
+     * recebendo o arraste, as setas e o foco: a acessibilidade do "slider" não muda.
+     */
+    function trocarPara3D() {
+      if (!aparelhoAguenta3D()) return;
+      const canvas3d = document.createElement('canvas');
+      canvas3d.className = 'carro-canvas carro-canvas--vitrine';
+      canvas3d.setAttribute('aria-hidden', 'true');
+      canvas.before(canvas3d);
+      import('./vitrine3d.js')
+        .then(function (modulo) {
+          return modulo.Vitrine3D.criar(canvas3d, { cor: corDoCarro() });
+        })
+        .then(function (vitrine) {
+          vitrine.estado.giro = carro.estado.giro;
+          carro.destruir(); // apaga o desenho 2D e solta o canvas
+          carro = vitrine;
+          canvas.closest('.hero-carro').classList.add('hero-carro--3d');
+          desenharAgora();
+        })
+        .catch(function () {
+          canvas3d.remove(); // deu errado (ex.: sem WebGL): o carro 2D continua
+        });
+    }
+    // Depois do "load": o 3D não atrasa o primeiro desenho da página
+    if (document.readyState === 'complete') setTimeout(trocarPara3D, 300);
+    else window.addEventListener('load', () => setTimeout(trocarPara3D, 300), { once: true });
 
     desenharAgora();
     atualizarAria();

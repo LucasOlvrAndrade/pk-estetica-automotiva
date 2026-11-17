@@ -50,7 +50,9 @@ Trabalho final da disciplina **Desenvolvimento de Interfaces**. O grupo está ap
    | `src/js/carro3d.js`        | `Carro3D`        |
    | `src/js/rotas.js`          | `Rotas` (páginas por hash `#/pagina` + menu lateral recolhível/gaveta) |
    | `src/js/movimento.js`      | `Movimento` (contadores, antes × depois, ímã, Lenis + GSAP) |
+   | `src/js/modelo3d.js`       | `Modelo3D` (carrega o Civic 3D e aplica os materiais; usado pela abertura e pelo Início) |
    | `src/js/intro3d.js`        | `Intro3D` (cena Three.js da abertura; carregado com `import()`) |
+   | `src/js/vitrine3d.js`      | `Vitrine3D` (o mesmo Civic girável no Início; mesma interface do `Carro3D`) |
    | `src/js/app.js`            | `App`            |
 
    - **Modelo 3D da abertura** (`src/assets/modelos/civic-ek9.glb`): "Honda Civic Type R (EK9) - Low Poly &
@@ -58,8 +60,8 @@ Trabalho final da disciplina **Desenvolvimento de Interfaces**. O grupo está ap
      as versões, inclusive a publicada. O crédito no rodapé (`#credito-modelo`) e no README é obrigatório.
      Comprimido com Draco + WebP (68 KB). O modelo antigo (Ddiaz Design, origem incerta) foi removido e não
      deve voltar ao projeto.
-   - **Foto do antes × depois** (`src/assets/imagens/polimento.webp`): fornecida pelo grupo. As duas camadas
-     usam a metade polida; o "antes" é gerado em CSS (filtro + micro-riscos).
+   - **Fotos do antes × depois** (`src/assets/imagens/polimento.webp`): fornecida pelo grupo, com as duas fotos
+     lado a lado. "Antes" = metade esquerda (opaca), "depois" = metade direita (reluzente). Sem filtro.
    - Utilitários (criar elementos, toasts, confirmação, datas, moeda) vêm do `UI`: não duplicar.
    - **Navegação:** cada `<section class="secao">` do `<main>` é uma página. Para levar o usuário a outra
      página pelo código, use `Rotas.ir('agendar')` (nunca `scrollIntoView` até a seção). Links internos usam
