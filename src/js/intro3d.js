@@ -471,14 +471,16 @@ export const Intro3D = (function () {
       const angulo = 0.18 + p * 0.62; // radianos a partir da frente
       const distancia = 13 - p * 5.2;
       const altura = 0.55 + p * 1.0;
-      const tremor = estado.tremor;
-      camera.position.set(
-        Math.cos(angulo) * distancia + Math.sin(s * 91) * tremor,
-        altura + Math.sin(s * 113) * tremor,
-        Math.sin(angulo) * distancia
-      );
+      camera.position.set(Math.cos(angulo) * distancia, altura, Math.sin(angulo) * distancia);
       // Olhar um pouco abaixo do carro o deixa na metade de cima da tela (a marca PK fica embaixo)
-      camera.lookAt(0.2, 0.05 + Math.sin(s * 97) * tremor * 0.5, 0);
+      camera.lookAt(0.2, 0.05, 0);
+
+      // Tremor do motor: só o CARRO vibra (a câmera e o box ficam parados). Sobe e desce um
+      // pouquinho e balança de lado, como a carroceria sobre a suspensão com o motor ligado.
+      const tremor = estado.tremor;
+      carro.pivo.position.y = Math.abs(Math.sin(s * 113)) * tremor * 3; // até ~4 cm com o VTEC
+      carro.pivo.rotation.x = Math.sin(s * 91) * tremor * 1.6; // balanço de lado (eixo do comprimento)
+      carro.pivo.rotation.z = Math.sin(s * 97) * tremor * 0.8;
 
       // Faróis e lanternas
       if (pintura) pintura.farois.value = estado.farois;
