@@ -82,6 +82,150 @@ export const Intro3D = (function () {
   }
 
   /**
+   * Desenha uma textura num canvas 2D e devolve como textura do Three.js (repetida).
+   * @param {number} largura
+   * @param {number} altura
+   * @param {function(CanvasRenderingContext2D): void} desenhar
+   * @param {number} repX Quantas vezes repete na horizontal.
+   * @param {number} repY Quantas vezes repete na vertical.
+   * @param {boolean} cor true = textura de cor (sRGB); false = dado (ex.: aspereza).
+   * @returns {THREE.CanvasTexture}
+   */
+  function texturaDeCanvas(largura, altura, desenhar, repX, repY, cor) {
+    const canvas = document.createElement('canvas');
+    canvas.width = largura;
+    canvas.height = altura;
+    desenhar(canvas.getContext('2d'));
+    const textura = new THREE.CanvasTexture(canvas);
+    textura.wrapS = textura.wrapT = THREE.RepeatWrapping;
+    textura.repeat.set(repX, repY);
+    textura.anisotropy = 8; // nítida mesmo vista "deitada" (o chão)
+    if (cor) textura.colorSpace = THREE.SRGBColorSpace;
+    return textura;
+  }
+
+  /** Sorteio com semente: a textura sai sempre igual. */
+  function sorteador(semente) {
+    let x = semente;
+    return function () {
+      x = (x * 1103515245 + 12345) % 2147483648;
+      return x / 2147483648;
+    };
+  }
+
+  /**
+   * Chão de box de estética: placas de piso (com rejunte), granulado de concreto e manchas
+   * leves de uso. Volta duas texturas: a de COR e a de ASPEREZA (onde é mais liso, o chão
+   * reflete um pouco o estúdio: parece piso tratado, não um plano liso de computador).
+   * @returns {{cor: THREE.CanvasTexture, aspereza: THREE.CanvasTexture}}
+   */
+  function criarTexturasChao() {
+    const LADO = 1024;
+    const PLACAS = 4; // 4 x 4 placas por repetição
+    const passo = LADO / PLACAS;
+    function desenhar(ctx, modo) {
+      const r = sorteador(7);
+      // base: cor escura (modo cor) ou aspereza média (modo aspereza)
+      ctx.fillStyle = modo === 'cor' ? '#1b1c1f' : '#9a9a9a';
+      ctx.fillRect(0, 0, LADO, LADO);
+      // cada placa com um tom levemente diferente
+      for (let i = 0; i < PLACAS; i++) {
+        for (let j = 0; j < PLACAS; j++) {
+          const v = Math.floor((r() - 0.5) * (modo === 'cor' ? 10 : 50));
+          ctx.fillStyle = v > 0 ? 'rgba(255,255,255,' + v / 255 + ')' : 'rgba(0,0,0,' + -v / 255 + ')';
+          ctx.fillRect(i * passo, j * passo, passo, passo);
+        }
+      }
+      // manchas de uso (pneu, água): círculos suaves
+      for (let n = 0; n < 14; n++) {
+        const x = r() * LADO;
+        const y = r() * LADO;
+        const raio = 40 + r() * 160;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, raio);
+        g.addColorStop(0, modo === 'cor' ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.45)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - raio, y - raio, raio * 2, raio * 2);
+      }
+      // granulado do concreto
+      for (let n = 0; n < 26000; n++) {
+        const claro = r() < 0.5;
+        ctx.fillStyle = claro ? 'rgba(255,255,255,' + (0.03 + r() * 0.06) + ')' : 'rgba(0,0,0,' + (0.05 + r() * 0.1) + ')';
+        ctx.fillRect(r() * LADO, r() * LADO, 1 + r() * 1.5, 1 + r() * 1.5);
+      }
+      // rejunte entre as placas: linha escura e áspera
+      ctx.fillStyle = modo === 'cor' ? '#0b0b0d' : '#ffffff';
+      for (let k = 0; k <= PLACAS; k++) {
+        ctx.fillRect(k * passo - 1.5, 0, 3, LADO);
+        ctx.fillRect(0, k * passo - 1.5, LADO, 3);
+      }
+    }
+    return {
+      cor: texturaDeCanvas(LADO, LADO, (ctx) => desenhar(ctx, 'cor'), 12, 12, true),
+      aspereza: texturaDeCanvas(LADO, LADO, (ctx) => desenhar(ctx, 'aspereza'), 12, 12, false),
+    };
+  }
+
+  /**
+   * Sombra de contato embaixo do carro (sem ela, com o chão texturizado, o carro parece flutuar).
+   * Um degradê escuro num plano, bem mais barato que sombra calculada em tempo real.
+   * @returns {THREE.Mesh}
+   */
+  function criarSombra() {
+    const textura = texturaDeCanvas(
+      256,
+      256,
+      function (ctx) {
+        const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+        g.addColorStop(0, 'rgba(0,0,0,0.95)');
+        g.addColorStop(0.55, 'rgba(0,0,0,0.7)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, 256, 256);
+      },
+      1,
+      1,
+      true
+    );
+    const sombra = new THREE.Mesh(
+      new THREE.PlaneGeometry(COMPRIMENTO * 1.2, COMPRIMENTO * 0.62),
+      new THREE.MeshBasicMaterial({ map: textura, transparent: true, depthWrite: false, color: 0x000000 })
+    );
+    sombra.rotation.x = -Math.PI / 2;
+    sombra.position.y = 0.006;
+    return sombra;
+  }
+
+  /**
+   * Parede do estúdio: painéis verticais com frestas e uma faixa de rodapé.
+   * @returns {THREE.CanvasTexture}
+   */
+  function criarTexturaParede() {
+    return texturaDeCanvas(
+      256,
+      512,
+      function (ctx) {
+        const r = sorteador(11);
+        ctx.fillStyle = '#16171a';
+        ctx.fillRect(0, 0, 256, 512);
+        for (let n = 0; n < 4000; n++) {
+          ctx.fillStyle = 'rgba(255,255,255,' + r() * 0.035 + ')';
+          ctx.fillRect(r() * 256, r() * 512, 1, 1 + r() * 3); // textura leve de painel
+        }
+        ctx.fillStyle = '#050506'; // frestas entre painéis
+        ctx.fillRect(0, 0, 3, 512);
+        ctx.fillRect(0, 170, 256, 2);
+        ctx.fillRect(0, 340, 256, 2);
+        ctx.fillStyle = '#0c0d0f'; // rodapé
+        ctx.fillRect(0, 470, 256, 42);
+      },
+      44,
+      1,
+      true
+    );
+  }
+
+  /**
    * Ambientação de estúdio de detailing ao fundo: parede escura em volta, barras de LED
    * verticais (como as de inspeção de pintura) e as faixas de uma vaga no chão.
    * As barras acendem uma a uma junto com a varredura do holofote (ver quadro()).
@@ -96,7 +240,8 @@ export const Intro3D = (function () {
 
     // Parede: um cilindro aberto visto por dentro, quase preto
     const geoParede = new THREE.CylinderGeometry(15, 15, 9, 64, 1, true);
-    const matParede = new THREE.MeshStandardMaterial({ color: 0x0b0c0f, roughness: 0.9, side: THREE.BackSide, envMapIntensity: 0.25 });
+    const texParede = criarTexturaParede();
+    const matParede = new THREE.MeshStandardMaterial({ map: texParede, roughness: 0.8, side: THREE.BackSide, envMapIntensity: 0.35 });
     const parede = new THREE.Mesh(geoParede, matParede);
     parede.position.y = 4.5;
     grupo.add(parede);
@@ -146,6 +291,7 @@ export const Intro3D = (function () {
       faixas: matFaixa,
       liberar: function () {
         geometrias.forEach((g) => g.dispose());
+        texParede.dispose();
         materiais.forEach((m) => m.dispose());
       },
     };
@@ -178,12 +324,22 @@ export const Intro3D = (function () {
     const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
 
     // ---------- Chão ----------
+    // Piso com placas, granulado e manchas; reflete só um pouco (aspereza variada)
+    const texChao = criarTexturasChao();
     const chao = new THREE.Mesh(
       new THREE.CircleGeometry(30, 64),
-      new THREE.MeshStandardMaterial({ color: 0x020203, roughness: 0.85, metalness: 0, envMapIntensity: 0.02 }) // chão fosco: quase não reflete
+      new THREE.MeshStandardMaterial({
+        map: texChao.cor,
+        roughnessMap: texChao.aspereza,
+        roughness: 0.75,
+        metalness: 0,
+        envMapIntensity: 0.18,
+      })
     );
     chao.rotation.x = -Math.PI / 2;
     cena.add(chao);
+    const sombra = criarSombra();
+    cena.add(sombra);
     const halo = criarNeonNoChao();
     cena.add(halo);
     const estudio = criarEstudio();
@@ -281,6 +437,11 @@ export const Intro3D = (function () {
       carro.liberar();
       chao.geometry.dispose();
       chao.material.dispose();
+      texChao.cor.dispose();
+      texChao.aspereza.dispose();
+      sombra.geometry.dispose();
+      sombra.material.map.dispose();
+      sombra.material.dispose();
       halo.geometry.dispose();
       halo.material.map.dispose();
       halo.material.dispose();
