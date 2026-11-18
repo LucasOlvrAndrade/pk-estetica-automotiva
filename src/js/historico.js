@@ -480,6 +480,21 @@ export const Historico = (function () {
     UI.avisarMudanca('tudo');
   }
 
+  /** Apaga TODOS os dados de uso (reais e de demonstração), depois de confirmar. */
+  async function apagarTudo() {
+    const ok = await UI.confirmar({
+      titulo: 'Apagar todos os dados?',
+      mensagem:
+        'Veículos, agendamentos, check-ins, avaliações e o cartão fidelidade serão apagados deste navegador, ' +
+        'inclusive os dados reais. Não dá para desfazer.',
+      confirmar: 'Apagar tudo',
+    });
+    if (!ok) return;
+    AppStorage.apagarDadosDeUso();
+    UI.toast('Todos os dados foram apagados.', { tipo: 'info' });
+    UI.avisarMudanca('tudo');
+  }
+
   /* =====================================================================
    * 6. INICIALIZAÇÃO
    * ===================================================================== */
@@ -511,6 +526,7 @@ export const Historico = (function () {
     });
     $('btn-gerar-demo').addEventListener('click', gerarDemo);
     $('btn-limpar-demo').addEventListener('click', limparDemo);
+    $('btn-apagar-tudo').addEventListener('click', apagarTudo);
     UI.aoMudarDados(renderizar);
     renderizar();
   }

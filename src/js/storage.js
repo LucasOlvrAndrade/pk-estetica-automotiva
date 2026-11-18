@@ -883,6 +883,30 @@ export const AppStorage = (function () {
   }
 
   /**
+   * Apaga todos os dados de uso (reais e de demonstração): veículos, agendamentos, check-ins,
+   * cartão fidelidade, avaliações, serviços salvos e último diagnóstico.
+   * O tema e as preferências de tela (ex.: menu recolhido) continuam.
+   * @returns {number} Quantas chaves tinham dados e foram apagadas.
+   */
+  function apagarDadosDeUso() {
+    const chaves = [
+      CHAVES.VEICULOS,
+      CHAVES.AGENDAMENTOS,
+      CHAVES.CHECKINS,
+      CHAVES.FIDELIDADE,
+      CHAVES.AVALIACOES,
+      CHAVES.SALVOS,
+      CHAVES.DIAGNOSTICO,
+    ];
+    let apagadas = 0;
+    chaves.forEach(function (chave) {
+      if (armazem.getItem(PREFIXO + chave) !== null) apagadas += 1;
+      armazem.removeItem(PREFIXO + chave);
+    });
+    return apagadas;
+  }
+
+  /**
    * Diz se os dados estão só na memória (LocalStorage indisponível).
    * Útil para o app avisar: "seus dados não serão salvos".
    * @returns {boolean}
@@ -942,6 +966,7 @@ export const AppStorage = (function () {
     salvarPreferencias: salvarPreferencias,
     adicionarDemo: adicionarDemo,
     removerDemo: removerDemo,
+    apagarDadosDeUso: apagarDadosDeUso,
     PREFIXO: PREFIXO,
 
     // manutenção
