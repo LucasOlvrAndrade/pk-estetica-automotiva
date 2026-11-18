@@ -10,7 +10,8 @@
  *  - CÂMERA     PerspectiveCamera: vê como um olho (o que está longe fica menor).
  *  - AMBIENTE   RoomEnvironment vira um "environment map": um estúdio invisível que se
  *               reflete na pintura e no cromo (é ele que dá o brilho espelhado).
- *  - LUZES      faróis (emissivos), neon verde embaixo e um holofote que varre o carro.
+ *  - LUZES      faróis (emissivos) e um holofote que varre o carro. O neon verde é só um
+ *               brilho pintado no chão (não é luz): assim não reflete na lataria.
  *  - MATERIAIS  vêm prontos do modelo3d.js (pintura com verniz, cromados, vidro fumê).
  *  - LOOP       a cada quadro o app.js chama quadro(segundos) e a cena se redesenha.
  *  - PÓS        EffectComposer + bloom: o que é muito claro (faróis) ganha um brilho suave.
@@ -32,11 +33,9 @@ export const Intro3D = (function () {
   'use strict';
 
   const COMPRIMENTO = Modelo3D.COMPRIMENTO;
-  const VERDE_NEON = 0x39ff88;
 
   // Intensidades da cena (num lugar só, fácil de ajustar)
   const LUZ = {
-    neon: 0.3, // luzes verdes embaixo do carro
     haloChao: 0.1, // opacidade do brilho verde pintado no chão
     holofote: 28, // luz de inspeção que varre a carroceria
     farolNoChao: 14, // facho dos faróis
@@ -117,14 +116,8 @@ export const Intro3D = (function () {
     cena.add(halo);
 
     // ---------- Luzes ----------
-    // Bem embaixo do assoalho e longe dos para-choques: perto da lataria, a luz vira um
-    // "ponto estourado" no verniz (era o brilho verde forte no começo da abertura)
-    const neon = [-0.8, 0, 0.8].map(function (x) {
-      const luz = new THREE.PointLight(VERDE_NEON, 0, 1.6, 2); // alcance curto: fica embaixo do carro
-      luz.position.set(x, 0.04, 0);
-      cena.add(luz);
-      return luz;
-    });
+    // Sem luzes verdes de verdade: elas viravam manchas verdes na lataria e no para-choque
+    // no começo da abertura (cena escura). O neon é só o halo pintado no chão (criarNeonNoChao).
     const holofote = new THREE.SpotLight(0xffffff, 0, 18, 0.32, 0.7, 1.2); // a "luz de inspeção"
     holofote.position.set(-6, 4.5, 2.5);
     cena.add(holofote, holofote.target);
@@ -184,13 +177,11 @@ export const Intro3D = (function () {
       // Olhar um pouco abaixo do carro o deixa na metade de cima da tela (a marca PK fica embaixo)
       camera.lookAt(0.2, 0.05 + Math.sin(s * 97) * tremor * 0.5, 0);
 
-      // Faróis, lanternas e neon
+      // Faróis e lanternas
       if (pintura) pintura.farois.value = estado.farois;
       luzFarol.intensity = LUZ.farolNoChao * estado.farois;
-      // O neon acende DEPOIS dos faróis e junto com o estúdio, devagar: não rouba a cena no começo
-      const neonLigado = suave((s - d * 0.3) / (d * 0.25));
-      neon.forEach((l) => (l.intensity = LUZ.neon * neonLigado));
-      halo.material.opacity = LUZ.haloChao * neonLigado;
+      // O brilho do neon no chão só aparece no fim, com o carro já iluminado pelo estúdio
+      halo.material.opacity = LUZ.haloChao * suave((s - d * 0.5) / (d * 0.3));
 
       // Estúdio "acende" e o holofote varre a carroceria de trás para a frente
       cena.environmentIntensity = LUZ.estudio * suave((s - d * 0.22) / (d * 0.3));
