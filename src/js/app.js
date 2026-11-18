@@ -1064,7 +1064,7 @@ export const App = (function () {
    * Cena leve da abertura (celular, aparelho fraco ou sem WebGL), com a mesma "interface" da
    * cena 3D: quadro(segundos, estado) e destruir(). Mostra a IMAGEM do mesmo Civic 3D
    * (civic-3d.webp, de fundo no canvas) se aproximando, com os faróis "acendendo" (brilho)
-   * e o tremor do motor. Só mexe em transform e filter do elemento: leve para o celular.
+   * (sem tremor: a imagem fica firme). Só mexe em transform e filter do elemento: leve para o celular.
    */
   function criarCena2D() {
     const palco = $('carro-abertura');
@@ -1073,8 +1073,7 @@ export const App = (function () {
       quadro: function (segundos, estado) {
         const p = suavizar(Math.min(1, segundos / 2.6));
         const escala = 0.7 + 0.3 * p; // vem de longe e chega perto
-        const tremor = Math.sin(segundos * 95) * estado.tremor * 40; // em px
-        palco.style.transform = 'translateY(' + tremor.toFixed(2) + 'px) scale(' + escala.toFixed(3) + ')';
+        palco.style.transform = 'scale(' + escala.toFixed(3) + ')';
         palco.style.opacity = String(Math.min(1, segundos / 0.6));
         palco.style.filter = 'brightness(' + (0.55 + 0.6 * estado.farois).toFixed(2) + ')';
       },
@@ -1216,15 +1215,12 @@ export const App = (function () {
     const escala = 3.3 / (duracaoMs / 1000);
     const inicio = performance.now();
 
-    /** Um quadro: calcula motor, faróis e tremor pelo tempo e manda a cena desenhar. */
+    /** Um quadro: calcula motor e faróis pelo tempo e manda a cena desenhar (sem tremor). */
     function animar(agora) {
       const segundos = (agora - inicio) / 1000;
       const motor = motorNaAbertura(segundos * escala);
-      // Motor em giro alto faz o carro tremer de leve (e mais forte com o VTEC ligado)
-      const tremor = motor.rpm >= RPM_VTEC ? 0.006 : 0.0025 * (motor.rpm / RPM_MAXIMA);
       cena.quadro(segundos, {
         farois: faroisNaPartida(segundos * escala),
-        tremor: duracaoMs === DURACAO_3D_MS ? tremor * 2.5 : tremor,
         duracao: duracaoMs / 1000,
       });
       if (segundos * escala > 0.45) abertura.classList.add('abertura--ligada'); // painel acende na partida

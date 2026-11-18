@@ -53,10 +53,6 @@
           <stop offset="0.78" stop-color="#a9aeb6" />
           <stop offset="1" stop-color="#e8eaee" />
         </linearGradient>
-        <mask id="mascara-corte">
-          <rect width="124" height="72" fill="#fff" />
-          <polygon points="0,49 124,27 124,31 0,53" fill="#000" />
-        </mask>
       </defs>
       <!-- Ícones lineares do menu (traço fino, sem preenchimento): cor = currentColor -->
       <symbol id="ic-inicio" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10v10h13V10" /><path d="M10 20v-5h4v5" /></symbol>
@@ -73,13 +69,9 @@
       <symbol id="ic-recolher" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" /><path d="M20 6l-6 6 6 6" /></symbol>
       <symbol id="pk-monograma" viewBox="0 0 124 72">
         <!-- sem "fill" aqui: a cor vem do CSS (.logo-svg), herdada pelo <use> -->
-        <g mask="url(#mascara-corte)">
+        <g>
           <g transform="translate(14 0) skewX(-12)">
-            <rect x="8" y="8" width="13" height="56" />
-            <path d="M21 8h25l10 10v14l-10 10H21V31h19l3-3v-6l-3-3H21z" />
-            <rect x="62" y="8" width="13" height="56" />
-            <path d="M75 30L96 8h16L86 36z" />
-            <path d="M84 31l28 33H96L75 43z" />
+            <path fill-rule="evenodd" d="M8 8H46L56 18V32L46 42H21V64H8ZM21 19V31H40L43 28V22L40 19ZM62 8H75V30L96 8H112L87.2 34.7L112 64H96L75 43V64H62Z" shape-rendering="geometricPrecision" />
           </g>
         </g>
       </symbol>
