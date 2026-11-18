@@ -39,8 +39,10 @@ export const Intro3D = (function () {
     box: 1, // tubos de LED e painéis do teto do box
     holofote: 28, // luz de inspeção que varre a carroceria
     farolNoChao: 14, // facho dos faróis
-    estudio: 1.3, // força do reflexo do box (environment map: os tubos refletidos na pintura)
-    ambiente: 0.9, // luz difusa do box (deixa ver o piso e as vagas)
+    estudio: 2.2, // força do reflexo do box (environment map: os tubos refletidos na pintura)
+    ambiente: 0.45, // luz difusa do box (deixa ver o piso e as vagas)
+    vaga: 30, // luz de teto em cima da vaga (ilumina o carro)
+    contraluz: 0.8, // luz de recorte por trás (separa o carro preto do fundo preto)
   };
 
   /** Interpolação suave 0→1 (começa e termina devagar). */
@@ -214,7 +216,7 @@ export const Intro3D = (function () {
     texturas.push(tex.cor, tex.aspereza);
     [tex.cor, tex.aspereza].forEach((t) => t.repeat.set(COMPR / 1.6, LARG / 1.6)); // placas de 40 cm
     const geoPiso = new THREE.PlaneGeometry(COMPR, LARG);
-    const matPiso = new THREE.MeshStandardMaterial({ map: tex.cor, roughnessMap: tex.aspereza, roughness: 1, metalness: 0, envMapIntensity: 0.6 });
+    const matPiso = new THREE.MeshStandardMaterial({ map: tex.cor, roughnessMap: tex.aspereza, roughness: 1, metalness: 0, envMapIntensity: 0.15 });
     const piso = new THREE.Mesh(geoPiso, matPiso);
     piso.rotation.x = -Math.PI / 2;
     piso.position.x = centroX;
@@ -241,7 +243,7 @@ export const Intro3D = (function () {
 
     // ---------- Tubos de LED em "setas" ----------
     const BRANCA = new THREE.Color(0xe9efff);
-    const QUENTE = new THREE.Color(0xffb04a);
+    const QUENTE = new THREE.Color(0xffd59a); // quente, mas claro: refletido na lataria não parece ferrugem
     const geoTubo = new THREE.CylinderGeometry(0.03, 0.03, 1.25, 8);
     geometrias.push(geoTubo);
     /**
@@ -302,6 +304,19 @@ export const Intro3D = (function () {
         grupo.add(spot);
       }
     }
+
+    // ---------- Softbox em cima do carro ----------
+    // Um painel grande de luz bem acima da vaga: é o reflexo dele no capô, no teto e nos vidros
+    // que "desenha" um carro preto (como nos estúdios de foto de carro)
+    const geoSoftbox = new THREE.PlaneGeometry(4.6, 1.8);
+    geometrias.push(geoSoftbox);
+    const matSoftbox = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+    materiais.push(matSoftbox);
+    luzes.push({ material: matSoftbox, base: BRANCA, atraso: 0.35 });
+    const softbox = new THREE.Mesh(geoSoftbox, matSoftbox);
+    softbox.position.set(0.2, ALTURA - 0.05, 0);
+    softbox.rotation.x = Math.PI / 2;
+    grupo.add(softbox);
 
     // ---------- Faixas das vagas (tinta verde da marca no chão) ----------
     const matFaixa = new THREE.MeshStandardMaterial({ color: 0x2bd873, roughness: 0.55, envMapIntensity: 0.8, emissive: 0x0b3a20 });
@@ -386,6 +401,15 @@ export const Intro3D = (function () {
     // Luz difusa do box: o teto claro em cima e o piso escuro embaixo (acende com os tubos)
     const luzDoBox = new THREE.HemisphereLight(0xfff4e6, 0x101012, 0);
     cena.add(luzDoBox);
+    // Contraluz: vem de trás e recorta a silhueta do carro preto contra o fundo preto
+    const contraluz = new THREE.DirectionalLight(0xdfe8ff, 0);
+    contraluz.position.set(-7, 4, -5);
+    cena.add(contraluz);
+    // Luz de teto em cima da vaga: ilumina o carro e só um pouco do chão em volta (cone fechado)
+    const luzDaVaga = new THREE.SpotLight(0xffffff, 0, 9, 0.62, 0.6, 1.2);
+    luzDaVaga.position.set(0.2, 4.3, 0);
+    luzDaVaga.target.position.set(0.2, 0, 0);
+    cena.add(luzDaVaga, luzDaVaga.target);
     const holofote = new THREE.SpotLight(0xffffff, 0, 18, 0.32, 0.7, 1.2); // a "luz de inspeção"
     holofote.position.set(-6, 4.5, 2.5);
     cena.add(holofote, holofote.target);
@@ -396,6 +420,17 @@ export const Intro3D = (function () {
     const carro = await Modelo3D.carregar({ aoProgresso: opcoes.aoProgresso });
     cena.add(carro.pivo);
     const pintura = carro.pintura;
+    // Na abertura, a pintura reflete mais o box (os tubos de LED desenham a lataria preta)
+    // e fica um preto METÁLICO (grafite bem escuro): no box escuro, o preto puro "sumia"
+    if (pintura) {
+      pintura.material.envMapIntensity = 2.4;
+      pintura.material.metalness = 0.5;
+      pintura.cor.value.set(0x1b1d22);
+    }
+    // Rodas cromadas também refletem mais (no box escuro elas ficavam cor de bronze)
+    carro.pivo.traverse(function (no) {
+      if (no.isMesh && no.material.metalness === 1) no.material.envMapIntensity = 3;
+    });
 
     // Luz dos faróis aponta para a frente (+x) a partir do para-choque
     luzFarol.position.set(COMPRIMENTO / 2 - 0.2, 0.7, 0);
@@ -463,6 +498,8 @@ export const Intro3D = (function () {
       const boxAceso = suave((s - d * 0.22) / (d * 0.3));
       cena.environmentIntensity = LUZ.estudio * boxAceso;
       luzDoBox.intensity = LUZ.ambiente * boxAceso;
+      contraluz.intensity = LUZ.contraluz * boxAceso;
+      luzDaVaga.intensity = LUZ.vaga * boxAceso;
       const varredura = suave((s - d * 0.22) / (d * 0.45));
       holofote.intensity = LUZ.holofote * Math.sin(Math.PI * varredura);
       holofote.position.x = -6 + 12 * varredura;
