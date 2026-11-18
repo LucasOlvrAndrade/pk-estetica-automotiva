@@ -432,6 +432,25 @@ export const Intro3D = (function () {
       if (no.isMesh && no.material.metalness === 1) no.material.envMapIntensity = 3;
     });
 
+    // ---------- Pisca-alerta ----------
+    // 4 luzes âmbar nos cantos do carro (setas da frente e de trás), piscando juntas.
+    // São pequenas peças com cor "acima de 1": brilham sozinhas e o bloom faz o halo
+    // (sem luz de verdade, que manchava a lataria, como aconteceu com o neon).
+    const caixaCarro = new THREE.Box3().setFromObject(carro.pivo);
+    const AMBAR = new THREE.Color(0xff8a1a);
+    const matPisca = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const geoPiscaFrente = new THREE.BoxGeometry(0.05, 0.07, 0.2);
+    const geoPiscaTras = new THREE.BoxGeometry(0.05, 0.09, 0.16);
+    const piscas = new THREE.Group();
+    [-1, 1].forEach(function (lado) {
+      const frente = new THREE.Mesh(geoPiscaFrente, matPisca);
+      frente.position.set(caixaCarro.max.x - 0.22, 0.58, lado * (caixaCarro.max.z - 0.4)); // max.z inclui os retrovisores
+      const tras = new THREE.Mesh(geoPiscaTras, matPisca);
+      tras.position.set(caixaCarro.min.x + 0.1, 0.8, lado * (caixaCarro.max.z - 0.36));
+      piscas.add(frente, tras);
+    });
+    cena.add(piscas);
+
     // Luz dos faróis aponta para a frente (+x) a partir do para-choque
     luzFarol.position.set(COMPRIMENTO / 2 - 0.2, 0.7, 0);
     luzFarol.target.position.set(COMPRIMENTO * 2.5, 0, 0);
@@ -478,6 +497,9 @@ export const Intro3D = (function () {
       // Faróis e lanternas
       if (pintura) pintura.farois.value = estado.farois;
       luzFarol.intensity = LUZ.farolNoChao * estado.farois;
+      // Pisca-alerta: ~1,4 piscada por segundo (como o de um carro de verdade), desde a partida
+      const piscaAceso = s > 0.4 && s % 0.72 < 0.38;
+      matPisca.color.copy(AMBAR).multiplyScalar(piscaAceso ? 3 : 0.04);
       // O brilho do neon no chão só aparece no fim, com o carro já iluminado pelo estúdio
       halo.material.opacity = LUZ.haloChao * suave((s - d * 0.5) / (d * 0.3));
 
@@ -507,6 +529,9 @@ export const Intro3D = (function () {
     function destruir() {
       observador.disconnect();
       carro.liberar();
+      geoPiscaFrente.dispose();
+      geoPiscaTras.dispose();
+      matPisca.dispose();
       sombra.geometry.dispose();
       sombra.material.map.dispose();
       sombra.material.dispose();
