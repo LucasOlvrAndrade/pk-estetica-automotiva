@@ -8,7 +8,7 @@
  * Como a cena funciona:
  *  - CENA       a "caixa" onde ficam o carro, o chão e as luzes.
  *  - CÂMERA     PerspectiveCamera: vê como um olho (o que está longe fica menor).
- *  - AMBIENTE   RoomEnvironment vira um "environment map": um estúdio invisível que se
+ *  - AMBIENTE   a própria sala (o box) é "fotografada" em 360° e vira o environment map, que se
  *               reflete na pintura e no cromo (é ele que dá o brilho espelhado).
  *  - LUZES      faróis (emissivos) e um holofote que varre o carro. O neon verde é só um
  *               brilho pintado no chão (não é luz): assim não reflete na lataria.
@@ -22,7 +22,6 @@
  * MÓDULO ES: carregado com import() só quando a abertura 3D vai rodar.
  */
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -37,11 +36,11 @@ export const Intro3D = (function () {
   // Intensidades da cena (num lugar só, fácil de ajustar)
   const LUZ = {
     haloChao: 0.1, // opacidade do brilho verde pintado no chão
-    barrasFundo: 0.5, // barras de LED do estúdio, ao fundo
-    faixasChao: 0.18, // faixas da vaga no chão
+    box: 1, // tubos de LED e painéis do teto do box
     holofote: 28, // luz de inspeção que varre a carroceria
     farolNoChao: 14, // facho dos faróis
-    estudio: 0.45, // força do reflexo do estúdio (environment map)
+    estudio: 1.3, // força do reflexo do box (environment map: os tubos refletidos na pintura)
+    ambiente: 0.9, // luz difusa do box (deixa ver o piso e as vagas)
   };
 
   /** Interpolação suave 0→1 (começa e termina devagar). */
@@ -114,55 +113,40 @@ export const Intro3D = (function () {
   }
 
   /**
-   * Chão de box de estética: placas de piso (com rejunte), granulado de concreto e manchas
-   * leves de uso. Volta duas texturas: a de COR e a de ASPEREZA (onde é mais liso, o chão
-   * reflete um pouco o estúdio: parece piso tratado, não um plano liso de computador).
+   * Piso de box de estética: placas plásticas de encaixe (as "grades" pretas de lava-rápido),
+   * com furinhos e frestas entre as placas. Volta a textura de COR e a de ASPEREZA.
    * @returns {{cor: THREE.CanvasTexture, aspereza: THREE.CanvasTexture}}
    */
   function criarTexturasChao() {
-    const LADO = 1024;
-    const PLACAS = 4; // 4 x 4 placas por repetição
+    const LADO = 512;
+    const PLACAS = 4; // 4 x 4 placas por repetição (cada placa = 40 cm)
     const passo = LADO / PLACAS;
     function desenhar(ctx, modo) {
       const r = sorteador(7);
-      // base: cor escura (modo cor) ou aspereza média (modo aspereza)
-      ctx.fillStyle = modo === 'cor' ? '#1b1c1f' : '#9a9a9a';
+      const cor = modo === 'cor';
+      ctx.fillStyle = cor ? '#050506' : '#ffffff'; // frestas: escuras e ásperas
       ctx.fillRect(0, 0, LADO, LADO);
-      // cada placa com um tom levemente diferente
       for (let i = 0; i < PLACAS; i++) {
         for (let j = 0; j < PLACAS; j++) {
-          const v = Math.floor((r() - 0.5) * (modo === 'cor' ? 10 : 50));
-          ctx.fillStyle = v > 0 ? 'rgba(255,255,255,' + v / 255 + ')' : 'rgba(0,0,0,' + -v / 255 + ')';
-          ctx.fillRect(i * passo, j * passo, passo, passo);
+          const x = i * passo;
+          const y = j * passo;
+          const tom = 30 + Math.floor(r() * 8); // cada placa com um tom levemente diferente
+          ctx.fillStyle = cor ? 'rgb(' + tom + ',' + tom + ',' + (tom + 3) + ')' : '#6e6e6e';
+          ctx.fillRect(x + 3, y + 3, passo - 6, passo - 6);
+          // furinhos da placa (grade 8 x 8)
+          ctx.fillStyle = cor ? '#0c0c0e' : '#d0d0d0';
+          const furo = passo / 8;
+          for (let a = 0; a < 8; a++) {
+            for (let b = 0; b < 8; b++) {
+              ctx.fillRect(x + 3 + a * furo + furo * 0.28, y + 3 + b * furo + furo * 0.28, furo * 0.42, furo * 0.42);
+            }
+          }
         }
-      }
-      // manchas de uso (pneu, água): círculos suaves
-      for (let n = 0; n < 14; n++) {
-        const x = r() * LADO;
-        const y = r() * LADO;
-        const raio = 40 + r() * 160;
-        const g = ctx.createRadialGradient(x, y, 0, x, y, raio);
-        g.addColorStop(0, modo === 'cor' ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.45)');
-        g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(x - raio, y - raio, raio * 2, raio * 2);
-      }
-      // granulado do concreto
-      for (let n = 0; n < 26000; n++) {
-        const claro = r() < 0.5;
-        ctx.fillStyle = claro ? 'rgba(255,255,255,' + (0.03 + r() * 0.06) + ')' : 'rgba(0,0,0,' + (0.05 + r() * 0.1) + ')';
-        ctx.fillRect(r() * LADO, r() * LADO, 1 + r() * 1.5, 1 + r() * 1.5);
-      }
-      // rejunte entre as placas: linha escura e áspera
-      ctx.fillStyle = modo === 'cor' ? '#0b0b0d' : '#ffffff';
-      for (let k = 0; k <= PLACAS; k++) {
-        ctx.fillRect(k * passo - 1.5, 0, 3, LADO);
-        ctx.fillRect(0, k * passo - 1.5, LADO, 3);
       }
     }
     return {
-      cor: texturaDeCanvas(LADO, LADO, (ctx) => desenhar(ctx, 'cor'), 12, 12, true),
-      aspereza: texturaDeCanvas(LADO, LADO, (ctx) => desenhar(ctx, 'aspereza'), 12, 12, false),
+      cor: texturaDeCanvas(LADO, LADO, (ctx) => desenhar(ctx, 'cor'), 1, 1, true),
+      aspereza: texturaDeCanvas(LADO, LADO, (ctx) => desenhar(ctx, 'aspereza'), 1, 1, false),
     };
   }
 
@@ -192,107 +176,166 @@ export const Intro3D = (function () {
       new THREE.MeshBasicMaterial({ map: textura, transparent: true, depthWrite: false, color: 0x000000 })
     );
     sombra.rotation.x = -Math.PI / 2;
-    sombra.position.y = 0.006;
+    sombra.position.y = 0.012;
     return sombra;
   }
 
   /**
-   * Parede do estúdio: painéis verticais com frestas e uma faixa de rodapé.
-   * @returns {THREE.CanvasTexture}
-   */
-  function criarTexturaParede() {
-    return texturaDeCanvas(
-      256,
-      512,
-      function (ctx) {
-        const r = sorteador(11);
-        ctx.fillStyle = '#16171a';
-        ctx.fillRect(0, 0, 256, 512);
-        for (let n = 0; n < 4000; n++) {
-          ctx.fillStyle = 'rgba(255,255,255,' + r() * 0.035 + ')';
-          ctx.fillRect(r() * 256, r() * 512, 1, 1 + r() * 3); // textura leve de painel
-        }
-        ctx.fillStyle = '#050506'; // frestas entre painéis
-        ctx.fillRect(0, 0, 3, 512);
-        ctx.fillRect(0, 170, 256, 2);
-        ctx.fillRect(0, 340, 256, 2);
-        ctx.fillStyle = '#0c0d0f'; // rodapé
-        ctx.fillRect(0, 470, 256, 42);
-      },
-      44,
-      1,
-      true
-    );
-  }
-
-  /**
-   * Ambientação de estúdio de detailing ao fundo: parede escura em volta, barras de LED
-   * verticais (como as de inspeção de pintura) e as faixas de uma vaga no chão.
-   * As barras acendem uma a uma junto com a varredura do holofote (ver quadro()).
-   * São MeshBasicMaterial (brilham sozinhas, sem custo de luz) e ficam longe do carro:
-   * dão profundidade sem iluminar nem refletir na lataria.
-   * @returns {{grupo: THREE.Group, barras: {material: THREE.Material, atraso: number}[], faixas: THREE.Material, liberar: function(): void}}
+   * O BOX DE ESTÉTICA (inspirado num box real de detailing):
+   *  - sala fechada com paredes pretas e o lado da câmera aberto (como a porta da garagem);
+   *  - tubos de LED em diagonal nas paredes, formando "setas" (chevrons), alternando luz
+   *    branca e luz quente;
+   *  - teto com painéis de luz e pontinhos de spot;
+   *  - piso de placas pretas de encaixe e as faixas das vagas pintadas no chão (verde da marca).
+   * As luzes são MeshBasicMaterial com cor "acima de 1" (HDR): brilham sozinhas e o bloom dá
+   * o halo. Elas não iluminam a cena de verdade (seria pesado); quem ilumina o carro é o
+   * environment map feito a partir DESTA sala (ver criar()): por isso os tubos aparecem
+   * refletidos na pintura, como na foto de referência.
+   * @returns {{grupo: THREE.Group, acender: function(function(number, number): number): void, liberar: function(): void}}
    */
   function criarEstudio() {
     const grupo = new THREE.Group();
     const geometrias = [];
     const materiais = [];
+    const texturas = [];
+    const luzes = []; // tudo que acende: tubos e painéis do teto
 
-    // Parede: um cilindro aberto visto por dentro, quase preto
-    const geoParede = new THREE.CylinderGeometry(15, 15, 9, 64, 1, true);
-    const texParede = criarTexturaParede();
-    const matParede = new THREE.MeshStandardMaterial({ map: texParede, roughness: 0.8, side: THREE.BackSide, envMapIntensity: 0.35 });
-    const parede = new THREE.Mesh(geoParede, matParede);
-    parede.position.y = 4.5;
-    grupo.add(parede);
-    geometrias.push(geoParede);
+    // Medidas da sala (o carro está no centro, com a frente para +x; a câmera fica em +x / +z)
+    const FUNDO = -8; // parede do fundo (x)
+    const FRENTE = 15; // lado aberto (x)
+    const LADO_Z = 6.5; // paredes laterais em z = ±6,5
+    const ALTURA = 4.4;
+    const COMPR = FRENTE - FUNDO;
+    const LARG = LADO_Z * 2;
+    const centroX = (FRENTE + FUNDO) / 2;
+
+    // ---------- Piso ----------
+    const tex = criarTexturasChao();
+    texturas.push(tex.cor, tex.aspereza);
+    [tex.cor, tex.aspereza].forEach((t) => t.repeat.set(COMPR / 1.6, LARG / 1.6)); // placas de 40 cm
+    const geoPiso = new THREE.PlaneGeometry(COMPR, LARG);
+    const matPiso = new THREE.MeshStandardMaterial({ map: tex.cor, roughnessMap: tex.aspereza, roughness: 1, metalness: 0, envMapIntensity: 0.6 });
+    const piso = new THREE.Mesh(geoPiso, matPiso);
+    piso.rotation.x = -Math.PI / 2;
+    piso.position.x = centroX;
+    grupo.add(piso);
+    geometrias.push(geoPiso);
+    materiais.push(matPiso);
+
+    // ---------- Paredes e teto (pretos, foscos) ----------
+    const matParede = new THREE.MeshStandardMaterial({ color: 0x0d0e10, roughness: 0.85, envMapIntensity: 0.5 });
     materiais.push(matParede);
+    function plano(largura, altura, x, y, z, rotX, rotY, material) {
+      const geo = new THREE.PlaneGeometry(largura, altura);
+      geometrias.push(geo);
+      const m = new THREE.Mesh(geo, material);
+      m.position.set(x, y, z);
+      m.rotation.set(rotX, rotY, 0);
+      grupo.add(m);
+      return m;
+    }
+    plano(LARG, ALTURA, FUNDO, ALTURA / 2, 0, 0, Math.PI / 2, matParede); // fundo
+    plano(COMPR, ALTURA, centroX, ALTURA / 2, -LADO_Z, 0, 0, matParede); // lateral de trás
+    plano(COMPR, ALTURA, centroX, ALTURA / 2, LADO_Z, 0, Math.PI, matParede); // lateral da câmera
+    plano(COMPR, LARG, centroX, ALTURA, 0, Math.PI / 2, 0, matParede); // teto
 
-    // Barras de LED em volta (duas por "coluna", com um vão no meio, como luminárias de estúdio)
-    const geoBarra = new THREE.PlaneGeometry(0.14, 1.5);
-    geometrias.push(geoBarra);
-    const barras = [];
-    const QUANTAS = 22;
-    for (let i = 0; i < QUANTAS; i++) {
-      const angulo = (i / QUANTAS) * Math.PI * 2;
-      const x = Math.cos(angulo) * 14.6;
-      const z = Math.sin(angulo) * 14.6;
-      const material = new THREE.MeshBasicMaterial({ color: 0xdfe3ea, transparent: true, opacity: 0 });
+    // ---------- Tubos de LED em "setas" ----------
+    const BRANCA = new THREE.Color(0xe9efff);
+    const QUENTE = new THREE.Color(0xffb04a);
+    const geoTubo = new THREE.CylinderGeometry(0.03, 0.03, 1.25, 8);
+    geometrias.push(geoTubo);
+    /**
+     * Uma coluna de 2 tubos formando "<" ou ">" na parede.
+     * @param {THREE.Vector3} posicao Centro da coluna (já encostado na parede).
+     * @param {number} giroParede Rotação y da parede (os tubos ficam "deitados" nela).
+     * @param {THREE.Color} cor
+     * @param {number} sentido 1 ou -1 (para qual lado a seta aponta).
+     * @param {number} atraso 0 a 1: ordem em que acende.
+     */
+    function coluna(posicao, giroParede, cor, sentido, atraso) {
+      const material = new THREE.MeshBasicMaterial({ color: 0x000000, toneMapped: true });
       materiais.push(material);
-      [1.0, 2.75].forEach(function (y) {
-        const barra = new THREE.Mesh(geoBarra, material);
-        barra.position.set(x, y, z);
-        barra.lookAt(0, y, 0); // virada para o carro
-        grupo.add(barra);
+      luzes.push({ material: material, base: cor, atraso: atraso });
+      [-1, 1].forEach(function (cima) {
+        const tubo = new THREE.Mesh(geoTubo, material);
+        const suporte = new THREE.Group(); // gira com a parede
+        suporte.position.copy(posicao);
+        suporte.rotation.y = giroParede;
+        tubo.position.y = cima * 0.62;
+        tubo.rotation.z = cima * sentido * 0.62; // inclinação da diagonal
+        suporte.add(tubo);
+        grupo.add(suporte);
       });
-      // acende de trás para a frente, junto com o holofote (que vai de x = -6 até x = +6)
-      barras.push({ material: material, atraso: (x + 14.6) / 29.2 });
+    }
+    // lateral de trás (z = -6,5) e lateral da câmera (z = +6,5): colunas a cada 1,1 m
+    let n = 0;
+    for (let x = FUNDO + 1; x < FRENTE - 1; x += 1.1, n++) {
+      const cor = n % 2 ? QUENTE : BRANCA;
+      const atraso = (x - FUNDO) / COMPR;
+      coluna(new THREE.Vector3(x, 1.75, -LADO_Z + 0.06), 0, cor, n % 2 ? 1 : -1, atraso);
+      coluna(new THREE.Vector3(x, 1.75, LADO_Z - 0.06), Math.PI, cor, n % 2 ? 1 : -1, atraso);
+    }
+    // parede do fundo
+    n = 0;
+    for (let z = -LADO_Z + 1; z < LADO_Z - 0.5; z += 1.1, n++) {
+      coluna(new THREE.Vector3(FUNDO + 0.06, 1.75, z), Math.PI / 2, n % 2 ? QUENTE : BRANCA, n % 2 ? 1 : -1, 0);
     }
 
-    // Faixas da vaga no chão (cinza, discretas): o carro "estacionado" no box
-    const matFaixa = new THREE.MeshBasicMaterial({ color: 0x8a8f99, transparent: true, opacity: 0 });
+    // ---------- Teto: painéis de luz e spots ----------
+    const geoPainel = new THREE.PlaneGeometry(2.6, 0.22);
+    const geoSpot = new THREE.CircleGeometry(0.06, 12);
+    geometrias.push(geoPainel, geoSpot);
+    for (let x = FUNDO + 2; x < FRENTE - 1; x += 3.4) {
+      const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      materiais.push(material);
+      luzes.push({ material: material, base: BRANCA, atraso: (x - FUNDO) / COMPR });
+      [-2.2, 2.2].forEach(function (z) {
+        const painel = new THREE.Mesh(geoPainel, material);
+        painel.position.set(x, ALTURA - 0.02, z);
+        painel.rotation.x = Math.PI / 2;
+        grupo.add(painel);
+      });
+      for (let k = -4; k <= 4; k++) {
+        const spot = new THREE.Mesh(geoSpot, material);
+        spot.position.set(x + 1.7, ALTURA - 0.02, k * 0.55);
+        spot.rotation.x = Math.PI / 2;
+        grupo.add(spot);
+      }
+    }
+
+    // ---------- Faixas das vagas (tinta verde da marca no chão) ----------
+    const matFaixa = new THREE.MeshStandardMaterial({ color: 0x2bd873, roughness: 0.55, envMapIntensity: 0.8, emissive: 0x0b3a20 });
     materiais.push(matFaixa);
-    [
-      [6.4, 0.05, 0, 1.75], // laterais (comprimento ao longo de x)
-      [6.4, 0.05, 0, -1.75],
-      [0.05, 3.5, -3.2, 0], // fundo da vaga
-    ].forEach(function (f) {
-      const geo = new THREE.PlaneGeometry(f[0], f[1]);
+    function faixa(largura, profundidade, x, z) {
+      const geo = new THREE.PlaneGeometry(largura, profundidade);
       geometrias.push(geo);
-      const faixa = new THREE.Mesh(geo, matFaixa);
-      faixa.rotation.x = -Math.PI / 2;
-      faixa.position.set(f[2], 0.005, f[3]);
-      grupo.add(faixa);
-    });
+      const m = new THREE.Mesh(geo, matFaixa);
+      m.rotation.x = -Math.PI / 2;
+      m.position.set(x, 0.008, z);
+      grupo.add(m);
+    }
+    const ESP = 0.16; // espessura da faixa
+    // vaga do carro: x de -3,3 até 3,6 e z de -1,9 até 1,9; a vaga vizinha fica atrás (z negativo)
+    faixa(6.9, ESP, 0.15, 1.9);
+    faixa(6.9, ESP, 0.15, -1.9);
+    faixa(6.9, ESP, 0.15, -5.7);
+    faixa(ESP, 7.6 + ESP, -3.3, -1.9);
+
+    /** Acende cada luz (0 a 1), com uma "piscada" de lâmpada ligando no começo. */
+    function acender(nivelDe) {
+      luzes.forEach(function (luz, i) {
+        const nivel = nivelDe(luz.atraso, i);
+        luz.material.color.copy(luz.base).multiplyScalar(nivel * 1.5); // > 1: entra no bloom (halo dos tubos)
+      });
+    }
 
     return {
       grupo: grupo,
-      barras: barras,
-      faixas: matFaixa,
+      acender: acender,
       liberar: function () {
         geometrias.forEach((g) => g.dispose());
-        texParede.dispose();
         materiais.forEach((m) => m.dispose());
+        texturas.forEach((t) => t.dispose());
       },
     };
   }
@@ -317,39 +360,32 @@ export const Intro3D = (function () {
     // ---------- Cena, ambiente e câmera ----------
     const cena = new THREE.Scene();
     cena.background = new THREE.Color(0x030304);
-    const pmrem = new THREE.PMREMGenerator(renderizador);
-    const ambiente = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; // estúdio para os reflexos
-    cena.environment = ambiente;
-    cena.environmentIntensity = 0; // começa no escuro: só os faróis aparecem
     const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
 
-    // ---------- Chão ----------
-    // Piso com placas, granulado e manchas; reflete só um pouco (aspereza variada)
-    const texChao = criarTexturasChao();
-    const chao = new THREE.Mesh(
-      new THREE.CircleGeometry(30, 64),
-      new THREE.MeshStandardMaterial({
-        map: texChao.cor,
-        roughnessMap: texChao.aspereza,
-        roughness: 0.75,
-        metalness: 0,
-        envMapIntensity: 0.18,
-      })
-    );
-    chao.rotation.x = -Math.PI / 2;
-    cena.add(chao);
+    // ---------- O box (sala, luzes, piso e vagas) ----------
+    const estudio = criarEstudio();
+    cena.add(estudio.grupo);
+
+    // Reflexos: "fotografa" a sala com todas as luzes acesas, do ponto onde fica o carro, e usa
+    // essa foto 360° como environment map. Assim os tubos de LED aparecem refletidos na pintura.
+    const pmrem = new THREE.PMREMGenerator(renderizador);
+    estudio.acender(() => 1);
+    const ambiente = pmrem.fromScene(cena, 0.02, 0.1, 60, { position: new THREE.Vector3(0, 1.1, 0) }).texture;
+    estudio.acender(() => 0); // e apaga tudo: a abertura começa no escuro
+    cena.environment = ambiente;
+    cena.environmentIntensity = 0; // começa no escuro: só os faróis aparecem
+
     const sombra = criarSombra();
     cena.add(sombra);
     const halo = criarNeonNoChao();
     cena.add(halo);
-    const estudio = criarEstudio();
-    cena.add(estudio.grupo);
-    // Névoa escura: o chão e o fundo somem aos poucos na distância (dá profundidade)
-    cena.fog = new THREE.Fog(0x030304, 12, 34);
 
     // ---------- Luzes ----------
     // Sem luzes verdes de verdade: elas viravam manchas verdes na lataria e no para-choque
     // no começo da abertura (cena escura). O neon é só o halo pintado no chão (criarNeonNoChao).
+    // Luz difusa do box: o teto claro em cima e o piso escuro embaixo (acende com os tubos)
+    const luzDoBox = new THREE.HemisphereLight(0xfff4e6, 0x101012, 0);
+    cena.add(luzDoBox);
     const holofote = new THREE.SpotLight(0xffffff, 0, 18, 0.32, 0.7, 1.2); // a "luz de inspeção"
     holofote.position.set(-6, 4.5, 2.5);
     cena.add(holofote, holofote.target);
@@ -368,8 +404,8 @@ export const Intro3D = (function () {
     // ---------- Pós-processamento ----------
     const composer = new EffectComposer(renderizador);
     composer.addPass(new RenderPass(cena, camera));
-    // força 0.3 e limiar 0.98: só o que é MUITO claro (faróis) ganha um halo discreto
-    const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.3, 0.3, 0.98);
+    // força 0.25, raio curto e limiar 0.98: só o que é MUITO claro (faróis e tubos) ganha halo
+    const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.25, 0.15, 0.98);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
 
@@ -415,14 +451,18 @@ export const Intro3D = (function () {
       // O brilho do neon no chão só aparece no fim, com o carro já iluminado pelo estúdio
       halo.material.opacity = LUZ.haloChao * suave((s - d * 0.5) / (d * 0.3));
 
-      // Barras de LED do fundo acendem em sequência, acompanhando o holofote; faixas da vaga juntas
-      estudio.barras.forEach(function (b) {
-        b.material.opacity = LUZ.barrasFundo * suave((s - d * (0.2 + b.atraso * 0.35)) / (d * 0.08));
+      // As luzes do box acendem do fundo para a frente, cada uma com uma "piscada" de lâmpada
+      estudio.acender(function (atraso, i) {
+        const t = (s - d * (0.18 + atraso * 0.3)) / (d * 0.06);
+        if (t <= 0) return 0;
+        if (t >= 1) return LUZ.box;
+        return LUZ.box * (Math.sin(s * 70 + i * 1.7) > 0.1 ? suave(t) : 0.15);
       });
-      estudio.faixas.opacity = LUZ.faixasChao * suave((s - d * 0.3) / (d * 0.3));
 
       // Estúdio "acende" e o holofote varre a carroceria de trás para a frente
-      cena.environmentIntensity = LUZ.estudio * suave((s - d * 0.22) / (d * 0.3));
+      const boxAceso = suave((s - d * 0.22) / (d * 0.3));
+      cena.environmentIntensity = LUZ.estudio * boxAceso;
+      luzDoBox.intensity = LUZ.ambiente * boxAceso;
       const varredura = suave((s - d * 0.22) / (d * 0.45));
       holofote.intensity = LUZ.holofote * Math.sin(Math.PI * varredura);
       holofote.position.x = -6 + 12 * varredura;
@@ -435,10 +475,6 @@ export const Intro3D = (function () {
     function destruir() {
       observador.disconnect();
       carro.liberar();
-      chao.geometry.dispose();
-      chao.material.dispose();
-      texChao.cor.dispose();
-      texChao.aspereza.dispose();
       sombra.geometry.dispose();
       sombra.material.map.dispose();
       sombra.material.dispose();
