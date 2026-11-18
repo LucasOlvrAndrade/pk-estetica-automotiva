@@ -36,8 +36,8 @@ export const Intro3D = (function () {
 
   // Intensidades da cena (num lugar só, fácil de ajustar)
   const LUZ = {
-    neon: 0.55, // luzes verdes embaixo do carro
-    haloChao: 0.13, // opacidade do brilho verde pintado no chão
+    neon: 0.3, // luzes verdes embaixo do carro
+    haloChao: 0.1, // opacidade do brilho verde pintado no chão
     holofote: 28, // luz de inspeção que varre a carroceria
     farolNoChao: 14, // facho dos faróis
     estudio: 0.45, // força do reflexo do estúdio (environment map)
@@ -117,9 +117,11 @@ export const Intro3D = (function () {
     cena.add(halo);
 
     // ---------- Luzes ----------
-    const neon = [-1.1, 0, 1.1].map(function (x) {
-      const luz = new THREE.PointLight(VERDE_NEON, 0, 1.8, 2); // alcance curto: fica embaixo do carro
-      luz.position.set(x, 0.1, 0);
+    // Bem embaixo do assoalho e longe dos para-choques: perto da lataria, a luz vira um
+    // "ponto estourado" no verniz (era o brilho verde forte no começo da abertura)
+    const neon = [-0.8, 0, 0.8].map(function (x) {
+      const luz = new THREE.PointLight(VERDE_NEON, 0, 1.6, 2); // alcance curto: fica embaixo do carro
+      luz.position.set(x, 0.04, 0);
       cena.add(luz);
       return luz;
     });
@@ -185,7 +187,8 @@ export const Intro3D = (function () {
       // Faróis, lanternas e neon
       if (pintura) pintura.farois.value = estado.farois;
       luzFarol.intensity = LUZ.farolNoChao * estado.farois;
-      const neonLigado = suave((s - d * 0.12) / (d * 0.1));
+      // O neon acende DEPOIS dos faróis e junto com o estúdio, devagar: não rouba a cena no começo
+      const neonLigado = suave((s - d * 0.3) / (d * 0.25));
       neon.forEach((l) => (l.intensity = LUZ.neon * neonLigado));
       halo.material.opacity = LUZ.haloChao * neonLigado;
 
