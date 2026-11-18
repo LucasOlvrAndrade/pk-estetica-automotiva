@@ -37,6 +37,8 @@ export const Intro3D = (function () {
   // Intensidades da cena (num lugar só, fácil de ajustar)
   const LUZ = {
     haloChao: 0.1, // opacidade do brilho verde pintado no chão
+    barrasFundo: 0.5, // barras de LED do estúdio, ao fundo
+    faixasChao: 0.18, // faixas da vaga no chão
     holofote: 28, // luz de inspeção que varre a carroceria
     farolNoChao: 14, // facho dos faróis
     estudio: 0.45, // força do reflexo do estúdio (environment map)
@@ -80,6 +82,76 @@ export const Intro3D = (function () {
   }
 
   /**
+   * Ambientação de estúdio de detailing ao fundo: parede escura em volta, barras de LED
+   * verticais (como as de inspeção de pintura) e as faixas de uma vaga no chão.
+   * As barras acendem uma a uma junto com a varredura do holofote (ver quadro()).
+   * São MeshBasicMaterial (brilham sozinhas, sem custo de luz) e ficam longe do carro:
+   * dão profundidade sem iluminar nem refletir na lataria.
+   * @returns {{grupo: THREE.Group, barras: {material: THREE.Material, atraso: number}[], faixas: THREE.Material, liberar: function(): void}}
+   */
+  function criarEstudio() {
+    const grupo = new THREE.Group();
+    const geometrias = [];
+    const materiais = [];
+
+    // Parede: um cilindro aberto visto por dentro, quase preto
+    const geoParede = new THREE.CylinderGeometry(15, 15, 9, 64, 1, true);
+    const matParede = new THREE.MeshStandardMaterial({ color: 0x0b0c0f, roughness: 0.9, side: THREE.BackSide, envMapIntensity: 0.25 });
+    const parede = new THREE.Mesh(geoParede, matParede);
+    parede.position.y = 4.5;
+    grupo.add(parede);
+    geometrias.push(geoParede);
+    materiais.push(matParede);
+
+    // Barras de LED em volta (duas por "coluna", com um vão no meio, como luminárias de estúdio)
+    const geoBarra = new THREE.PlaneGeometry(0.14, 1.5);
+    geometrias.push(geoBarra);
+    const barras = [];
+    const QUANTAS = 22;
+    for (let i = 0; i < QUANTAS; i++) {
+      const angulo = (i / QUANTAS) * Math.PI * 2;
+      const x = Math.cos(angulo) * 14.6;
+      const z = Math.sin(angulo) * 14.6;
+      const material = new THREE.MeshBasicMaterial({ color: 0xdfe3ea, transparent: true, opacity: 0 });
+      materiais.push(material);
+      [1.0, 2.75].forEach(function (y) {
+        const barra = new THREE.Mesh(geoBarra, material);
+        barra.position.set(x, y, z);
+        barra.lookAt(0, y, 0); // virada para o carro
+        grupo.add(barra);
+      });
+      // acende de trás para a frente, junto com o holofote (que vai de x = -6 até x = +6)
+      barras.push({ material: material, atraso: (x + 14.6) / 29.2 });
+    }
+
+    // Faixas da vaga no chão (cinza, discretas): o carro "estacionado" no box
+    const matFaixa = new THREE.MeshBasicMaterial({ color: 0x8a8f99, transparent: true, opacity: 0 });
+    materiais.push(matFaixa);
+    [
+      [6.4, 0.05, 0, 1.75], // laterais (comprimento ao longo de x)
+      [6.4, 0.05, 0, -1.75],
+      [0.05, 3.5, -3.2, 0], // fundo da vaga
+    ].forEach(function (f) {
+      const geo = new THREE.PlaneGeometry(f[0], f[1]);
+      geometrias.push(geo);
+      const faixa = new THREE.Mesh(geo, matFaixa);
+      faixa.rotation.x = -Math.PI / 2;
+      faixa.position.set(f[2], 0.005, f[3]);
+      grupo.add(faixa);
+    });
+
+    return {
+      grupo: grupo,
+      barras: barras,
+      faixas: matFaixa,
+      liberar: function () {
+        geometrias.forEach((g) => g.dispose());
+        materiais.forEach((m) => m.dispose());
+      },
+    };
+  }
+
+  /**
    * Monta a cena e carrega o modelo.
    * @param {HTMLCanvasElement} canvas
    * @param {{aoProgresso?: function(number): void, celular?: boolean}} [opcoes]
@@ -114,6 +186,10 @@ export const Intro3D = (function () {
     cena.add(chao);
     const halo = criarNeonNoChao();
     cena.add(halo);
+    const estudio = criarEstudio();
+    cena.add(estudio.grupo);
+    // Névoa escura: o chão e o fundo somem aos poucos na distância (dá profundidade)
+    cena.fog = new THREE.Fog(0x030304, 12, 34);
 
     // ---------- Luzes ----------
     // Sem luzes verdes de verdade: elas viravam manchas verdes na lataria e no para-choque
@@ -183,6 +259,12 @@ export const Intro3D = (function () {
       // O brilho do neon no chão só aparece no fim, com o carro já iluminado pelo estúdio
       halo.material.opacity = LUZ.haloChao * suave((s - d * 0.5) / (d * 0.3));
 
+      // Barras de LED do fundo acendem em sequência, acompanhando o holofote; faixas da vaga juntas
+      estudio.barras.forEach(function (b) {
+        b.material.opacity = LUZ.barrasFundo * suave((s - d * (0.2 + b.atraso * 0.35)) / (d * 0.08));
+      });
+      estudio.faixas.opacity = LUZ.faixasChao * suave((s - d * 0.3) / (d * 0.3));
+
       // Estúdio "acende" e o holofote varre a carroceria de trás para a frente
       cena.environmentIntensity = LUZ.estudio * suave((s - d * 0.22) / (d * 0.3));
       const varredura = suave((s - d * 0.22) / (d * 0.45));
@@ -202,6 +284,7 @@ export const Intro3D = (function () {
       halo.geometry.dispose();
       halo.material.map.dispose();
       halo.material.dispose();
+      estudio.liberar();
       ambiente.dispose();
       pmrem.dispose();
       composer.dispose();
